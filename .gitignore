@@ -1,2 +1,4 @@
 /target/
 nb-configuration.xml
+/Sources/test/resources/Database/
+/Sources/test/resources/testDb.rar

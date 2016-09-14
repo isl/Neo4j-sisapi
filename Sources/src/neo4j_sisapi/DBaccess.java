@@ -73,9 +73,7 @@ import org.neo4j.graphdb.traversal.Uniqueness;
 class DBaccess {
 
     GraphDatabaseService graphDb = null;
-    
-    
-    
+    Utilities utils = new Utilities();
     
     boolean useCommonLabel = false;
     
@@ -97,8 +95,7 @@ class DBaccess {
     
     public DBaccess(GraphDatabaseService useGraphDb) {
         this.graphDb = useGraphDb;
-        this.useCommonLabel = isLabelUsed(Configs.CommonLabelName);
-        
+        this.useCommonLabel = true; ////label should be used unless otherwise stated --old code: = isLabelUsed(Configs.CommonLabelName);        
     }
     
     private String getCommonLabelStr(){ return (useCommonLabel ? ":" + Configs.CommonLabelName : ""); }
@@ -156,7 +153,7 @@ class DBaccess {
             }
             return APISucc;
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -191,7 +188,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -204,11 +201,7 @@ class DBaccess {
             else {
                 query = " MATCH(n"+getCommonLabelStr()+")<-[:INSTANCEOF]-(m) "+
                         " WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
-                
-                /*query = "UNWIND "+subSetofIds+" AS vector "
-                        +" MATCH (n"+getCommonLabelStr()+"{"+Neo4j_Key_For_Neo4j_Id+":vector})<-[:INSTANCEOF]-(m) "
-                        +" RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";*/
+                        " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";                
             }
             
             //do the job do not return
@@ -230,7 +223,7 @@ class DBaccess {
                 }
                 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -244,7 +237,7 @@ class DBaccess {
             retSysids.set_putNeo4j_Id(l);
         }
         
-        if(DebugInfo == true)
+        if(DebugInfo)
         {
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "*** getInstancesSET retSysids size: "+retSysids.get_Neo4j_Ids().size());
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "*** getInstancesSET retSysids : "+retSysids.get_Neo4j_Ids());
@@ -253,6 +246,7 @@ class DBaccess {
         return APISucc;
     }
     
+    //Needs cycle detection check
     int getAllInstances(long objSysid, PQI_Set retSysids) {
          
         //check if node still exists in the database?
@@ -284,7 +278,7 @@ class DBaccess {
             }
             return APISucc;
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -294,13 +288,13 @@ class DBaccess {
         //return APIFail;
      }
     
-    
+    //used in getClassesSET but kept the same naming convention getInstOfSET as in  sisapi
     int DBACCESS_getInstOfSET(PQI_Set setIDs, PQI_Set retSysids){
         
         Vector<Long> ids = new Vector<Long>();
         ids = setIDs.get_Neo4j_Ids();
         
-        if(DebugInfo == true)
+        if(DebugInfo)
         {
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "*** DBACCESS_getInstOfSET input IDs: "+setIDs.get_Neo4j_Ids());
         }
@@ -318,7 +312,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -329,13 +323,9 @@ class DBaccess {
                         " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
             }
             else {
-                /*query = " MATCH(n"+getCommonLabelStr()+")-[:INSTANCEOF]->(m) "+
-                        " WHERE m."+Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";*/
-                
-                query = "UNWIND "+subSetofIds+" AS vector "
-                       +" MATCH (n"+getCommonLabelStr()+"{"+Neo4j_Key_For_Neo4j_Id+":vector})-[:INSTANCEOF]->(m) "
-                       +" RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                query = " MATCH(n"+getCommonLabelStr()+")-[:INSTANCEOF]->(m) "+
+                        " WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
+                        " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
             }
             
             //do the job do not return
@@ -356,7 +346,7 @@ class DBaccess {
                 }
 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -403,7 +393,7 @@ class DBaccess {
             }
 
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -469,7 +459,7 @@ class DBaccess {
             }
             return APISucc;
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -512,7 +502,7 @@ class DBaccess {
             }
             return APISucc;
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -533,7 +523,7 @@ class DBaccess {
         int maxIndex = attributeIds.size();
         
         while(loopIndex<maxIndex){
-            Vector<Long> subSetIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, attributeIds);
+            Vector<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, attributeIds);
             loopIndex += subSetIds.size();
             
             if(subSetIds.size()==0){
@@ -576,7 +566,7 @@ class DBaccess {
                 }
                 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -638,7 +628,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -650,12 +640,13 @@ class DBaccess {
                         +(linksFromInsteadOfToNode?"<-":"-") + "[:RELATION]"+(linksFromInsteadOfToNode?"-":"->")+"(m) "
                         + "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
             }
-            else {                
-                query = "UNWIND "+subSetofIds+" AS vector "
-                        +" MATCH (n"+getCommonLabelStr()+"{"+Neo4j_Key_For_Neo4j_Id+":vector}) "
+            else { 
+                
+                query = " MATCH (n"+getCommonLabelStr()+") "
                         +(linksFromInsteadOfToNode?"<-":"-") + "[:RELATION]"+(linksFromInsteadOfToNode?"-":"->")+"(k:"+Configs.Neo4j_Key_For_Type_AttributeStr+")"
                         +(linksFromInsteadOfToNode?"<-":"-") + "[:RELATION]"+(linksFromInsteadOfToNode?"-":"->")+"(m) "
-                        + "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        + " WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " + subSetofIds.toString() 
+                        + " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
             }
             
             //do the job do not return
@@ -676,7 +667,7 @@ class DBaccess {
                     }
                   
                 } catch (Exception ex) {
-                    handleException(ex);
+                    utils.handleException(ex);
                     return APIFail;
                 } finally {
                     res.close();
@@ -727,7 +718,7 @@ class DBaccess {
             }
             return APISucc;
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -764,7 +755,7 @@ class DBaccess {
             }
             return APISucc;
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -796,7 +787,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -806,10 +797,11 @@ class DBaccess {
                query = "MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"})-[:RELATION]->(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+") "
                         + "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
             }
-            else {                
-                query = "UNWIND "+subSetofIds+" AS vector "
-                       +" MATCH (n"+getCommonLabelStr()+"{"+Neo4j_Key_For_Neo4j_Id+":vector})-[:RELATION]->(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+") "
-                       +" RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+            else {          
+                query = " MATCH (n"+getCommonLabelStr()+")-[:RELATION]->(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+") "
+                        + " WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() 
+                       +" RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";                
+                
             }
             
             //do the job do not return
@@ -830,7 +822,7 @@ class DBaccess {
                 }
 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -879,7 +871,7 @@ class DBaccess {
             }
             return APISucc;
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -1039,26 +1031,6 @@ class DBaccess {
         return retVals;
     }
     
-    Vector<Long> collectSequenctiallyAsubsetOfValues(int startindex,int howmanyToGet, Vector<Long> targetVals){
-        Vector<Long> returnVals = new Vector<Long>();
-        if(howmanyToGet<=0){
-            throw new UnsupportedOperationException("collectSequenctiallyAsubsetOfValues was called with howmanyToGet: " +howmanyToGet);
-        }
-        int maxIndex =targetVals.size(); 
-        if(startindex<maxIndex){
-            for(int i = 0; i< howmanyToGet; i++){
-                
-                if((startindex+i)>=maxIndex){
-                    break;
-                }
-                else{
-                    returnVals.add(targetVals.get(i+startindex));
-                }
-            }
-        }        
-        return returnVals;
-    }
-    
     Node getNeo4jNodeByNeo4jId(long neo4jId){
         if(neo4jId<=0){
             return null;
@@ -1075,7 +1047,7 @@ class DBaccess {
             return n;
         }
         catch(Exception ex){
-            handleException(ex);
+            utils.handleException(ex);
             return null;
         }
         finally{
@@ -1133,7 +1105,7 @@ class DBaccess {
 
             //the query is a little bit larger since it also requests logical name so 
             //here i use a value slightly less than Configs.MAX_IDS_PER_QUERY
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-30), nodeIds);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-30), nodeIds);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -1147,15 +1119,16 @@ class DBaccess {
             }
             else {
                 
-                query = "UNWIND "+subSetofIds+" AS id "+
-                        " MATCH (n"+getCommonLabelStr()+"{"+Neo4j_Key_For_Neo4j_Id+":id}) "+
+                query = " MATCH (n"+getCommonLabelStr()+") "+
+                        " WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() +
                         " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname, labels(n) as lbls  ";
 						
             }
             
             //do the job do not return
-            Result res = graphDb.execute(query);
+            Result res = null;
             try{
+                 res = graphDb.execute(query);
                 while (res.hasNext()) {
                     Map<String,Object> row = res.next();
                     long idVal = getNeo4jIdFromObject(row.get("id"));
@@ -1176,12 +1149,14 @@ class DBaccess {
                 }                
             }
             catch(Exception ex){
-                handleException(ex);
+                utils.handleException(ex);
                 abort = true;                
             }
             finally{
-                res.close();
-                res = null;
+                if(res!=null){
+                    res.close();
+                    res = null;
+                }
             }
             
             if(abort){
@@ -1208,7 +1183,7 @@ class DBaccess {
 
             //the query is a little bit larger since it also requests logical name so 
             //here i use a value slightly less than Configs.MAX_IDS_PER_QUERY
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-20), nodeIds);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-20), nodeIds);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -1222,10 +1197,9 @@ class DBaccess {
             }
             else {
                 
-                query = "UNWIND "+subSetofIds+" AS id "+
-                        " MATCH (n"+getCommonLabelStr()+"{"+Neo4j_Key_For_Neo4j_Id+":id}) "+
-                        " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname ";
-						
+                query = " MATCH (n"+getCommonLabelStr()+") "+
+                        " WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() +
+                        " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname ";						
             }
             
             //do the job do not return
@@ -1247,7 +1221,7 @@ class DBaccess {
                 }                
             }
             catch(Exception ex){
-                handleException(ex);
+                utils.handleException(ex);
                 abort = true;                
             }
             finally{
@@ -1280,7 +1254,7 @@ class DBaccess {
 
             //the query is a little bit larger since it also requests logical name so 
             //here i use a value slightly less than Configs.MAX_IDS_PER_QUERY
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-20), nodeIds);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-20), nodeIds);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -1294,8 +1268,8 @@ class DBaccess {
             }
             else {
                 
-                query = "UNWIND "+subSetofIds+" AS id "+
-                        " MATCH (n"+getCommonLabelStr()+"{"+Neo4j_Key_For_Neo4j_Id+":id}) "+
+                query = " MATCH (n"+getCommonLabelStr()+") "+
+                        " WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() +
                         " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname ";
 						
             }
@@ -1318,7 +1292,7 @@ class DBaccess {
                 }                
             }
             catch(Exception ex){
-                handleException(ex);
+                utils.handleException(ex);
                 abort = true;                
             }
             finally{
@@ -1336,7 +1310,7 @@ class DBaccess {
         return APISucc;
     }
     
-    
+    //if everything is in token level then link can be easily queried via 1 cypher query
     int get_Bulk_Return_Full_Link_Rows(Vector<Long> linkIds, Vector<Return_Full_Link_Row> retRows,Vector<Long> b_set){
         Vector<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
         if(linkIds.size()!= nodes.size()){
@@ -1444,10 +1418,10 @@ class DBaccess {
                         long startNodeId = getNodeNeo4jId(rel.getStartNode());
                         Node classNode = rel.getEndNode();
                         long classId = getNodeNeo4jId(classNode);
-                        /*
-                        category of the returned link (from_cls, categ).
-                        Flag unique_category indicates if given category is unique (link object may have more than one class)
-                        */
+                        
+                        //category of the returned link (from_cls, categ).
+                        //Flag unique_category indicates if given category is unique (link object may have more than one class)
+                        
                         //if(classids.containsKey(startNodeId)==false){
                         //    classids.put(startNodeId, new PQI_Set());
                         //}
@@ -1569,6 +1543,29 @@ class DBaccess {
     
     
     int get_Bulk_Return_Full_Link_Id_Rows(Vector<Long> linkIds, Vector<Return_Full_Link_Id_Row> retRows){
+        /*
+        - The following query is applicable to tokens where categ is instance of 1 and only one category 
+        - needs some optimization 
+        --    instead of , in MATCH use cascading matches with WITH clause
+        --    categs should include the sub-superclasses??? not here but this stands in get_links_to_by_category
+        --    Vector<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds); is useless anymore but we could ask if everything exists and also get the list of things that are not tokens
+        e.g. Neo4j_Id:60470 Logicalname:AATDEMOEN`cameras
+        MATCH(n:Common{Logicalname:"AATDEMOEN`cameras"})-[:RELATION]-(m) return m.Neo4j_Id
+        
+        MATCH (from)-[:RELATION]-> (n:Common:Type_Attribute) -[:RELATION*0..1]->(to) 
+               ,(n:Common:Type_Attribute) -[:INSTANCEOF]->(categ)<-[:RELATION]-(fromSuper) 
+         WHERE n.Neo4j_Id IN [1559496, 1559495, 1559513, 1559511, 1559512, 1559508, 1559510, 1559509, 1559505, 
+                                1559506, 1559507, 1559503, 1559504, 1559500, 1559501, 1559502, 1559497, 1559498, 
+                                1559499, 1091565, 1091564, 1012758, 940785, 60471, 251787, 251785, 369288, 369286, 
+                                458306, 458308, 458302, 458304, 458314, 458310, 458312, 458300, 458298, 523483, 719265, 
+                                719263, 719264, 719262, 719261, 719259, 719260, 719258, 719257, 851241, 851237, 851239, 
+                                851240, 851238, 62048, 61667, 60912, 60791, 64164, 62977, 62778, 64592, 65618, 64994, 
+                                66617, 66559, 66694, 68054, 68773, 68932, 68271] 
+                   AND ( has(n.Type) OR to.Neo4j_Id <> n.Neo4j_Id ) 
+         RETURN from.Neo4j_Id as fromId, from.Logicalname as fromLabel, n.Neo4j_Id as linkId, n.Logicalname as linkLabel, n.Type as linkTypeVal, 
+                n.Value as linkVal, to.Neo4j_Id as toId, to.Logicalname as toLabel, categ.Neo4j_Id as categId, categ.Logicalname as categLabel, 
+                fromSuper.Logicalname as categFromLabel  
+        */
         Vector<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
         if(linkIds.size()!= nodes.size()){
             return APIFail;
@@ -2337,7 +2334,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY,nodeIds);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY,nodeIds);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -2381,7 +2378,7 @@ class DBaccess {
 
             }
             catch(Exception ex){
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             }
             finally{
@@ -2403,7 +2400,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, nodeIds);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, nodeIds);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -2444,7 +2441,7 @@ class DBaccess {
                 }
             }
             catch(Exception ex){
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             }
             finally{
@@ -2597,7 +2594,7 @@ class DBaccess {
             }
         }
         catch(Exception ex){
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }        
         finally{
@@ -2699,7 +2696,7 @@ class DBaccess {
             }
         }
         catch(Exception ex){
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }        
         finally{
@@ -2725,7 +2722,7 @@ class DBaccess {
             }
         }
         catch(Exception ex){
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }        
         finally{
@@ -3180,7 +3177,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
                 while (startIdsLoopIndex < maxIndex) {
 
-                    Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(startIdsLoopIndex, Configs.MAX_IDS_PER_QUERY, startingIdsCopy);
+                    Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(startIdsLoopIndex, Configs.MAX_IDS_PER_QUERY, startingIdsCopy);
                     startIdsLoopIndex += subSetofIds.size();
                     if(subSetofIds.size()==0){
                         break;
@@ -3224,7 +3221,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                             }
                         }
                         catch(Exception ex){
-                            handleException(ex);
+                            utils.handleException(ex);
                             return APIFail;
                         }
                         finally{
@@ -3441,7 +3438,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         while (loopIndex < maxIndex) {
 
             //-30 added because query contains , n."+ Neo4j_Key_For_Logicalname +" as lname " 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY-30, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY-30, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -3479,7 +3476,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
                 
             }
             catch(Exception ex){
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             }
             finally{
@@ -4137,7 +4134,7 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
 
                 while (startIdsLoopIndex < maxIndex) {
 
-                    Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(startIdsLoopIndex, Configs.MAX_IDS_PER_QUERY, startingIdsCopy);
+                    Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(startIdsLoopIndex, Configs.MAX_IDS_PER_QUERY, startingIdsCopy);
                     startIdsLoopIndex += subSetofIds.size();
                     if(subSetofIds.size()==0){
                         break;
@@ -4181,7 +4178,7 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
                             }
                         }
                         catch(Exception ex){
-                            handleException(ex);
+                            utils.handleException(ex);
                             return APIFail;
                         }
                         finally{
@@ -4546,7 +4543,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -4557,8 +4554,8 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                         + "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
             }
             else {                
-                query = "UNWIND "+subSetofIds+" AS vector "
-                       +" MATCH (n"+getCommonLabelStr()+"{"+Neo4j_Key_For_Neo4j_Id+":vector})<-[:RELATION]-(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+")"
+                query =" MATCH (n"+getCommonLabelStr()+")<-[:RELATION]-(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+")"
+                       +" WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() 
                        +" RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
             }
             
@@ -4580,7 +4577,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                     }
                   
                 } catch (Exception ex) {
-                    handleException(ex);
+                    utils.handleException(ex);
                     return APIFail;
                 } finally {
                     res.close();
@@ -4629,7 +4626,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             }
             return APISucc;
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -4795,7 +4792,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             }
             return APISucc;
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -4845,7 +4842,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             }
             return QClass.APISucc;
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -4890,7 +4887,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return retVal;
             
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return QClass.APIFail;
         } finally {
             res.close();
@@ -4944,7 +4941,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             }
             return retVal;
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return QClass.APIFail;
         } finally {
             res.close();
@@ -4982,7 +4979,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             }
             
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return QClass.APIFail;
         } finally {
             res.close();
@@ -5023,7 +5020,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             }            
         }
         catch(Exception ex){
-            handleException(ex);
+            utils.handleException(ex);
         }
         finally{
             res.close();
@@ -5048,7 +5045,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         int loopIndex =0;
         int maxIndex = set.size();
         while(loopIndex<maxIndex){
-            Vector<Long> subSetIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, set);
+            Vector<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, set);
             loopIndex += subSetIds.size();
 
             if(subSetIds.size()==0){
@@ -5086,7 +5083,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 }
             } 
             catch(Exception ex){
-                handleException(ex);
+                utils.handleException(ex);
                 return null;
             }
             finally {
@@ -6083,16 +6080,6 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         return val;
     }
 
-    
-    
-    void handleException(Exception ex) {
-        Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, ex.getMessage());
-        if (Configs.boolDebugInfo) {            
-            ex.printStackTrace(System.out);
-        }
-    }
-    
-    
     int CheckAllExist(PQI_Set set) {
 
         Vector<Long> vec = set.get_Neo4j_Ids();
@@ -6109,7 +6096,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, vec);
+            Vector<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, vec);
             loopIndex += subSetIds.size();
             if (subSetIds.size() == 0) {
                 break;
@@ -6139,7 +6126,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 //ATTENTION do not return here 
 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 //check = APIFail;
                 break;
 
@@ -6422,6 +6409,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         }
         return APISucc;
     }
+    
     int getLink_From_or_To_ByCategory(Vector<Long> neo4jIds, StringObject fromcls, StringObject categ, PQI_Set writeset, boolean fromIsteadOfTo){
         
         PrimitiveObject_Long categId = new PrimitiveObject_Long();
@@ -6534,7 +6522,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -6568,7 +6556,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 }
 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -6612,7 +6600,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -6649,7 +6637,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 }
 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -6692,7 +6680,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -6728,7 +6716,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 }
 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -6769,7 +6757,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         }
 
         while (loopIndex < maxIndex) {
-            Vector<Long> subSetIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetIds.size();
 
             if (subSetIds.size() == 0) {
@@ -6806,7 +6794,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 }
 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -6849,7 +6837,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -6887,7 +6875,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 }
 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -6930,7 +6918,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -6964,7 +6952,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 }
 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -7004,7 +6992,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -7038,7 +7026,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 }
 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -7081,7 +7069,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -7116,7 +7104,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 }
 
             } catch (Exception ex) {
-                handleException(ex);
+                utils.handleException(ex);
                 return APIFail;
             } finally {
                 res.close();
@@ -7241,7 +7229,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             }
             
         } catch (Exception ex) {
-            handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         } finally {
             res.close();
@@ -7264,7 +7252,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, neo4jIds);
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, neo4jIds);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -7289,7 +7277,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 }
             } 
             catch(Exception ex){
-                handleException(ex);
+                utils.handleException(ex);
                 return null;
             }
             finally {

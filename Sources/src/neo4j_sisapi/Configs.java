@@ -67,42 +67,36 @@ return t
     
     */
     
-    static boolean boolDebugInfo = true;
+    static boolean boolDebugInfo = false;
     //static final int MAX_NEO4j_ID_FOR_PRIMITIVE = 2;
     static final int MAX_IDS_PER_QUERY = 500;
-    static final int MAX_UNIONS_PER_QUERY = 100;
-    static final String CommonLabelName = "Common";
-    static final boolean Neo4j_Id_used_as_node_label = true;
-    static final boolean CastNeo4jIdAsInt = true;
-    static final boolean CastSysIdAsInt = true;
     
-    static final String Neo4j_Key_For_PrimitiveClass_Str = "PrimitiveClass";
-    static final String Neo4j_Key_For_Type_AttributeStr = "Type_Attribute";
-    static final String Neo4j_Key_For_Type_IndividualStr = "Type_Individual";
+    static final String CommonLabelName = "Common";
+    
     static final String Neo4j_Level_Token = "Token";
     static final String Neo4j_Level_S_Class = "S_Class";
     static final String Neo4j_Level_M1_Class = "M1_Class";
     static final String Neo4j_Level_M2_Class = "M2_Class";
     static final String Neo4j_Level_M3_Class = "M3_Class";
     static final String Neo4j_Level_M4_Class = "M4_Class";
-    static final String SystemClass_SubStringForAttribute = "Attribute";
-    static final String SystemClass_SubStringForIndividual = "Individual";
-    static final String SystemClass_SubStringForNotDefined = "Telos_Object";
     
-    static final String TelosObjectAttributeFromClsname =  "Telos_Object";
-    static final String TelosObjectAttributeFromLinkname =  "attribute";
-    final static String Key_Primitive_Value_Type = "Type";
-    final static String Key_Primitive_Value = "Value";
+    static final String Neo4j_Key_For_Type_IndividualStr = "Type_Individual";
+    static final String Neo4j_Key_For_Type_AttributeStr = "Type_Attribute";
+    static final String Neo4j_Key_For_PrimitiveClass_Str = "PrimitiveClass";
     
-    //MATCH (n:Type_Attribute) WHERE has(n.Type) RETURN DISTINCT  n.Type
-    final static String Primitive_Value_Type_INT = "INT";
-    final static String Primitive_Value_Type_STR = "STR";
-    
-    static List<String> systemLabels =  Arrays.asList(Neo4j_Key_For_Type_AttributeStr, Neo4j_Key_For_Type_IndividualStr,
-                                                     CommonLabelName,
-                                                     Neo4j_Level_Token, Neo4j_Level_S_Class,
-                                                     Neo4j_Level_M1_Class,Neo4j_Level_M2_Class,Neo4j_Level_M3_Class,Neo4j_Level_M4_Class,
-                                                     Neo4j_Key_For_PrimitiveClass_Str);
+    static List<String> systemLabels =  Arrays.asList(CommonLabelName,
+                                                      Neo4j_Key_For_Type_IndividualStr,
+                                                      Neo4j_Key_For_Type_AttributeStr, 
+                                                      
+                                                      Neo4j_Level_Token, 
+                                                      Neo4j_Level_S_Class,
+                                                      Neo4j_Level_M1_Class,
+                                                      Neo4j_Level_M2_Class,
+                                                      Neo4j_Level_M3_Class,
+                                                      Neo4j_Level_M4_Class,
+                                                      
+                                                      Neo4j_Key_For_PrimitiveClass_Str
+    );
     
     enum Labels implements Label {
 
@@ -113,6 +107,24 @@ return t
 
         RELATION, ISA, INSTANCEOF
     }
+    
+    static final String Key_Primitive_Value_Type = "Type";
+    static final String Key_Primitive_Value = "Value";
+    
+    //MATCH (n:Type_Attribute) WHERE has(n.Type) RETURN DISTINCT  n.Type
+    static final String Primitive_Value_Type_INT = "INT";
+    static final String Primitive_Value_Type_STR = "STR";
+    
+    //static final boolean Neo4j_Id_used_as_node_label = true;
+    //static final boolean CastNeo4jIdAsInt = true;
+    static final boolean CastSysIdAsInt = true;
+        
+    static final String SystemClass_SubStringForAttribute = "Attribute";
+    static final String SystemClass_SubStringForIndividual = "Individual";
+    static final String SystemClass_SubStringForNotDefined = "Telos_Object";
+    
+    static final String TelosObjectAttributeFromClsname =  "Telos_Object";
+    static final String TelosObjectAttributeFromLinkname =  "attribute";
     
 }
 
