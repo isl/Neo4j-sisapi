@@ -197,6 +197,7 @@ public class QClass {
     //Vector<Neo4j_Id> propertyContainerStack = new Vector<Neo4j_Id>();
     
     DBaccess db = null;
+    Utilities utils = new Utilities();
     Vector<Long> CurrentNode_Ids_Stack = new Vector<Long>();
 
     
@@ -324,7 +325,7 @@ public class QClass {
         return APISucc;
     }
     
-    
+       
     
     /**
      * Given the logical name label of a link object, the function returns the 
@@ -3828,7 +3829,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
         
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         if(updateIdentifierWithId){
@@ -4357,7 +4358,7 @@ Add_Named_Attribute_Exit_Point:
         }
         catch(Exception ex){
             Logger.getLogger(QClass.class.getName()).log(Level.INFO, ex.getMessage());
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         if(updateIdentifierWithId){
@@ -4863,7 +4864,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         }
         catch(Exception ex){
             Logger.getLogger(QClass.class.getName()).log(Level.INFO, ex.getMessage());
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         
@@ -5989,7 +5990,7 @@ int    semanticChecker::checkDeletion( SYSID delSid)
             n=null;
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         return APISucc;
@@ -6388,7 +6389,7 @@ int    semanticChecker::deleteObjectWithoutChecking( SYSID delSid)
             linkNode=null;
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         
@@ -6527,7 +6528,7 @@ int sis_api::Delete_Unnamed_Attribute(IDENTIFIER * attribute)
             linkNode=null;
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         
@@ -6794,7 +6795,7 @@ int sis_api::Rename_Node(IDENTIFIER * node, IDENTIFIER * NewNodeName)
             n.setProperty(db.Neo4j_Key_For_Logicalname, NewNodeName.getLogicalName());
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         return APISucc;
@@ -6966,7 +6967,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             targetLinkNode.setProperty(db.Neo4j_Key_For_Logicalname, NewName.getLogicalName());
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         return APISucc;
