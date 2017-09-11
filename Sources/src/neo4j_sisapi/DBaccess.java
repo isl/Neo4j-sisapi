@@ -83,15 +83,9 @@ class DBaccess {
     boolean DebugInfo = false;//Configs.boolDebugInfo;
     
     
-    final String Neo4j_Key_For_Logicalname = "Logicalname";
-    final String Neo4j_Key_For_Transliteration = "Transliteration";
-    final String Neo4j_Key_For_ReferenceId = "ReferenceId";
-    
     final String Neo4j_Key_For_SysId = "SysId";
-    final String Neo4j_Key_For_Neo4j_Id = "Neo4j_Id";
     
     
-    private final String Neo4j_isNode = "isNode";
     private final String Neo4j_isRelationship = "isRelationship";
     
 
@@ -105,13 +99,13 @@ class DBaccess {
     
     
     private String prepareNeo4jIdPropertyFilterForCypher(long val){
-        return Neo4j_Key_For_Neo4j_Id+":"+val;
+        return Configs.Neo4j_Key_For_Neo4j_Id+":"+val;
     }
     private String prepareLogicalNameForCypher(String str){
         /*if(str.contains("'")){
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Contains ' ");
         }*/
-        return Neo4j_Key_For_Logicalname+":'"+str.replace("'", "\\'")+"'";
+        return Configs.Neo4j_Key_For_Logicalname+":'"+str.replace("'", "\\'")+"'";
     }
     
     // SET retSysids contains all the immediate instances of object with sysid  objSysid.
@@ -133,7 +127,7 @@ class DBaccess {
         
         //if "obj_ptr" is a no instance category then get around ???
         String query = " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(objSysid)+"})<-[:INSTANCEOF]-(m) "+
-                       " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                       " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
               
         if (query.length() == 0) {
             return APIFail;
@@ -144,7 +138,7 @@ class DBaccess {
             while (res.hasNext()) {
 
                 Map<String, Object> row = res.next();
-                long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
                 
                 if (val > 0) {
                     retSysids.set_putNeo4j_Id(val);                    
@@ -199,16 +193,16 @@ class DBaccess {
             query ="";        
             if(subSetofIds.size()==1){
                query =  " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"})<-[:INSTANCEOF]-(m) "+
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
             }
             else {
                 query = " MATCH(n"+getCommonLabelStr()+")<-[:INSTANCEOF]-(m) "+
-                        " WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
+                        " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
+                        " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                 
                 /*query = "UNWIND "+subSetofIds+" AS vector "
-                        +" MATCH (n"+getCommonLabelStr()+"{"+Neo4j_Key_For_Neo4j_Id+":vector})<-[:INSTANCEOF]-(m) "
-                        +" RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";*/
+                        +" MATCH (n"+getCommonLabelStr()+"{"+Configs.Neo4j_Key_For_Neo4j_Id+":vector})<-[:INSTANCEOF]-(m) "
+                        +" RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";*/
             }
             
             //do the job do not return
@@ -216,7 +210,7 @@ class DBaccess {
             try {
                 while (res.hasNext()) {
                     
-                    long val = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id)); 
+                    long val = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id)); 
                     
                     if (val > 0) {
                         tmpvec.add(val);
@@ -263,14 +257,14 @@ class DBaccess {
         }
         
         String query = " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(objSysid)+"})<-[:ISA*0..]-(k)<-[:INSTANCEOF]-(m) "+
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
                 
         Result res = this.graphDb.execute(query);
         try {
             while (res.hasNext()) {
 
                 Map<String, Object> row = res.next();
-                long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                 if (val > 0) {
                     retSysids.set_putNeo4j_Id(val);
@@ -326,16 +320,16 @@ class DBaccess {
             query ="";        
             if(subSetofIds.size()==1){
                query =  " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"})-[:INSTANCEOF]->(m) "+
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
             }
             else {
                 query = " MATCH(n"+getCommonLabelStr()+")-[:INSTANCEOF]->(m) "+
-                        " WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
+                        " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
+                        " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                 /*
                 query = "UNWIND "+subSetofIds+" AS vector "
-                       +" MATCH (n"+getCommonLabelStr()+"{"+Neo4j_Key_For_Neo4j_Id+":vector})-[:INSTANCEOF]->(m) "
-                       +" RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                       +" MATCH (n"+getCommonLabelStr()+"{"+Configs.Neo4j_Key_For_Neo4j_Id+":vector})-[:INSTANCEOF]->(m) "
+                       +" RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
 				*/
             }
             
@@ -344,7 +338,7 @@ class DBaccess {
             try {
                 while (res.hasNext()) {
                     Map<String, Object> row = res.next();
-                    long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                    long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                     if (val > 0) {
                         tmpvec.add(val);
@@ -385,13 +379,13 @@ class DBaccess {
         Vector<Long> tmpvec = new Vector<Long>();
         
         String query = " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(objSysid)+"})-[:INSTANCEOF]->(m) "+
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
 
         Result res = this.graphDb.execute(query);
         try {
             while (res.hasNext()) {
                 Map<String, Object> row = res.next();
-                long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                 if (val > 0) {
                     tmpvec.add(val);
@@ -450,14 +444,14 @@ class DBaccess {
         }
         
         String query = " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(objSysid)+"})-[:INSTANCEOF]->(k)-[r:ISA*0..]->(m) "+
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
                 
         Result res = this.graphDb.execute(query);
         try {
             while (res.hasNext()) {
 
                 Map<String, Object> row = res.next();
-                long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                 if (val > 0) {
                     retSysids.set_putNeo4j_Id(val);
@@ -484,7 +478,7 @@ class DBaccess {
 
         String query = "MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(neo4jId)+"}) "+
                         (linksFromInsteadOfTo?"<-":"-") + "[:RELATION]"+(linksFromInsteadOfTo?"-":"->")+"(m) "
-                        + "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        + "RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
 
         
         if (query.length() == 0) {
@@ -498,7 +492,7 @@ class DBaccess {
             while (res.hasNext()) {
                 Map<String, Object> row = res.next();
                 
-                long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
 				
                 
                 if (val >= 0) {
@@ -547,14 +541,14 @@ class DBaccess {
                 query = "MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetIds.get(0))+"}) "+
                     (linksFromInsteadOfTo?" <-[:RELATION]- ":" -[:RELATION]-> ") + "(m) "+
                     (excludeTokens? "WHERE NOT(\""+Configs.Neo4j_Level_Token+"\" IN labels(m) ) ":"")+
-                     "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                     "RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
             }
             else{
                 query = "MATCH (n"+getCommonLabelStr()+") "+
                     (linksFromInsteadOfTo?" <-[:RELATION]- ":" -[:RELATION]-> ") + "(m) "+
-                    " WHERE n." +Neo4j_Key_For_Neo4j_Id+" IN " + subSetIds.toString() +" " + 
+                    " WHERE n." +Configs.Neo4j_Key_For_Neo4j_Id+" IN " + subSetIds.toString() +" " + 
                     (excludeTokens? "AND NOT(\""+Configs.Neo4j_Level_Token+"\" IN labels(m) ) ":"")+
-                     "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                     "RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
             }
                     
             Result res = this.graphDb.execute(query);
@@ -563,7 +557,7 @@ class DBaccess {
             try {
                 while (res.hasNext()) {
                     
-                    long val = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id));
+                    long val = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                     if (val > 0 && returnSet.contains(val)==false) {
                         returnSet.add(val);
@@ -649,15 +643,15 @@ class DBaccess {
                 query = "MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"}) "
                         +(linksFromInsteadOfToNode?"<-":"-") + "[:RELATION]"+(linksFromInsteadOfToNode?"-":"->")+"(k:"+Configs.Neo4j_Key_For_Type_AttributeStr+")"
                         +(linksFromInsteadOfToNode?"<-":"-") + "[:RELATION]"+(linksFromInsteadOfToNode?"-":"->")+"(m) "
-                        + "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        + "RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
             }
             else { 
                 
                 query = " MATCH (n"+getCommonLabelStr()+") "
                         +(linksFromInsteadOfToNode?"<-":"-") + "[:RELATION]"+(linksFromInsteadOfToNode?"-":"->")+"(k:"+Configs.Neo4j_Key_For_Type_AttributeStr+")"
                         +(linksFromInsteadOfToNode?"<-":"-") + "[:RELATION]"+(linksFromInsteadOfToNode?"-":"->")+"(m) "
-                        + " WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " + subSetofIds.toString() 
-                        + " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        + " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" in " + subSetofIds.toString() 
+                        + " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
             }
             
             //do the job do not return
@@ -665,7 +659,7 @@ class DBaccess {
                 try {
                     while (res.hasNext()) {
                         Map<String, Object> row = res.next();
-                        long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                        long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
 						                
                         if (val > 0) {
                             tmpvec.add(val);
@@ -706,7 +700,7 @@ class DBaccess {
         String query = "MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(neo4jId)+"}) "
                         +(linksFromInsteadOfToNode?"<-":"-") + "[:RELATION]"+(linksFromInsteadOfToNode?"-":"->")+"(k:"+Configs.Neo4j_Key_For_Type_AttributeStr+")"
                         +(linksFromInsteadOfToNode?"<-":"-") + "[:RELATION]"+(linksFromInsteadOfToNode?"-":"->")+"(m) "
-                        + "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        + "RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
 
          
         
@@ -716,7 +710,7 @@ class DBaccess {
             while (res.hasNext()) {
                 Map<String, Object> row = res.next();
                 
-                long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
                 
                 if (val > 0) {
                     retSysids.set_putNeo4j_Id(val);
@@ -743,7 +737,7 @@ class DBaccess {
         
         String query = "MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(neo4jId)+"}) "
                         +"-[:ISA*0..]->(k)-[:RELATION]->(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+")"
-                        + "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        + "RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
 
 
         Result res = this.graphDb.execute(query);
@@ -753,7 +747,7 @@ class DBaccess {
             while (res.hasNext()) {
                 Map<String, Object> row = res.next();
                 
-                long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
                 
                 if (val > 0) {
                     retSysids.set_putNeo4j_Id(val);
@@ -806,12 +800,12 @@ class DBaccess {
             query ="";        
             if(subSetofIds.size()==1){
                query = "MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"})-[:RELATION]->(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+") "
-                        + "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        + "RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
             }
             else {          
                 query = " MATCH (n"+getCommonLabelStr()+")-[:RELATION]->(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+") "
-                        + " WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() 
-                       +" RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";                
+                        + " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() 
+                       +" RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";                
                 
             }
             
@@ -820,7 +814,7 @@ class DBaccess {
             try {
                 while (res.hasNext()) {
                     Map<String, Object> row = res.next();
-                    long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                    long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                     if (val > 0) {
                         tmpvec.add(val);
@@ -858,7 +852,7 @@ class DBaccess {
     int DBACCESS_getLinkFrom(long objSysid, PQI_Set retSysids){
          
         String query = "MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(objSysid)+"})-[:RELATION]->(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+") "
-                        + "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        + "RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
                
 
         Result res = this.graphDb.execute(query);
@@ -867,7 +861,7 @@ class DBaccess {
             while (res.hasNext()) {
                 Map<String, Object> row = res.next();
                 
-                long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
 				
                 
                 if (val > 0) {
@@ -1019,29 +1013,29 @@ class DBaccess {
     
     long getNodeNeo4jId(Node n){
         long retVal = -1;
-        if(n.getProperty(Neo4j_Key_For_Neo4j_Id) instanceof Integer){
+        if(n.getProperty(Configs.Neo4j_Key_For_Neo4j_Id) instanceof Integer){
             
         
         //if(Configs.CastNeo4jIdAsInt){
-            retVal = (int) n.getProperty(Neo4j_Key_For_Neo4j_Id);
+            retVal = (int) n.getProperty(Configs.Neo4j_Key_For_Neo4j_Id);
         }
         else{
-            retVal = (long) n.getProperty(Neo4j_Key_For_Neo4j_Id);
+            retVal = (long) n.getProperty(Configs.Neo4j_Key_For_Neo4j_Id);
         }
         return retVal;
     }
 	
-    long getNodeReferenceId(Node n){
+    long getNodeThesaurusReferenceId(Node n){
         long retVal = -1;
-        if(n.hasProperty(Neo4j_Key_For_ReferenceId)){
-            if(n.getProperty(Neo4j_Key_For_ReferenceId) instanceof Integer){
+        if(n.hasProperty(Configs.Neo4j_Key_For_ThesaurusReferenceId)){
+            if(n.getProperty(Configs.Neo4j_Key_For_ThesaurusReferenceId) instanceof Integer){
 
 
             //if(Configs.CastNeo4jIdAsInt){
-                retVal = (int) n.getProperty(Neo4j_Key_For_ReferenceId);
+                retVal = (int) n.getProperty(Configs.Neo4j_Key_For_ThesaurusReferenceId);
             }
             else{
-                retVal = (long) n.getProperty(Neo4j_Key_For_ReferenceId);
+                retVal = (long) n.getProperty(Configs.Neo4j_Key_For_ThesaurusReferenceId);
             }
         }
         return retVal;
@@ -1142,14 +1136,14 @@ class DBaccess {
             if(subSetofIds.size()==1){
                 
                 query = " MATCH (n"+getCommonLabelStr()+"{"+ prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"}) "
-                        + " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname, labels(n) as lbls ";
+                        + " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+Configs.Neo4j_Key_For_Logicalname +" as lname, labels(n) as lbls ";
 						
             }
             else {
                 
                 query = " MATCH (n"+getCommonLabelStr()+") "+
-                        " WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() +
-                        " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname, labels(n) as lbls  ";
+                        " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() +
+                        " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+Configs.Neo4j_Key_For_Logicalname +" as lname, labels(n) as lbls  ";
 						
             }
             
@@ -1220,14 +1214,14 @@ class DBaccess {
             if(subSetofIds.size()==1){
                 
                 query = " MATCH (n"+getCommonLabelStr()+"{"+ prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"}) "
-                        + " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname ";
+                        + " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+Configs.Neo4j_Key_For_Logicalname +" as lname ";
 						
             }
             else {
                 
                 query = " MATCH (n"+getCommonLabelStr()+") "+
-                        " WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() +
-                        " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname ";						
+                        " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() +
+                        " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+Configs.Neo4j_Key_For_Logicalname +" as lname ";						
             }
             
             //do the job do not return
@@ -1291,14 +1285,14 @@ class DBaccess {
             if(subSetofIds.size()==1){
                 
                 query = " MATCH (n"+getCommonLabelStr()+"{"+ prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"}) "
-                        + " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname, n."+Neo4j_Key_For_ReferenceId +" as refId, n."+Neo4j_Key_For_Transliteration +" as translit ";
+                        + " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+Configs.Neo4j_Key_For_Logicalname +" as lname, n."+Configs.Neo4j_Key_For_ThesaurusReferenceId +" as refId, n."+Configs.Neo4j_Key_For_Transliteration +" as translit ";
 						
             }
             else {
                 
                 query = " MATCH (n"+getCommonLabelStr()+") "+
-                        " WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() +
-                        " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname, n."+Neo4j_Key_For_ReferenceId +" as refId, n."+Neo4j_Key_For_Transliteration +" as translit ";
+                        " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() +
+                        " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+Configs.Neo4j_Key_For_Logicalname +" as lname, n."+Configs.Neo4j_Key_For_ThesaurusReferenceId +" as refId, n."+Configs.Neo4j_Key_For_Transliteration +" as translit ";
 						
             }
             
@@ -1422,7 +1416,7 @@ class DBaccess {
             //take all lnames and primitive values if exist
             if(path.length()==0){
                 if(labels.containsKey(pathStartNodeId)==false){
-                    String lname = (String) pathStartNode.getProperty(Neo4j_Key_For_Logicalname);
+                    String lname = (String) pathStartNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                     labels.put(pathStartNodeId, lname);
                 }
                 
@@ -1460,13 +1454,13 @@ class DBaccess {
                         //classids.get(startNodeId).set_putNeo4j_Id(classId);
                         if(categIds.containsKey(startNodeId)==false){
                             categIds.put(startNodeId, classId);
-                            String categName = (String)classNode.getProperty(Neo4j_Key_For_Logicalname);
+                            String categName = (String)classNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                             categs.put(startNodeId, categName);
                             if(classNode.hasLabel(Configs.Labels.Type_Attribute)==false){
                                 throw new UnsupportedOperationException();
                             }
                             Relationship clasFromRel = classNode.getSingleRelationship(Configs.Rels.RELATION, Direction.INCOMING);
-                            String fclsname =(String) clasFromRel.getStartNode().getProperty(Neo4j_Key_For_Logicalname);
+                            String fclsname =(String) clasFromRel.getStartNode().getProperty(Configs.Neo4j_Key_For_Logicalname);
                             fromClss.put(startNodeId, fclsname);
                         }
                         else{
@@ -1510,7 +1504,7 @@ class DBaccess {
                             //attibute to attribute case exclude from results
                         }
                         else{
-                            String toLname = (String) otherNode.getProperty(Neo4j_Key_For_Logicalname);
+                            String toLname = (String) otherNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                             Long toId = getNodeNeo4jId(otherNode);
                             CMValue cmVal = new CMValue();
                             cmVal.assign_node(toLname, toId);
@@ -1524,7 +1518,7 @@ class DBaccess {
                         }
                     }
                     else{//get the from cls value from otherNode
-                        String cls = (String) otherNode.getProperty(Neo4j_Key_For_Logicalname);
+                        String cls = (String) otherNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                         Clss.put(linkId, cls);
                     }
                 }//relationships iterator
@@ -1573,6 +1567,59 @@ class DBaccess {
         return APISucc;
     }
     
+    int resetCounter_For_Neo4jId(){
+        
+        //update MaxNeo4j_Id property in Telos_Object node
+            String query = "MATCH(n:"+Configs.CommonLabelName+") with max (n."+Configs.Neo4j_Key_For_Neo4j_Id+") as newVal " +
+                    "MATCH(t:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+Configs.Neo4j_Node_LogicalName_For_MaxNeo4jId+"\"}) " +
+                    "SET t."+Configs.Neo4j_Key_For_MaxNeo4jId+" = newVal " +
+                    "return t."+Configs.Neo4j_Key_For_MaxNeo4jId+" as "+ Configs.Neo4j_Key_For_MaxNeo4jId;
+            Result res = null;
+            try{
+                res = graphDb.execute(query);
+            }
+            catch(Exception ex){
+                utils.handleException(ex);
+            }
+            if (res == null) {
+                return APIFail;
+            }
+            else{
+                res.close();
+            }
+                
+        
+
+        return APISucc;
+    }
+    
+    int resetCounter_For_ThesaurusReferenceId(String thesaurusName){
+        //another policy might be to count Facets, Hierarchies, Terms and assign the sum of them. But this is more flexible
+                
+        //update MaxNeo4j_Id property in Thesarus node
+        String query = "MATCH(n:"+Configs.CommonLabelName+") with max (n."+Configs.Neo4j_Key_For_ThesaurusReferenceId+") as newVal " +
+                "MATCH(t:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+Configs.Neo4j_Node_LogicalName_For_MaxThesaurusReferenceId.replace("%THES%", thesaurusName.toUpperCase())+"\"}) " +
+                "SET t."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+" = newVal " +
+                "return t."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+" as "+ Configs.Neo4j_Key_For_MaxThesaurusReferenceId;
+        //System.out.println("resetCounter_For_ThesaurusReferenceId\r\n============================\r\n"+query);
+        
+        Result res = null;
+        try{
+            res = graphDb.execute(query);
+        }
+        catch(Exception ex){
+            utils.handleException(ex);
+        }
+        if (res == null) {
+            return APIFail;
+        }
+        else{
+            res.close();                
+        }
+         
+        
+        return APISucc;
+    }
     
     int get_Bulk_Return_Full_Link_Id_Rows(Vector<Long> linkIds, Vector<Return_Full_Link_Id_Row> retRows){
         /*
@@ -1666,7 +1713,7 @@ class DBaccess {
             //take all lnames and primitive values if exist
             if(path.length()==0){
                 if(labels.containsKey(pathStartNodeId)==false){
-                    String lname = (String) pathStartNode.getProperty(Neo4j_Key_For_Logicalname);
+                    String lname = (String) pathStartNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                     labels.put(pathStartNodeId, lname);
                 }
                 
@@ -1704,13 +1751,13 @@ class DBaccess {
                         //classids.get(startNodeId).set_putNeo4j_Id(classId);
                         if(categIds.containsKey(startNodeId)==false){
                             categIds.put(startNodeId, classId);
-                            String categName = (String)classNode.getProperty(Neo4j_Key_For_Logicalname);
+                            String categName = (String)classNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                             categs.put(startNodeId, categName);
                             if(classNode.hasLabel(Configs.Labels.Type_Attribute)==false){
                                 throw new UnsupportedOperationException();
                             }
                             Relationship clasFromRel = classNode.getSingleRelationship(Configs.Rels.RELATION, Direction.INCOMING);
-                            String fclsname =(String) clasFromRel.getStartNode().getProperty(Neo4j_Key_For_Logicalname);
+                            String fclsname =(String) clasFromRel.getStartNode().getProperty(Configs.Neo4j_Key_For_Logicalname);
                             fromClss.put(startNodeId, fclsname);
                         }
                         else{
@@ -1750,13 +1797,13 @@ class DBaccess {
                             //attibute to attribute case exclude from results
                         }
                         else{
-                            String toLname = (String) otherNode.getProperty(Neo4j_Key_For_Logicalname);
+                            String toLname = (String) otherNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                             Long toId = getNodeNeo4jId(otherNode);
                             CMValue cmVal = new CMValue();
-                            Long toRefId = getNodeReferenceId(otherNode);
+                            Long toRefId = getNodeThesaurusReferenceId(otherNode);
                             String translit = "";
-                            if(otherNode.hasProperty(Neo4j_Key_For_Transliteration)){
-                                translit=(String) otherNode.getProperty(Neo4j_Key_For_Transliteration);
+                            if(otherNode.hasProperty(Configs.Neo4j_Key_For_Transliteration)){
+                                translit=(String) otherNode.getProperty(Configs.Neo4j_Key_For_Transliteration);
                             }
                             
                             cmVal.assign_node(toLname, toId,translit,toRefId);
@@ -1771,19 +1818,16 @@ class DBaccess {
                         }
                     }
                     else{//get the from cls value from otherNode
-                        String cls = (String) otherNode.getProperty(Neo4j_Key_For_Logicalname);
+                        String cls = (String) otherNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                         Clss.put(linkId, cls);
                         ClsIds.put(linkId, getNodeNeo4jId(otherNode));
                         
                         String clsTranslLit = "";
-                        if(otherNode.hasProperty(Neo4j_Key_For_Transliteration)){
-                            clsTranslLit = (String) otherNode.getProperty(Neo4j_Key_For_Transliteration);
+                        if(otherNode.hasProperty(Configs.Neo4j_Key_For_Transliteration)){
+                            clsTranslLit = (String) otherNode.getProperty(Configs.Neo4j_Key_For_Transliteration);
                         }
                         ClsTransliterations.put(linkId, clsTranslLit);
-                        long clsRefId = -1;
-                        if(otherNode.hasProperty(Neo4j_Key_For_ReferenceId)){
-                            clsRefId =  getNodeReferenceId(otherNode);
-                        }
+                        long clsRefId = getNodeThesaurusReferenceId(otherNode);
                         ClsRefIds.put(linkId, clsRefId);
                         
                     }
@@ -1967,7 +2011,7 @@ class DBaccess {
                             //attibute to attribute case exclude from results
                         }
                         else{
-                            String toLname = (String) otherNode.getProperty(Neo4j_Key_For_Logicalname);
+                            String toLname = (String) otherNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                             Long toId = getNodeNeo4jId(otherNode);
                             CMValue cmVal = new CMValue();
                             cmVal.assign_node(toLname, toId);
@@ -1981,7 +2025,7 @@ class DBaccess {
                         }
                     }
                     else{//get the from cls value from otherNode
-                        String cls = (String) otherNode.getProperty(Neo4j_Key_For_Logicalname);
+                        String cls = (String) otherNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                         fromClsass.put(linkId, cls);
                         fromClsId.put(linkId, getNodeNeo4jId(otherNode));
                     }
@@ -2056,8 +2100,8 @@ class DBaccess {
         Hashtable<String, Vector<String>> isaRelationships = new Hashtable<String, Vector<String>>();
         for (Path path : bothDirectionsTr.traverse(nodes)) {
             for(Relationship rel : path.relationships()){
-                String startNodeName = (String)rel.getStartNode().getProperty(Neo4j_Key_For_Logicalname);
-                String endNodeName = (String)rel.getEndNode().getProperty(Neo4j_Key_For_Logicalname);
+                String startNodeName = (String)rel.getStartNode().getProperty(Configs.Neo4j_Key_For_Logicalname);
+                String endNodeName = (String)rel.getEndNode().getProperty(Configs.Neo4j_Key_For_Logicalname);
                 //long startNodeId = getNodeNeo4jId(rel.getStartNode());
                 //long endNodeId = getNodeNeo4jId(rel.getEndNode());
                 if(isaRelationships.containsKey(startNodeName)==false){
@@ -2132,7 +2176,7 @@ class DBaccess {
             if(path.length()==0){
                 
                 if(linkIds.contains(pathStartNodeId)&&lnames.containsKey(pathStartNodeId) ==false){
-                    String lname = (String) pathStartNode.getProperty(Neo4j_Key_For_Logicalname);
+                    String lname = (String) pathStartNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                     lnames.put(pathStartNodeId, lname);
                     
                     //get primitive if exists
@@ -2179,7 +2223,7 @@ class DBaccess {
                             //attibute to attribute case exclude from results
                         }
                         else{
-                            String toLname = (String) otherNode.getProperty(Neo4j_Key_For_Logicalname);
+                            String toLname = (String) otherNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                             Long toId = getNodeNeo4jId(otherNode);
                             CMValue cmVal = new CMValue();
                             cmVal.assign_node(toLname, toId);
@@ -2193,7 +2237,7 @@ class DBaccess {
                         }
                     }
                     else{//get the from cls value from otherNode
-                        String cls = (String) otherNode.getProperty(Neo4j_Key_For_Logicalname);
+                        String cls = (String) otherNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                         fromCls.put(linkId, cls);
                     }
                 }//relationships iterator
@@ -2261,7 +2305,7 @@ class DBaccess {
             return APIFail;            
         }
         //get sys id
-        //label.setValue((String) n.getProperty(Neo4j_Key_For_Logicalname));
+        //label.setValue((String) n.getProperty(Configs.Neo4j_Key_For_Logicalname));
         sysId.setValue(linkId);
         
         if(n.hasLabel(Configs.Labels.Type_Attribute)==false){
@@ -2275,7 +2319,7 @@ class DBaccess {
         //get from cls label
         Relationship fromRel = n.getSingleRelationship(Configs.Rels.RELATION, Direction.INCOMING);
         if(fromRel!=null){
-            fromClass.setValue((String)fromRel.getStartNode().getProperty(Neo4j_Key_For_Logicalname));
+            fromClass.setValue((String)fromRel.getStartNode().getProperty(Configs.Neo4j_Key_For_Logicalname));
             fromClassId.setValue(getNodeNeo4jId(fromRel.getStartNode()));
         }
         
@@ -2298,7 +2342,7 @@ class DBaccess {
                 }
                 else{
                     if(cmv.type==CMValue.TYPE_EMPTY){
-                        String toNodeLname = (String)endNode.getProperty(Neo4j_Key_For_Logicalname);
+                        String toNodeLname = (String)endNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                         long endNodeId = getNodeNeo4jId(endNode);
 
                         cmv.assign_node(toNodeLname, endNodeId);
@@ -2335,7 +2379,7 @@ class DBaccess {
         }
         
         //get label
-        label.setValue((String) n.getProperty(Neo4j_Key_For_Logicalname));
+        label.setValue((String) n.getProperty(Configs.Neo4j_Key_For_Logicalname));
         
         if(n.hasLabel(Configs.Labels.Type_Attribute)==false){
             fromClass.setValue("");
@@ -2345,7 +2389,7 @@ class DBaccess {
         //get from cls label
         Relationship fromRel = n.getSingleRelationship(Configs.Rels.RELATION, Direction.INCOMING);
         if(fromRel!=null){
-            fromClass.setValue((String)fromRel.getStartNode().getProperty(Neo4j_Key_For_Logicalname));
+            fromClass.setValue((String)fromRel.getStartNode().getProperty(Configs.Neo4j_Key_For_Logicalname));
         }
         
         
@@ -2366,7 +2410,7 @@ class DBaccess {
                 }
                 else{
                     if(cmv.type==CMValue.TYPE_EMPTY){
-                        String toNodeLname = (String)endNode.getProperty(Neo4j_Key_For_Logicalname);
+                        String toNodeLname = (String)endNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                         long endNodeId = getNodeNeo4jId(endNode);
 
                         cmv.assign_node(toNodeLname, endNodeId);
@@ -2404,13 +2448,13 @@ class DBaccess {
             if(subSetofIds.size()==1){
                 //build query 
                 query = "MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"}) "+
-                        "RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+propertyKey +" as i ";
+                        "RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+propertyKey +" as i ";
             }
             else {
                 //build query 
                 query = "MATCH(n"+getCommonLabelStr()+") "+
-                        "WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " + subSetofIds.toString() +" "+
-                        "RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+propertyKey +" as i ";
+                        "WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " + subSetofIds.toString() +" "+
+                        "RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+propertyKey +" as i ";
             }
             
             //do the job do not return
@@ -2470,13 +2514,13 @@ class DBaccess {
             if(subSetofIds.size()==1){
                 //build query 
                 query = "MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"}) "+
-                        "RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+propertyKey +" as i ";
+                        "RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+propertyKey +" as i ";
             }
             else {
                 //build query 
                 query = "MATCH(n"+getCommonLabelStr()+") "+
-                        "WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " + subSetofIds.toString() +" "+
-                        "RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+propertyKey +" as i ";
+                        "WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " + subSetofIds.toString() +" "+
+                        "RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+propertyKey +" as i ";
             }
             
             //do the job do not return
@@ -2632,7 +2676,7 @@ class DBaccess {
         String query = " MATCH (m"+getCommonLabelStr()+"{"+prepareLogicalNameForCypher(fromCls)+"}) "+
                 " -[:RELATION]-> (n"+getCommonLabelStr()+"{"+prepareLogicalNameForCypher(label)+"}), "+
                 " (n:"+Configs.Neo4j_Key_For_Type_AttributeStr+") " +
-                " RETURN n."+Neo4j_Key_For_Neo4j_Id+ " as id ";
+                " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+ " as id ";
         Result res = graphDb.execute(query);
         long returnVal = APIFail;
         try{
@@ -2728,12 +2772,12 @@ class DBaccess {
             //Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "get_classid called on unnamed link " + lname.getValue());
             query = " MATCH (n"+getCommonLabelStr()+"{"+prepareLogicalNameForCypher(lname)+"}) "+//, (n:"+Configs.Neo4j_Key_For_Type_IndividualStr+") " +
                     //" WHERE \""+Configs.Neo4j_Key_For_Type_AttributeStr+"\" NOT IN labels(n) " +
-                    " RETURN n."+Neo4j_Key_For_Neo4j_Id+ " as id ";
+                    " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+ " as id ";
         }
         else{
             query = " MATCH (n"+getCommonLabelStr()+"{"+prepareLogicalNameForCypher(lname)+"}) "+//, (n:"+Configs.Neo4j_Key_For_Type_IndividualStr+") " +
                     " WHERE NOT  (\""+Configs.Neo4j_Key_For_Type_AttributeStr+"\" IN labels(n))  " +
-                    " RETURN n."+Neo4j_Key_For_Neo4j_Id+ " as id ";
+                    " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+ " as id ";
         }
         Result res = graphDb.execute(query);
         long returnVal = APIFail;
@@ -3250,24 +3294,24 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                     if(isa == QClass.Traversal_Isa.UPWARDS){
                         if(subSetofIds.size()==1){
                             queryForIsaSet = " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"})-[:ISA*1..]->(m) "+
-                                             " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
+                                             " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                         }
                         else{
                             queryForIsaSet = " MATCH(n"+getCommonLabelStr()+")-[:ISA*1..]->(m) "+
-                                             " WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
-                                             " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
+                                             " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
+                                             " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                         }
                     }
                     else if (isa==QClass.Traversal_Isa.DOWNWARDS){
 
                         if(subSetofIds.size()==1){
                             queryForIsaSet = " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"})<-[:ISA*1..]-(m) "+
-                                             " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
+                                             " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                         }
                         else{
                             queryForIsaSet = " MATCH(n"+getCommonLabelStr()+")<-[:ISA*1..]-(m) "+
-                                             " WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
-                                             " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
+                                             " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
+                                             " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                         }                        
                     }
 
@@ -3276,7 +3320,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                         Result res = graphDb.execute(queryForIsaSet);
                         try{
                             while (res.hasNext()) {
-                                long nodeId = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id));
+                                long nodeId = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id));
                                 
                                 if(nodeId>0 && checked_set.contains(nodeId)==false){
                                     isaset.set_putNeo4j_Id(nodeId);//.add(new PQI_SetRecord(nodeId));
@@ -3500,7 +3544,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         
         while (loopIndex < maxIndex) {
 
-            //-30 added because query contains , n."+ Neo4j_Key_For_Logicalname +" as lname " 
+            //-30 added because query contains , n."+ Configs.Neo4j_Key_For_Logicalname +" as lname " 
             Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY-30, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
@@ -3511,13 +3555,13 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
             if(subSetofIds.size()==1){
                 
                 query = " MATCH (n"+getCommonLabelStr()+"{"+ prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"}) " + 
-                        " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+ Neo4j_Key_For_Logicalname +" as lname ";
+                        " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+ Configs.Neo4j_Key_For_Logicalname +" as lname ";
 						
             }
             else {
                 query = " MATCH (n"+getCommonLabelStr()+") "+
-                        " WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
-                        " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+ Neo4j_Key_For_Logicalname +" as lname ";
+                        " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
+                        " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+ Configs.Neo4j_Key_For_Logicalname +" as lname ";
 						
             }
             
@@ -4207,24 +4251,24 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
                     if(isa == QClass.Traversal_Isa.UPWARDS){
                         if(subSetofIds.size()==1){
                             queryForIsaSet = " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"})-[:ISA*1..]->(m) "+
-                                             " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
+                                             " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                         }
                         else{
                             queryForIsaSet = " MATCH(n"+getCommonLabelStr()+")-[:ISA*1..]->(m) "+
-                                             " WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
-                                             " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
+                                             " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
+                                             " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                         }
                     }
                     else if (isa==QClass.Traversal_Isa.DOWNWARDS){
 
                         if(subSetofIds.size()==1){
                             queryForIsaSet = " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"})<-[:ISA*1..]-(m) "+
-                                             " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
+                                             " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                         }
                         else{
                             queryForIsaSet = " MATCH(n"+getCommonLabelStr()+")<-[:ISA*1..]-(m) "+
-                                             " WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
-                                             " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
+                                             " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
+                                             " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                         }                        
                     }
 
@@ -4233,7 +4277,7 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
                         Result res = graphDb.execute(queryForIsaSet);
                         try{
                             while (res.hasNext()) {
-                                long nodeId = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id));
+                                long nodeId = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id));
                                 
                                 if(nodeId>0 && checked_set.contains(nodeId)==false){
                                     isaset.set_putNeo4j_Id(nodeId);//new PQI_SetRecord(nodeId));
@@ -4614,12 +4658,12 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             query ="";        
             if(subSetofIds.size()==1){
                query = "MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"})<-[:RELATION]-(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+")"
-                        + "RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        + "RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
             }
             else {                
                 query =" MATCH (n"+getCommonLabelStr()+")<-[:RELATION]-(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+")"
-                       +" WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() 
-                       +" RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                       +" WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() 
+                       +" RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
             }
             
             //do the job do not return
@@ -4627,7 +4671,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 try {
                     while (res.hasNext()) {
                         Map<String, Object> row = res.next();
-                        long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                        long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
 						              
                         if (val > 0) {
                             tmpvec.add(val);
@@ -4666,7 +4710,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
     int DBACCESS_getLinkTo(long id, PQI_Set retSysids){
         
         String query = " MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(id)+"})<-[:RELATION]-(m:"+Configs.Neo4j_Key_For_Type_AttributeStr+")"
-                       + " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                       + " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
 
         
         Result res = this.graphDb.execute(query);
@@ -4675,7 +4719,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             while (res.hasNext()) {
                 Map<String, Object> row = res.next();
                 
-                long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
                 
                 if (val > 0) {
                     retSysids.set_putNeo4j_Id(val);
@@ -4837,7 +4881,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         
         String query = " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(objSysid)+"})"
                         +(getSuperInsteadOfSubclasses?"-":"<-")+"[:ISA]"+(getSuperInsteadOfSubclasses?"->":"-")+"(m) "+
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
                 
         Result res = this.graphDb.execute(query);
 
@@ -4845,7 +4889,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             while (res.hasNext()) {
 
                 Map<String, Object> row = res.next();
-                long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                 if (val > 0) {
                     retSysids.set_putNeo4j_Id(val);
@@ -4885,14 +4929,14 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         
         String query = " MATCH (m" + getCommonLabelStr() + "{"+prepareNeo4jIdPropertyFilterForCypher(startingId)+"})"
                         +(getSuperInsteadOfSubclasses?"-":"<-")+"[:ISA*1..]"+(getSuperInsteadOfSubclasses?"->":"-")+"(n) "+ 
-                        " RETURN n."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                        " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
                 
         Result res = this.graphDb.execute(query);
         try {
             while (res.hasNext()) {
 
                 Map<String, Object> row = res.next();
-                long val = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long val = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
 				                 
                 if (val > 0) {
                     returnSet.set_putNeo4j_Id(val);//add(new PQI_SetRecord(val));                    
@@ -4921,7 +4965,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         String query = " MATCH (m" + getCommonLabelStr() + "{"+prepareLogicalNameForCypher(from)+"})"+
                             "-[:RELATION]->"+
                             "(n" + getCommonLabelStr() + "{"+prepareLogicalNameForCypher(category) + "}) "
-                            + " RETURN n."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                            + " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
                 
         
         Result res = this.graphDb.execute(query);
@@ -4931,7 +4975,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
                 Map<String, Object> row = res.next(); 
                 
-                long tempval = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long tempval = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
                 
                 if (tempval >= 0) {  
                     if(retVal==APIFail){
@@ -4968,7 +5012,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
             query = " MATCH (n" + getCommonLabelStr() + "{"+prepareLogicalNameForCypher(currentNodeName) + "}) "+
                     "WHERE NOT( \"" + Configs.Neo4j_Key_For_Type_AttributeStr+"\"  IN labels(n) ) "+
-                    " RETURN n."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                    " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
         } else {
 
             long currentNodeId = CurrentNode_Ids_Stack.lastElement();
@@ -4976,7 +5020,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             query = " MATCH (m" + getCommonLabelStr() + "{"+prepareNeo4jIdPropertyFilterForCypher(currentNodeId)+"})"+
                     "-[:RELATION]->"+
                     "(n" + getCommonLabelStr() + "{"+prepareLogicalNameForCypher(currentNodeName) + "}) "
-                    + " RETURN n."+Neo4j_Key_For_Neo4j_Id+" as "+Neo4j_Key_For_Neo4j_Id+" ";
+                    + " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
         }
 
         Result res = this.graphDb.execute(query);
@@ -4986,7 +5030,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
                 Map<String, Object> row = res.next(); 
                 
-                long tempval = getNeo4jIdFromObject(row.get(Neo4j_Key_For_Neo4j_Id));
+                long tempval = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
                 
                 if (tempval >= 0) {  
                     if(retVal==APIFail){
@@ -5015,10 +5059,10 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
     long setCurrentNodeById(Vector<Long> CurrentNode_Ids_Stack, long currentNodeId){
         
         String query = " MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(currentNodeId)+"}),(n:"+Configs.Neo4j_Key_For_Type_IndividualStr+") "+
-                        " RETURN n."+Neo4j_Key_For_Neo4j_Id+" as fromId, n."+Neo4j_Key_For_Neo4j_Id+" as id" +
+                        " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+" as fromId, n."+Configs.Neo4j_Key_For_Neo4j_Id+" as id" +
                         " UNION " +
                         " MATCH (m"+getCommonLabelStr()+")-[:RELATION]-> (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(currentNodeId)+"}),(n:"+Configs.Neo4j_Key_For_Type_AttributeStr+") "+
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id+" as fromId, n."+Neo4j_Key_For_Neo4j_Id+" as id" ;
+                        " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as fromId, n."+Configs.Neo4j_Key_For_Neo4j_Id+" as id" ;
                 
                 
 
@@ -5121,7 +5165,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 " RETURN n."+Neo4j_Key_For_SysId+" as p ";
             }
             else{
-                query = " Match (n"+getCommonLabelStr()+") WHERE n."+Neo4j_Key_For_Neo4j_Id+" IN " + subSetIds.toString() + " "+
+                query = " Match (n"+getCommonLabelStr()+") WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id+" IN " + subSetIds.toString() + " "+
                 " RETURN n."+Neo4j_Key_For_SysId+" as p ";
             }
 
@@ -6167,11 +6211,11 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             String query = "";
             if (subSetIds.size() == 1) {
                 query = " MATCH (n" + getCommonLabelStr() + "{" + prepareNeo4jIdPropertyFilterForCypher(subSetIds.get(0)) + "}) "
-                        + " RETURN count(n." + Neo4j_Key_For_Neo4j_Id + ") as cnt ";
+                        + " RETURN count(n." + Configs.Neo4j_Key_For_Neo4j_Id + ") as cnt ";
             } else {
                 query = " MATCH (n" + getCommonLabelStr() + ") "
-                        + " WHERE n." + Neo4j_Key_For_Neo4j_Id + " IN " + subSetIds.toString() + " "
-                        + " RETURN count(n." + Neo4j_Key_For_Neo4j_Id + ") as cnt ";
+                        + " WHERE n." + Configs.Neo4j_Key_For_Neo4j_Id + " IN " + subSetIds.toString() + " "
+                        + " RETURN count(n." + Configs.Neo4j_Key_For_Neo4j_Id + ") as cnt ";
             }
 
             //do the job do not return
@@ -6526,7 +6570,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         }
 
         Vector<Long> retVals = new Vector<Long>();
-        //retVals.add(getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id)));
+        //retVals.add(getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id)));
         for(Path path: trDescription.traverse(nodes)){
             Node endNode = path.endNode();
             //Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, path);
@@ -6594,12 +6638,12 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             if (subSetofIds.size() == 1) {
                 query = "MATCH (n" + getCommonLabelStr() + "{" + prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0)) + "}) "
                         + (getSuperInsteadOfSubclasses ? " -[:ISA]-> " : " <-[:ISA]- ") + " (m) "
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             } else {
                 query = " MATCH (n" + getCommonLabelStr() + ") "
                         + (getSuperInsteadOfSubclasses ? " -[:ISA]-> " : " <-[:ISA]- ") + " (m) "
-                        + " WHERE n." + Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " WHERE n." + Configs.Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             }
 
             //do the job do not return
@@ -6607,7 +6651,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             try {
                 while (res.hasNext()) {
 
-                    long val = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id));
+                    long val = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                     if (val > 0) {
                         tmpvec.add(val);
@@ -6673,13 +6717,13 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 query = " MATCH (n" + getCommonLabelStr() + "{" + prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0)) + "}) "
                         + (getFromInsteadOfTo ? " -[:RELATION]-> " : " <-[:RELATION]- ") + " (m:" + Configs.Neo4j_Key_For_Type_AttributeStr + ") "
                         +" WHERE NOT( \""+Configs.Labels.PrimitiveClass.name() +"\" IN labels(n))"
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             } else {
                 query = " MATCH (n" + getCommonLabelStr() + ") "
                         + (getFromInsteadOfTo ? " -[:RELATION]-> " : " <-[:RELATION]- ") + " (m:" + Configs.Neo4j_Key_For_Type_AttributeStr + ") "
-                        + " WHERE n." + Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
+                        + " WHERE n." + Configs.Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
                         +" AND NOT( \""+Configs.Labels.PrimitiveClass.name() +"\" IN labels(n))"
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
 
             }
 
@@ -6688,7 +6732,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             try {
                 while (res.hasNext()) {
 
-                    long val = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id));
+                    long val = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                     if (val > 0) {
                         tmpvec.add(val);
@@ -6754,20 +6798,20 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 query = " MATCH (n" + getCommonLabelStr() + "{" + prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0)) + "}) "
                         + (getFromInsteadOfTo ? " -[:ISA*0..]->(k)-[:RELATION]-> " : " -[:ISA*0..]->(k)<-[:RELATION]- ") + " (m:" + Configs.Neo4j_Key_For_Type_AttributeStr + ") "
                         +" WHERE NOT( \""+Configs.Labels.PrimitiveClass.name() +"\" IN labels(n))"
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             } else {
                 query = " MATCH (n" + getCommonLabelStr() + ") "
                         + (getFromInsteadOfTo ? " -[:ISA*0..]->(k)-[:RELATION]-> " : " -[:ISA*0..]->(k)<-[:RELATION]- ") + " (m:" + Configs.Neo4j_Key_For_Type_AttributeStr + ") "
-                        + " WHERE n." + Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
+                        + " WHERE n." + Configs.Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
                         +" AND NOT( \""+Configs.Labels.PrimitiveClass.name() +"\" IN labels(n))"
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             }
 
             //do the job do not return
             Result res = graphDb.execute(query);
             try {
                 while (res.hasNext()) {
-                    long val = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id));
+                    long val = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                     if (val > 0) {
                         tmpvec.add(val);
@@ -6832,12 +6876,12 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             if (subSetIds.size() == 1) {
                 query = " MATCH (n" + getCommonLabelStr() + "{" + prepareNeo4jIdPropertyFilterForCypher(subSetIds.get(0)) + "}), (n:" + Configs.Neo4j_Key_For_Type_AttributeStr + ") " +
                         (linksFromInsteadOfTo ? " <-[:RELATION]- " : " -[:RELATION]-> ") + " (m) " +
-                        " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             } else {
                 query = " MATCH (n" + getCommonLabelStr() + "), (n:" + Configs.Neo4j_Key_For_Type_AttributeStr + ") "+
                         (linksFromInsteadOfTo ? " <-[:RELATION]- " : " -[:RELATION]-> ") + " (m) " +
-                        " WHERE n." + Neo4j_Key_For_Neo4j_Id + " IN " + subSetIds.toString() + " " +
-                        " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        " WHERE n." + Configs.Neo4j_Key_For_Neo4j_Id + " IN " + subSetIds.toString() + " " +
+                        " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             }
 
             Result res = this.graphDb.execute(query);
@@ -6845,7 +6889,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             try {
                 while (res.hasNext()) {
                     
-                    long val = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id));
+                    long val = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                     if (val > 0) {
                         tempRetIds.add(val);
@@ -6911,14 +6955,14 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                         + (getFromInsteadOfTo ? " <-[:RELATION]- " : " -[:RELATION]-> ") + " (k:" + Configs.Neo4j_Key_For_Type_AttributeStr + ") "
                         + (getFromInsteadOfTo ? " <-[:RELATION]- " : " -[:RELATION]-> ") + " (m) "
                         +" WHERE NOT( \""+Configs.Labels.PrimitiveClass.name() +"\" IN labels(n))"
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             } else {
                 query = " MATCH (n" + getCommonLabelStr() + ") "
                         + (getFromInsteadOfTo ? " <-[:RELATION]- " : " -[:RELATION]-> ") + " (k:" + Configs.Neo4j_Key_For_Type_AttributeStr + ") "
                         + (getFromInsteadOfTo ? " <-[:RELATION]- " : " -[:RELATION]-> ") + " (m) "
-                        + " WHERE n." + Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
+                        + " WHERE n." + Configs.Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
                         + " AND NOT( \""+Configs.Labels.PrimitiveClass.name() +"\" IN labels(n))"
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             }
 
             //do the job do not return
@@ -6926,7 +6970,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             try {
                 while (res.hasNext()) {
 
-                    long val = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id));
+                    long val = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                     if (val > 0) {
                         tmpvec.add(val);
@@ -6990,12 +7034,12 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             if (subSetofIds.size() == 1) {
                 query = "MATCH (n" + getCommonLabelStr() + "{" + prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0)) + "}) "
                         + (getSuperInsteadOfSubclasses ? " -[:ISA*1..]-> " : " <-[:ISA*1..]- ") + " (m) "
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             } else {
                 query = " MATCH (n" + getCommonLabelStr() + ") "
                         + (getSuperInsteadOfSubclasses ? " -[:ISA*1..]-> " : " <-[:ISA*1..]- ") + " (m) "
-                        + " WHERE n." + Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " WHERE n." + Configs.Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             }
 
             //do the job do not return
@@ -7003,7 +7047,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             try {
                 while (res.hasNext()) {
 
-                    long val = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id));
+                    long val = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                     if (val > 0) {
                         tmpvec.add(val);
@@ -7064,12 +7108,12 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             if (subSetofIds.size() == 1) {
                 query = " MATCH(n" + getCommonLabelStr() + "{" + prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0)) + "}) "
                         + (getAllInsteadOfSimple ? " <-[:ISA*0..]-(k)<-[:INSTANCEOF]- " : " <-[:INSTANCEOF]- ") + " (m) "
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             } else {
                 query = " MATCH (n" + getCommonLabelStr() + ") "
                         + (getAllInsteadOfSimple ? " <-[:ISA*0..]-(k)<-[:INSTANCEOF]- " : " <-[:INSTANCEOF]- ") + " (m) "
-                        + " WHERE n." + Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " WHERE n." + Configs.Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             }
 
             //do the job do not return
@@ -7077,7 +7121,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             try {
                 while (res.hasNext()) {
 
-                    long val = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id));
+                    long val = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                     if (val > 0) {
                         tmpvec.add(val);
@@ -7142,12 +7186,12 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             if (subSetofIds.size() == 1) {
                 query = " MATCH(n" + getCommonLabelStr() + "{" + prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0)) + "}) "
                         + (getAllInsteadOfSimple ? " -[:INSTANCEOF]->(k)-[:ISA*0..]-> " : " -[:INSTANCEOF]-> ") + " (m) "
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             } else {
                 query = " MATCH (n" + getCommonLabelStr() + ") "
                         + (getAllInsteadOfSimple ? " -[:INSTANCEOF]->(k)-[:ISA*0..]-> " : " -[:INSTANCEOF]-> ") + " (m) "
-                        + " WHERE n." + Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
-                        + " RETURN m." + Neo4j_Key_For_Neo4j_Id + " as " + Neo4j_Key_For_Neo4j_Id + " ";
+                        + " WHERE n." + Configs.Neo4j_Key_For_Neo4j_Id + " IN " + subSetofIds.toString()
+                        + " RETURN m." + Configs.Neo4j_Key_For_Neo4j_Id + " as " + Configs.Neo4j_Key_For_Neo4j_Id + " ";
             }
 
             //do the job do not return
@@ -7155,7 +7199,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             try {
                 while (res.hasNext()) {
 
-                    long val = getNeo4jIdFromObject(res.next().get(Neo4j_Key_For_Neo4j_Id));
+                    long val = getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id));
 
                     if (val > 0) {
                         tmpvec.add(val);
@@ -7259,12 +7303,12 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         return null;
     }
     
-    //used in order to get next Facet Id of the specific thesaurus and 
-    //increment the thesaurus facet index by 1. This ThesaurusFacetId will
+    //used in order to get next Id of the specific thesaurus and 
+    //increment the thesaurus index by 1. This ThesaurusId will
     //be used for uri construction.
-    long getNextThesaurusFacetId(String targetThesaurus){
+    long getNextThesaurusId(String targetThesaurus){
         
-        String query = Configs.getNextThesaurusFacetIdQuery.replace("%THES%",targetThesaurus.toUpperCase());
+        String query = Configs.getNextThesaurusReferenceIdQuery.replace("%THES%",targetThesaurus.toUpperCase());
         
         Result res = graphDb.execute(query);
         try {
@@ -7283,126 +7327,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                     return val;
                 } else {
                     if (Configs.boolDebugInfo) {
-                        throw new UnsupportedOperationException();
-                    }
-                }
-            }
-            
-        } catch (Exception ex) {
-            utils.handleException(ex);
-            return APIFail;
-        } finally {
-            res.close();
-            res = null;
-        }
-        
-        return APIFail;
-    }
-    
-    //used in order to get next Hierarchy Id of the specific thesaurus and 
-    //increment the thesaurus Hierarchy index by 1. This ThesaurusHierarchyId will
-    //be used for uri construction.
-    long getNextThesaurusHierarchyId(String targetThesaurus){
-        
-        String query = Configs.getNextThesaurusHierarchyIdQuery.replace("%THES%",targetThesaurus.toUpperCase());
-        
-        Result res = graphDb.execute(query);
-        try {
-            while (res.hasNext()) {
-                Object oval = res.next().get("maxId");
-                long val=-1;
-                if(oval instanceof Integer){
-                    val = (int) oval;
-                }
-                else if(oval instanceof Long){
-                    val = (long) oval;
-                }
-                //long val = getNeo4jIdFromObject();
-
-                if (val > 0) {
-                    return val;
-                } else {
-                    if (Configs.boolDebugInfo) {
-                        throw new UnsupportedOperationException();
-                    }
-                }
-            }
-            
-        } catch (Exception ex) {
-            utils.handleException(ex);
-            return APIFail;
-        } finally {
-            res.close();
-            res = null;
-        }
-        
-        return APIFail;
-    }
-    
-    //used in order to get next Term Id of the specific thesaurus and 
-    //increment the thesaurus Term index by 1. This ThesaurusTermId will
-    //be used for uri construction.
-    long getNextThesaurusTermId(String targetThesaurus){
-        
-        String query = Configs.getNextThesaurusTermIdQuery.replace("%THES%",targetThesaurus.toUpperCase());
-        
-        Result res = graphDb.execute(query);
-        try {
-            while (res.hasNext()) {
-                Object oval = res.next().get("maxId");
-                long val=-1;
-                if(oval instanceof Integer){
-                    val = (int) oval;
-                }
-                else if(oval instanceof Long){
-                    val = (long) oval;
-                }
-                //long val = getNeo4jIdFromObject();
-
-                if (val > 0) {
-                    return val;
-                } else {
-                    if (Configs.boolDebugInfo) {
-                        throw new UnsupportedOperationException();
-                    }
-                }
-            }
-            
-        } catch (Exception ex) {
-            utils.handleException(ex);
-            return APIFail;
-        } finally {
-            res.close();
-            res = null;
-        }
-        
-        return APIFail;
-    }
-    
-    //used in order to get next Source Id of the specific thesaurus and 
-    //increment the thesaurus Source index by 1. This SourceId will
-    //be used for uri construction.
-    long getNextSourceId(){
-        
-        String query = Configs.getNextSourceIdQuery;
-        
-        Result res = graphDb.execute(query);
-        try {
-            while (res.hasNext()) {
-                Object oval = res.next().get("maxId");
-                long val=-1;
-                if(oval instanceof Integer){
-                    val = (int) oval;
-                }
-                else if(oval instanceof Long){
-                    val = (long) oval;
-                }
-                //long val = getNeo4jIdFromObject();
-
-                if (val > 0) {
-                    return val;
-                } else {
-                    if (Configs.boolDebugInfo) {
+                        System.out.println(query + "\r\nval: " + val);
                         throw new UnsupportedOperationException();
                     }
                 }
@@ -7425,7 +7350,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         //for(IndexDefinition def : graphDb.schema().getIndexes(Configs.Labels.Common)){
             
         //}
-        //String query = "MATCH(n"+getCommonLabelStr()+") RETURN max(n."+Neo4j_Key_For_Neo4j_Id+") as maxId ";
+        //String query = "MATCH(n"+getCommonLabelStr()+") RETURN max(n."+Configs.Neo4j_Key_For_Neo4j_Id+") as maxId ";
         
         //static final String getNextSystemNumberQuery = "MATCH(n:Common{Neo4j_Id:4}) set n.MaxNeo4j_Id=n.MaxNeo4j_Id+1 return n.MaxNeo4j_Id as maxId";
         String query = Configs.getNextSystemNumberQuery;
@@ -7488,7 +7413,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 
             }
             else{
-                query = " Match (n"+getCommonLabelStr()+") WHERE n."+Neo4j_Key_For_Neo4j_Id+" IN " + subSetofIds.toString() + " "+
+                query = " Match (n"+getCommonLabelStr()+") WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id+" IN " + subSetofIds.toString() + " "+
                         " RETURN n ";
             }
             

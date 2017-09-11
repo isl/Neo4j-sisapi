@@ -46,16 +46,19 @@ import org.neo4j.graphdb.RelationshipType;
  *
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
  */
-class Configs {
+public class Configs {
 
     static final String regExForUnNamed="^Label[0-9abcdef]+$";
     //Neo4j_Id = 4 for Telos_Object
     static final String getNextSystemNumberQuery = "MATCH(n:Common{Logicalname:\"Telos_Object\"}) set n.MaxNeo4j_Id=n.MaxNeo4j_Id+1 return n.MaxNeo4j_Id as maxId";
+        
+    static final String getNextThesaurusReferenceIdQuery = "MATCH(n:Common{Logicalname:\"Thesaurus`%THES%\"}) set n."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+"=n."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+"+1 return n."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+" as maxId";
+    //Single Counter added in Thesaurus`%THES% node. It is more flexible than the separate counters (it can easily be extended to include more properties)
     
-    static final String getNextThesaurusFacetIdQuery = "MATCH(n:Common{Logicalname:\"%THES%Facet\"}) set n.MaxThesaurusFacetId=n.MaxThesaurusFacetId+1 return n.MaxThesaurusFacetId as maxId";
-    static final String getNextThesaurusHierarchyIdQuery = "MATCH(n:Common{Logicalname:\"%THES%Hierarchy\"}) set n.MaxThesaurusHierarchyId=n.MaxThesaurusHierarchyId+1 return n.MaxThesaurusHierarchyId as maxId";
-    static final String getNextThesaurusTermIdQuery = "MATCH(n:Common{Logicalname:\"%THES%HierarchyTerm\"}) set n.MaxThesaurusTermId=n.MaxThesaurusTermId+1 return n.MaxThesaurusTermId as maxId";
-    static final String getNextSourceIdQuery = "MATCH(n:Common{Logicalname:\"Source\"}) set n.MaxSourceId=n.MaxSourceId+1 return n.MaxSourceId as maxId";
+    //static final String getNextThesaurusFacetIdQuery = "MATCH(n:Common{Logicalname:\"%THES%Facet\"}) set n.MaxThesaurusFacetId=n.MaxThesaurusFacetId+1 return n.MaxThesaurusFacetId as maxId";
+    //static final String getNextThesaurusHierarchyIdQuery = "MATCH(n:Common{Logicalname:\"%THES%Hierarchy\"}) set n.MaxThesaurusHierarchyId=n.MaxThesaurusHierarchyId+1 return n.MaxThesaurusHierarchyId as maxId";
+    //static final String getNextThesaurusTermIdQuery = "MATCH(n:Common{Logicalname:\"%THES%HierarchyTerm\"}) set n.MaxThesaurusTermId=n.MaxThesaurusTermId+1 return n.MaxThesaurusTermId as maxId";
+    //static final String getNextSourceIdQuery = "MATCH(n:Common{Logicalname:\"Source\"}) set n.MaxSourceId=n.MaxSourceId+1 return n.MaxSourceId as maxId";
     
     //Initialize val 
     /*
@@ -72,7 +75,7 @@ class Configs {
         return t    
     */
     
-    static boolean boolDebugInfo = false;
+    static boolean boolDebugInfo = true;
     //static final int MAX_NEO4j_ID_FOR_PRIMITIVE = 2;
     static final int MAX_IDS_PER_QUERY = 500;
     
@@ -112,8 +115,8 @@ class Configs {
         RELATION, ISA, INSTANCEOF
     }
     
-    static final String Key_Primitive_Value_Type = "Type";
-    static final String Key_Primitive_Value = "Value";
+    public static final String Key_Primitive_Value_Type = "Type";
+    public static final String Key_Primitive_Value = "Value";
     
     //MATCH (n:Type_Attribute) WHERE has(n.Type) RETURN DISTINCT  n.Type
     static final String Primitive_Value_Type_INT = "INT";
@@ -129,6 +132,19 @@ class Configs {
     
     static final String TelosObjectAttributeFromClsname =  "Telos_Object";
     static final String TelosObjectAttributeFromLinkname =  "attribute";
+    
+    
+    static final String Neo4j_Node_LogicalName_For_MaxNeo4jId = "Telos_Object";
+    public static final String Neo4j_Key_For_MaxNeo4jId = "MaxNeo4j_Id";
+    
+    static final String Neo4j_Node_LogicalName_For_MaxThesaurusReferenceId = "Thesaurus`%THES%";
+    public static final String Neo4j_Key_For_MaxThesaurusReferenceId = "MaxThesaurusReferenceId";
+    
+    public static final String Neo4j_Key_For_Neo4j_Id = "Neo4j_Id";
+    public static final String Neo4j_Key_For_Logicalname = "Logicalname";
+    public static final String Neo4j_Key_For_Transliteration = "Transliteration";
+    public static final String Neo4j_Key_For_ThesaurusReferenceId = "ThesaurusReferenceId";
+    
     
 }
 

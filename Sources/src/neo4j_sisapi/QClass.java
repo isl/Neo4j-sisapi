@@ -409,7 +409,7 @@ public class QClass {
             return APIFail;
         }
         
-        return db.getStringPropertyOfNode(sysid.getValue(), db.Neo4j_Key_For_Logicalname, lname);
+        return db.getStringPropertyOfNode(sysid.getValue(), Configs.Neo4j_Key_For_Logicalname, lname);
     }
     
     /**
@@ -754,7 +754,7 @@ public class QClass {
         Node n = db.getNeo4jNodeByNeo4jId(idObj.getValue());
         if(n!=null){
             sysid.setValue(idObj.value);
-            node.setValue((String) n.getProperty(db.Neo4j_Key_For_Logicalname));
+            node.setValue((String) n.getProperty(Configs.Neo4j_Key_For_Logicalname));
             Sclass.setValue(db.getNeo4jNodeSystemClass(n));
         }
         
@@ -1274,7 +1274,7 @@ public class QClass {
         }
         */
         // </editor-fold> 
-        if(db.getStringPropertyOfNode(objectSysId,db.Neo4j_Key_For_Logicalname, name)!=APIFail){
+        if(db.getStringPropertyOfNode(objectSysId,Configs.Neo4j_Key_For_Logicalname, name)!=APIFail){
             return APISucc;
         }
         return APIFail;
@@ -3645,10 +3645,9 @@ public class QClass {
     
     
     public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId){
-        return CHECK_Add_Node(node_name,level,updateIdentifierWithId,"","",NEW_REFERNCE_ID_ASSIGNMENT.NONE);
+        return CHECK_Add_Node(node_name,level,updateIdentifierWithId,"","",false);
     }
     
-    public enum NEW_REFERNCE_ID_ASSIGNMENT {NONE, TERM,HIERARCHY,FACET,SOURCE};
     /**
      * Adds a node with the logical name node_name at instantiation level level 
      * (SIS_API_TOKEN_CLASS,SIS_API_S_CLASS,SIS_API_M1_CLASS,SIS_API_M2_CLASS,
@@ -3658,7 +3657,7 @@ public class QClass {
      * @param level
      * @return 
      */
-    public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId, String transliteration,String selectedThesaurus, NEW_REFERNCE_ID_ASSIGNMENT assignementMode){
+    public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId, String transliteration,String selectedThesaurus, boolean assignNewId){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         START OF: sis_api::Add_Node 
@@ -3822,23 +3821,8 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
         long newNeo4jId = db.getNextNeo4jId();
         long newReferenceId = -1;
         
-        switch(assignementMode){
-            case TERM:{
-                newReferenceId = db.getNextThesaurusTermId(selectedThesaurus.toUpperCase());
-                break;
-            }
-            case HIERARCHY:{
-                newReferenceId = db.getNextThesaurusHierarchyId(selectedThesaurus.toUpperCase());
-                break;
-            }
-            case FACET:{
-                newReferenceId = db.getNextThesaurusFacetId(selectedThesaurus.toUpperCase());
-                break;
-            }
-            case SOURCE:{
-                newReferenceId = db.getNextSourceId();
-                break;
-            }
+        if(assignNewId){
+            newReferenceId = db.getNextThesaurusId(selectedThesaurus.toUpperCase());            
         }
         
         try{
@@ -3848,16 +3832,16 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
               //  newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, Integer.parseInt(""+newNeo4jId));
             //}
             //else{
-                newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
+                newNode.setProperty(Configs.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
             //}
             
-            newNode.setProperty(db.Neo4j_Key_For_Logicalname, node_name.getLogicalName());
+            newNode.setProperty(Configs.Neo4j_Key_For_Logicalname, node_name.getLogicalName());
             if(transliteration!=null && transliteration.length()>0){                
-                newNode.setProperty(db.Neo4j_Key_For_Transliteration, transliteration);
+                newNode.setProperty(Configs.Neo4j_Key_For_Transliteration, transliteration);
             }
             
             if(newReferenceId>0){
-                newNode.setProperty(db.Neo4j_Key_For_ReferenceId, newReferenceId);
+                newNode.setProperty(Configs.Neo4j_Key_For_ThesaurusReferenceId, newReferenceId);
             }
         
         }
@@ -4345,7 +4329,7 @@ Add_Named_Attribute_Exit_Point:
         //check if from -> attribute combination exists   
         Iterator<Relationship> fromNodeRelIter = fromNode.getRelationships(Configs.Rels.RELATION, Direction.OUTGOING).iterator();
         while(fromNodeRelIter.hasNext()){
-            String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(db.Neo4j_Key_For_Logicalname);
+            String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(Configs.Neo4j_Key_For_Logicalname);
             if(attrLoginam.equals(attribute.getLogicalName())){
                 return APIFail;
             }
@@ -4361,9 +4345,9 @@ Add_Named_Attribute_Exit_Point:
               //  newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, Integer.parseInt(""+newNeo4jId));
             //}
             //else{
-                newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
+                newNode.setProperty(Configs.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
             //}
-            newNode.setProperty(db.Neo4j_Key_For_Logicalname, attribute.getLogicalName());
+            newNode.setProperty(Configs.Neo4j_Key_For_Logicalname, attribute.getLogicalName());
 
 
             fromNode.createRelationshipTo(newNode, Configs.Rels.RELATION);
@@ -4789,7 +4773,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         Iterator<Relationship> fromNodeRelIter = fromNode.getRelationships(Configs.Rels.RELATION, Direction.OUTGOING).iterator();
         while(fromNodeRelIter.hasNext()){
             Node attrNode = fromNodeRelIter.next().getEndNode();
-            String attrLoginam = (String)attrNode.getProperty(db.Neo4j_Key_For_Logicalname);
+            String attrLoginam = (String)attrNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
             //only search unnammed attrbitues
             if(attrLoginam.matches(Configs.regExForUnNamed)==false){
                 continue;
@@ -4861,7 +4845,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
             for(Label lbl : labelArray){
                 newNode.addLabel(lbl);
             }
-            newNode.setProperty(db.Neo4j_Key_For_Logicalname, newLogicalName);
+            newNode.setProperty(Configs.Neo4j_Key_For_Logicalname, newLogicalName);
             //newNode..createNode(labelArray);
             fromNode.createRelationshipTo(newNode, Configs.Rels.RELATION);
             if(toNode!=null){
@@ -4891,7 +4875,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
                 //newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, Integer.parseInt(""+newNeo4jId));
             //}
             //else{
-                newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
+                newNode.setProperty(Configs.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
             //}
             
         }
@@ -6039,8 +6023,8 @@ int    semanticChecker::checkDeletion( SYSID delSid)
         while(lblIter.hasNext()){
             labelsToRemove.add(lblIter.next());
         }
-        if(n.hasProperty(db.Neo4j_Key_For_Neo4j_Id)){
-            propsToDelete.add(db.Neo4j_Key_For_Neo4j_Id);
+        if(n.hasProperty(Configs.Neo4j_Key_For_Neo4j_Id)){
+            propsToDelete.add(Configs.Neo4j_Key_For_Neo4j_Id);
         }
         Iterator<String> propIter = n.getPropertyKeys().iterator();
         while(propIter.hasNext()){
@@ -6825,7 +6809,7 @@ int sis_api::Rename_Node(IDENTIFIER * node, IDENTIFIER * NewNodeName)
                 return APIFail;
             }
             
-            n.setProperty(db.Neo4j_Key_For_Logicalname, NewNodeName.getLogicalName());
+            n.setProperty(Configs.Neo4j_Key_For_Logicalname, NewNodeName.getLogicalName());
         }
         catch(Exception ex){
             utils.handleException(ex);
@@ -6990,14 +6974,14 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             //check if from -> attribute combination exists
             Iterator<Relationship> fromNodeRelIter = fromNode.getRelationships(Configs.Rels.RELATION, Direction.OUTGOING).iterator();
             while(fromNodeRelIter.hasNext()){
-                String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(db.Neo4j_Key_For_Logicalname);
+                String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(Configs.Neo4j_Key_For_Logicalname);
                 if(attrLoginam.equals(NewName.getLogicalName())){
                     return APIFail;
                 }
             }
 
         
-            targetLinkNode.setProperty(db.Neo4j_Key_For_Logicalname, NewName.getLogicalName());
+            targetLinkNode.setProperty(Configs.Neo4j_Key_For_Logicalname, NewName.getLogicalName());
         }
         catch(Exception ex){
             utils.handleException(ex);
@@ -8327,10 +8311,20 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             return true;
         }
         
-        String lname = (String) n.getProperty(db.Neo4j_Key_For_Logicalname);
+        String lname = (String) n.getProperty(Configs.Neo4j_Key_For_Logicalname);
         if(lname.matches(Configs.regExForUnNamed)){
             return true;
         }
         return false;
+    }
+    
+    public int resetCounter_For_Neo4jId(){
+        
+        return db.resetCounter_For_Neo4jId();
+    }
+    
+    public int resetCounter_For_ThesarusReferenceId(String thesaurusName){
+        
+        return db.resetCounter_For_ThesaurusReferenceId(thesaurusName);
     }
 }

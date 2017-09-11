@@ -3151,8 +3151,9 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
 
         
         //retell individual descriptor in Token end
-		//2 more arguements were added so that an id value for uri construction and a transliteration property can also be assigned to the descriptor
-        ret = QC.CHECK_Add_Node(Iterm,QClass.SIS_API_TOKEN_CLASS,true,transliteration,userOperation.getValue(),QClass.NEW_REFERNCE_ID_ASSIGNMENT.TERM);
+        //2 more arguements were added so that an id value for uri construction 
+        //and a transliteration property can also be assigned to the descriptor
+        ret = QC.CHECK_Add_Node(Iterm,QClass.SIS_API_TOKEN_CLASS,true,transliteration,userOperation.getValue(),true);
         if (ret==QClass.APIFail) { 
             abort_create(term,errorMessage); 
             return TMS_APIFail;
@@ -3448,8 +3449,11 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         return ret;
     }
         
-    
     public int  CHECK_CreateFacet(StringObject facet){
+        return CHECK_CreateFacet(facet,"");
+    }
+    
+    public int  CHECK_CreateFacet(StringObject facet, String transliteration){
         
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
@@ -3657,7 +3661,7 @@ int tms_api::CreateFacet(char *facet)
         //Ithesaurus_class.tag = ID_TYPE_LOGINAM;
         
         //retell individual facet in S_Class end
-        ret = QC.CHECK_Add_Node(Ifacet,QClass.SIS_API_S_CLASS,true);
+        ret = QC.CHECK_Add_Node(Ifacet,QClass.SIS_API_S_CLASS,true,transliteration,userOperation.getValue(),true);
         if (ret==QClass.APIFail) { 
             abort_create(facet,errorMessage); 
             return TMS_APIFail; 
@@ -3689,6 +3693,10 @@ int tms_api::CreateFacet(char *facet)
     }
     
     public int  CHECK_CreateHierarchy(StringObject hierarchy, StringObject facet){
+        return CHECK_CreateHierarchy(hierarchy,facet,"");
+    }
+    
+    public int  CHECK_CreateHierarchy(StringObject hierarchy, StringObject facet, String transliteration){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
 -----------------------------------------------------------------
@@ -4230,7 +4238,7 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	//Ithesaurus_class.tag = ID_TYPE_LOGINAM;
 
 	//retell individual hierarchy in S_Class end
-	ret = QC.CHECK_Add_Node(Ihierarchy,QClass.SIS_API_S_CLASS, true);
+	ret = QC.CHECK_Add_Node(Ihierarchy,QClass.SIS_API_S_CLASS, true,transliteration,userOperation.getValue(),true);
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy,errorMessage);
             return TMS_APIFail;
@@ -4278,7 +4286,7 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
         }
 
 	//retell individual topterm in Token end
-	ret = QC.CHECK_Add_Node(Itopterm,QClass.SIS_API_TOKEN_CLASS,true);
+	ret = QC.CHECK_Add_Node(Itopterm,QClass.SIS_API_TOKEN_CLASS,true,transliteration,userOperation.getValue(),true);
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy,errorMessage);
             return TMS_APIFail;
