@@ -33,6 +33,7 @@
  */
 package neo4j_sisapi;
 
+import java.util.HashSet;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -208,6 +209,10 @@ class SET_DYNAMIC: public SSET {
     */
     //</editor-fold>
     private Vector<Long> nodesSet = new Vector<Long>();
+    //nodesHashSet (HashSet) contains the same data as nodeSet (Vector)    
+    //HashSet nodesHashSet is used in contains operations O(1) vs O(n) 
+    //Vector nodeSet is still necessary for function get_val_by_pos(int reqestedPos) 
+    private HashSet<Long> nodesHashSet = new HashSet<Long>();
     //private Vector<Time> timeSet = new Vector<Time>();
     private Vector<Integer> intSet = new Vector<Integer>();
     private Vector<String> stringSet = new Vector<String>();
@@ -233,6 +238,7 @@ class SET_DYNAMIC: public SSET {
     PQI_Set(){
         
         nodesSet = new Vector<Long>();
+        nodesHashSet = new HashSet<Long>();
         intSet = new Vector<Integer>();
         stringSet = new Vector<String>();
         this.set_clear();
@@ -370,18 +376,15 @@ class SET_DYNAMIC: public SSET {
         //this.card_ln = 0;
         this.card_n = 0;        
         this.card_s = 0;        
-        this.nodesSet.clear();  
+        this.nodesSet.clear(); 
+        this.nodesHashSet.clear();
         this.stringSet.clear();
         this.intSet.clear();
         this.point_tg =0;
     }
     
     Vector<Long> get_Neo4j_Ids(){
-        Vector<Long> neo4jIdList = new Vector<Long>();
-        for(Long rec : this.nodesSet){            
-            neo4jIdList.add(rec);
-        }
-        return neo4jIdList;
+        return new Vector<Long>(nodesHashSet);
     }
     
     int set_member_of(long id){
@@ -416,7 +419,7 @@ class SET_DYNAMIC: public SSET {
      */
     boolean set_disjoint(PQI_Set set){
         
-        for(long rec: set.nodesSet){
+        for(long rec: set.nodesHashSet){
             if(this.containsNeo4jId(rec)){
                 return false;
             }
@@ -441,7 +444,7 @@ class SET_DYNAMIC: public SSET {
         }
         
         //check if set contains the same as current set
-        for(long rec: this.nodesSet){
+        for(long rec: this.nodesHashSet){
             if(set.containsNeo4jId(rec)==false){
                 return false;
             }
@@ -466,7 +469,7 @@ class SET_DYNAMIC: public SSET {
         
         PQI_Set newSet = new PQI_Set();
         
-        for(Long rec : set.nodesSet){
+        for(Long rec : set.nodesHashSet){
             if(this.containsNeo4jId(rec)){
                 newSet.set_putNeo4j_Id(rec);
             }
@@ -658,6 +661,7 @@ int SYSID_SET::set_put(SYSID id)
         // </editor-fold>
         if(this.containsNeo4jId(id)==false){
             this.nodesSet.add(id);
+            this.nodesHashSet.add(id);
             card_id++;
             
             return QClass.APISucc;
@@ -691,14 +695,14 @@ int SYSID_SET::set_put(SYSID id)
     }
     
     int set_get_card(){
-        return (this.nodesSet.size()+this.intSet.size()+this.stringSet.size());
+        return (this.nodesHashSet.size()+this.intSet.size()+this.stringSet.size());
     }
     
     int set_union(PQI_Set set){
         if(set==null){
             return QClass.APISucc;
         }
-        for(long rec: set.nodesSet){
+        for(long rec: set.nodesHashSet){
             this.set_putNeo4j_Id(rec);
         }
         for(int rec: set.intSet){
@@ -714,7 +718,7 @@ int SYSID_SET::set_put(SYSID id)
         
         PQI_Set newSet = new PQI_Set();
         
-        for(Long rec : this.nodesSet){
+        for(Long rec : this.nodesHashSet){
             if(set.containsNeo4jId(rec)==false){
                 newSet.set_putNeo4j_Id(rec);
             }
@@ -842,12 +846,7 @@ int SYSID_SET::set_put(SYSID id)
 
     
     boolean containsNeo4jId(long linkId){
-        for(Long id : this.nodesSet ){
-            if(id==linkId){
-                return true;
-            }
-        }        
-        return false;
+        return this.nodesHashSet.contains(linkId);
     }
     
     boolean containsPrimitiveInt(int prmInt){

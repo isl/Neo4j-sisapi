@@ -34,7 +34,46 @@
 package neo4j_sisapi;
 
 import java.util.Vector;
+/*
+MATCH(n:Common:Token)-[:INSTANCEOF*1..]->(m:Common{Logicalname:"AATDEMODescriptor"}) 
+return n.Logicalname, replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(lower(n.Logicalname),'ά','α'),'έ','ε'),'ή','η'),'ί','ι'),'ό','ο'),'ύ','υ'),'ώ','ω'),'ϊ','ι'),'ΐ','ι'),'ϋ','υ'),'ΰ','υ') as str 
+order by str 
+SKIP 100 
+LIMIT 500
 
+Get Links to 
+
+MATCH(n:Common:Token)-[:INSTANCEOF*1..]->(m:Common{Logicalname:"ALLMERGEDDescriptor"}) 
+with  n as starting, replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(lower(n.Logicalname),'ά','α'),'έ','ε'),'ή','η'),'ί','ι'),'ό','ο'),'ύ','υ'),'ώ','ω'),'ϊ','ι'),'ΐ','ι'),'ϋ','υ'),'ΰ','υ') as str 
+order by str
+SKIP 1299
+LIMIT 50
+MATCH (starting)<-[r:RELATION]-(m)<-[:RELATION]-(to)
+WITH m as link, starting.Neo4j_Id as startingNeo4jId, starting.Logicalname as startingLogName,CASE has(m.Type) WHEN TRUE THEN null ELSE to.Neo4j_Id END as toId, CASE has(m.Type) WHEN TRUE THEN null ELSE to.Logicalname END as toName, to:Type_Attribute as toIsAttribute,CASE startNode(r) WHEN starting then 'Outgoing' ELSE 'Incoming' END as Direction 
+MATCH (link)-[:INSTANCEOF]->(categ)<-[:RELATION]-(fromCls)
+return startingNeo4jId, startingLogName, 
+       link.Neo4j_Id, link.Logicalname,link.Type ,link.Value, 
+	   fromCls.Neo4j_Id, fromCls.Logicalname, categ.Neo4j_Id, categ.Logicalname, 
+	   toId, toName, toIsAttribute, Direction
+
+
+get Links from
+
+MATCH(n:Common:Token)-[:INSTANCEOF*1..]->(m:Common{Logicalname:"ALLMERGEDDescriptor"}) 
+with  n as starting, replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(lower(n.Logicalname),'ά','α'),'έ','ε'),'ή','η'),'ί','ι'),'ό','ο'),'ύ','υ'),'ώ','ω'),'ϊ','ι'),'ΐ','ι'),'ϋ','υ'),'ΰ','υ') as str 
+order by str
+SKIP 1299
+LIMIT 50
+MATCH (starting)-[r:RELATION]->(m)-[:RELATION*0..1]->to)
+WHERE has(m.Type) OR to.Neo4j_Id <> m.Neo4j_Id
+WITH m as link, starting.Neo4j_Id as startingNeo4jId, starting.Logicalname as startingLogName,CASE has(m.Type) WHEN TRUE THEN null ELSE to.Neo4j_Id END as toId, CASE has(m.Type) WHEN TRUE THEN null ELSE to.Logicalname END as toName, to:Type_Attribute as toIsAttribute,CASE startNode(r) WHEN starting then 'Outgoing' ELSE 'Incoming' END as Direction 
+MATCH (link)-[:INSTANCEOF]->(categ)<-[:RELATION]-(fromCls)
+return startingNeo4jId, startingLogName, 
+       link.Neo4j_Id, link.Logicalname,link.Type ,link.Value, 
+	   fromCls.Neo4j_Id, fromCls.Logicalname, categ.Neo4j_Id, categ.Logicalname, 
+	   toId, toName, toIsAttribute, Direction
+
+*/
 /**
  *
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
