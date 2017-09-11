@@ -2818,6 +2818,10 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
     }
     
     public int  CHECK_CreateDescriptor(StringObject term, StringObject btterm){
+        return CHECK_CreateDescriptor(term, btterm,"");
+    }
+    
+    public int  CHECK_CreateDescriptor(StringObject term, StringObject btterm, String transliteration){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         char   thesaurus[LOGINAM_SIZE];
@@ -3145,8 +3149,10 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         
         Identifier Ithesaurus_hierarchy_term = new Identifier(thesaurus_hierarchy_term.getValue());
 
+        
         //retell individual descriptor in Token end
-        ret = QC.CHECK_Add_Node(Iterm,QClass.SIS_API_TOKEN_CLASS,true);
+		//2 more arguements were added so that an id value for uri construction and a transliteration property can also be assigned to the descriptor
+        ret = QC.CHECK_Add_Node(Iterm,QClass.SIS_API_TOKEN_CLASS,true,transliteration,userOperation.getValue(),QClass.NEW_REFERNCE_ID_ASSIGNMENT.TERM);
         if (ret==QClass.APIFail) { 
             abort_create(term,errorMessage); 
             return TMS_APIFail;

@@ -84,6 +84,9 @@ class DBaccess {
     
     
     final String Neo4j_Key_For_Logicalname = "Logicalname";
+    final String Neo4j_Key_For_Transliteration = "Transliteration";
+    final String Neo4j_Key_For_ReferenceId = "ReferenceId";
+    
     final String Neo4j_Key_For_SysId = "SysId";
     final String Neo4j_Key_For_Neo4j_Id = "Neo4j_Id";
     
@@ -201,7 +204,11 @@ class DBaccess {
             else {
                 query = " MATCH(n"+getCommonLabelStr()+")<-[:INSTANCEOF]-(m) "+
                         " WHERE n."+Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
-                        " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";                
+                        " RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";
+                
+                /*query = "UNWIND "+subSetofIds+" AS vector "
+                        +" MATCH (n"+getCommonLabelStr()+"{"+Neo4j_Key_For_Neo4j_Id+":vector})<-[:INSTANCEOF]-(m) "
+                        +" RETURN m."+Neo4j_Key_For_Neo4j_Id +" as "+ Neo4j_Key_For_Neo4j_Id +" ";*/
             }
             
             //do the job do not return
@@ -1023,7 +1030,23 @@ class DBaccess {
         }
         return retVal;
     }
-    
+	
+    long getNodeReferenceId(Node n){
+        long retVal = -1;
+        if(n.hasProperty(Neo4j_Key_For_ReferenceId)){
+            if(n.getProperty(Neo4j_Key_For_ReferenceId) instanceof Integer){
+
+
+            //if(Configs.CastNeo4jIdAsInt){
+                retVal = (int) n.getProperty(Neo4j_Key_For_ReferenceId);
+            }
+            else{
+                retVal = (long) n.getProperty(Neo4j_Key_For_ReferenceId);
+            }
+        }
+        return retVal;
+    }
+	
     Vector<Long> getNodeClassesNeo4jIds(Node n){
         Vector<Long> retVals = new Vector<Long>();
         Iterator<Relationship> instanceOfRels = n.getRelationships(Configs.Rels.INSTANCEOF, Direction.OUTGOING).iterator();
@@ -1034,6 +1057,7 @@ class DBaccess {
         }
         return retVals;
     }
+    
     
     Node getNeo4jNodeByNeo4jId(long neo4jId){
         if(neo4jId<=0){
@@ -1267,14 +1291,14 @@ class DBaccess {
             if(subSetofIds.size()==1){
                 
                 query = " MATCH (n"+getCommonLabelStr()+"{"+ prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"}) "
-                        + " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname ";
+                        + " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname, n."+Neo4j_Key_For_ReferenceId +" as refId, n."+Neo4j_Key_For_Transliteration +" as translit ";
 						
             }
             else {
                 
                 query = " MATCH (n"+getCommonLabelStr()+") "+
                         " WHERE n."+Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() +
-                        " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname ";
+                        " RETURN n."+Neo4j_Key_For_Neo4j_Id +" as id, n."+Neo4j_Key_For_Logicalname +" as lname, n."+Neo4j_Key_For_ReferenceId +" as refId, n."+Neo4j_Key_For_Transliteration +" as translit ";
 						
             }
             
@@ -1286,8 +1310,12 @@ class DBaccess {
                     long idVal = getNeo4jIdFromObject(row.get("id"));
                     
                     String lname = (String)row.get("lname");
+                    
+                    long refIdVal = getNeo4jIdFromObject(row.get("refId"));
+                    String transliteration = (String)row.get("translit");
+                    
                     if(idVal>0 && lname.length()>0){
-                        retRows.add(new Return_Nodes_Row(idVal,lname));
+                        retRows.add(new Return_Nodes_Row(idVal,lname,refIdVal,transliteration));
                     }
                     else{
                         abort = true;
@@ -1615,7 +1643,9 @@ class DBaccess {
         
         //each link has 1 and only one from value
         Hashtable<Long, String> Clss = new Hashtable<Long,String>();
+        Hashtable<Long, String> ClsTransliterations = new Hashtable<Long,String>();
         Hashtable<Long, Long> ClsIds = new Hashtable<Long,Long>();
+        Hashtable<Long, Long> ClsRefIds = new Hashtable<Long,Long>();
         Hashtable<Long, String> labels = new Hashtable<Long,String>();
         //link id i already have
         
@@ -1723,7 +1753,14 @@ class DBaccess {
                             String toLname = (String) otherNode.getProperty(Neo4j_Key_For_Logicalname);
                             Long toId = getNodeNeo4jId(otherNode);
                             CMValue cmVal = new CMValue();
-                            cmVal.assign_node(toLname, toId);
+                            Long toRefId = getNodeReferenceId(otherNode);
+                            String translit = "";
+                            if(otherNode.hasProperty(Neo4j_Key_For_Transliteration)){
+                                translit=(String) otherNode.getProperty(Neo4j_Key_For_Transliteration);
+                            }
+                            
+                            cmVal.assign_node(toLname, toId,translit,toRefId);
+                            
                             if(cmvalues.containsKey(linkId)){
                                 if(Configs.boolDebugInfo){
                                     Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Link with id: " +linkId +" found with more that one values. " + cmVal.toString() +" " +cmvalues.get(linkId).toString());
@@ -1737,6 +1774,18 @@ class DBaccess {
                         String cls = (String) otherNode.getProperty(Neo4j_Key_For_Logicalname);
                         Clss.put(linkId, cls);
                         ClsIds.put(linkId, getNodeNeo4jId(otherNode));
+                        
+                        String clsTranslLit = "";
+                        if(otherNode.hasProperty(Neo4j_Key_For_Transliteration)){
+                            clsTranslLit = (String) otherNode.getProperty(Neo4j_Key_For_Transliteration);
+                        }
+                        ClsTransliterations.put(linkId, clsTranslLit);
+                        long clsRefId = -1;
+                        if(otherNode.hasProperty(Neo4j_Key_For_ReferenceId)){
+                            clsRefId =  getNodeReferenceId(otherNode);
+                        }
+                        ClsRefIds.put(linkId, clsRefId);
+                        
                     }
                 }//relationships iterator
             }//else case of if path.length() ==0
@@ -1760,7 +1809,9 @@ class DBaccess {
         */
         for(Long linkId : linkIds){
             String cls="";
+            String clsTranslit="";
             long clsId=-1;
+            long clsRefId=-1;
             String label ="";
             //linkId
             String categ="";
@@ -1773,8 +1824,14 @@ class DBaccess {
             if(Clss.containsKey(linkId)){
                 cls=Clss.get(linkId);
             }
+            if(ClsTransliterations.containsKey(linkId)){
+                clsTranslit=ClsTransliterations.get(linkId);
+            }
             if(ClsIds.containsKey(linkId)){
                 clsId=ClsIds.get(linkId);
+            }
+            if(ClsRefIds.containsKey(linkId)){
+                clsRefId=ClsRefIds.get(linkId);
             }
             if(labels.containsKey(linkId)){
                 label = labels.get(linkId);
@@ -1795,7 +1852,7 @@ class DBaccess {
                 unique = QClass.APIFail;
             }
             
-            retRows.add(new Return_Full_Link_Id_Row(linkId, cls,clsId,label,categ,fromCls,categId,cmval,unique));
+            retRows.add(new Return_Full_Link_Id_Row(linkId, cls,clsId,label,categ,fromCls,categId,cmval,unique,clsRefId,clsTranslit));
         }
         
         return APISucc;
@@ -2740,11 +2797,13 @@ class DBaccess {
     
     long getNeo4jIdFromObject(Object o){
         long retVal = -1;
-        if(o instanceof Integer){
-            retVal = (int) o;
-        }
-        else{
-            retVal = (long) o;
+        if(o!=null){
+            if(o instanceof Integer){
+                retVal = (int) o;
+            }
+            else{
+                retVal = (long) o;
+            }
         }
         //if(Configs.CastNeo4jIdAsInt){
             
@@ -7199,6 +7258,167 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
      
         return null;
     }
+    
+    //used in order to get next Facet Id of the specific thesaurus and 
+    //increment the thesaurus facet index by 1. This ThesaurusFacetId will
+    //be used for uri construction.
+    long getNextThesaurusFacetId(String targetThesaurus){
+        
+        String query = Configs.getNextThesaurusFacetIdQuery.replace("%THES%",targetThesaurus.toUpperCase());
+        
+        Result res = graphDb.execute(query);
+        try {
+            while (res.hasNext()) {
+                Object oval = res.next().get("maxId");
+                long val=-1;
+                if(oval instanceof Integer){
+                    val = (int) oval;
+                }
+                else if(oval instanceof Long){
+                    val = (long) oval;
+                }
+                //long val = getNeo4jIdFromObject();
+
+                if (val > 0) {
+                    return val;
+                } else {
+                    if (Configs.boolDebugInfo) {
+                        throw new UnsupportedOperationException();
+                    }
+                }
+            }
+            
+        } catch (Exception ex) {
+            utils.handleException(ex);
+            return APIFail;
+        } finally {
+            res.close();
+            res = null;
+        }
+        
+        return APIFail;
+    }
+    
+    //used in order to get next Hierarchy Id of the specific thesaurus and 
+    //increment the thesaurus Hierarchy index by 1. This ThesaurusHierarchyId will
+    //be used for uri construction.
+    long getNextThesaurusHierarchyId(String targetThesaurus){
+        
+        String query = Configs.getNextThesaurusHierarchyIdQuery.replace("%THES%",targetThesaurus.toUpperCase());
+        
+        Result res = graphDb.execute(query);
+        try {
+            while (res.hasNext()) {
+                Object oval = res.next().get("maxId");
+                long val=-1;
+                if(oval instanceof Integer){
+                    val = (int) oval;
+                }
+                else if(oval instanceof Long){
+                    val = (long) oval;
+                }
+                //long val = getNeo4jIdFromObject();
+
+                if (val > 0) {
+                    return val;
+                } else {
+                    if (Configs.boolDebugInfo) {
+                        throw new UnsupportedOperationException();
+                    }
+                }
+            }
+            
+        } catch (Exception ex) {
+            utils.handleException(ex);
+            return APIFail;
+        } finally {
+            res.close();
+            res = null;
+        }
+        
+        return APIFail;
+    }
+    
+    //used in order to get next Term Id of the specific thesaurus and 
+    //increment the thesaurus Term index by 1. This ThesaurusTermId will
+    //be used for uri construction.
+    long getNextThesaurusTermId(String targetThesaurus){
+        
+        String query = Configs.getNextThesaurusTermIdQuery.replace("%THES%",targetThesaurus.toUpperCase());
+        
+        Result res = graphDb.execute(query);
+        try {
+            while (res.hasNext()) {
+                Object oval = res.next().get("maxId");
+                long val=-1;
+                if(oval instanceof Integer){
+                    val = (int) oval;
+                }
+                else if(oval instanceof Long){
+                    val = (long) oval;
+                }
+                //long val = getNeo4jIdFromObject();
+
+                if (val > 0) {
+                    return val;
+                } else {
+                    if (Configs.boolDebugInfo) {
+                        throw new UnsupportedOperationException();
+                    }
+                }
+            }
+            
+        } catch (Exception ex) {
+            utils.handleException(ex);
+            return APIFail;
+        } finally {
+            res.close();
+            res = null;
+        }
+        
+        return APIFail;
+    }
+    
+    //used in order to get next Source Id of the specific thesaurus and 
+    //increment the thesaurus Source index by 1. This SourceId will
+    //be used for uri construction.
+    long getNextSourceId(){
+        
+        String query = Configs.getNextSourceIdQuery;
+        
+        Result res = graphDb.execute(query);
+        try {
+            while (res.hasNext()) {
+                Object oval = res.next().get("maxId");
+                long val=-1;
+                if(oval instanceof Integer){
+                    val = (int) oval;
+                }
+                else if(oval instanceof Long){
+                    val = (long) oval;
+                }
+                //long val = getNeo4jIdFromObject();
+
+                if (val > 0) {
+                    return val;
+                } else {
+                    if (Configs.boolDebugInfo) {
+                        throw new UnsupportedOperationException();
+                    }
+                }
+            }
+            
+        } catch (Exception ex) {
+            utils.handleException(ex);
+            return APIFail;
+        } finally {
+            res.close();
+            res = null;
+        }
+        
+        return APIFail;
+    }
+    
     //static long nextSystemNumber = 20000;
     long getNextNeo4jId(){
         //return nextSystemNumber++;

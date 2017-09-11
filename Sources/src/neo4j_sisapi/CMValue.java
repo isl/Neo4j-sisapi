@@ -59,8 +59,12 @@ public class CMValue {
     
     int type;
     long sysid;
+
     Time t;
     String s;
+	//2 more properties are needed the reference Id and the trasliteration that searching and sorting
+	long refid;
+    String transliteration;
     int n;
     float r;
 
@@ -71,8 +75,10 @@ public class CMValue {
     void reset_values() {
       type = TYPE_EMPTY;
       sysid = 0;
+      refid = 0;
       t = null;
       s = null;
+      transliteration = null;      
       n = 0;
       r = 0.0F;
     }
@@ -93,7 +99,7 @@ public class CMValue {
             return retVal;
         }
         if(this.type==TYPE_NODE){
-            retVal.assign_node(this.getString(), this.getSysid());
+            retVal.assign_node(this.getString(), this.getSysid(),this.getTransliterationString(),this.getRefid());
             return retVal;
         }
         if(Configs.boolDebugInfo){
@@ -113,7 +119,7 @@ public class CMValue {
             other.assign_string(this.getString());
         }
         else if(this.type==TYPE_NODE){
-            other.assign_node(this.getString(), this.getSysid());            
+            other.assign_node(this.getString(), this.getSysid(),this.getTransliterationString(),this.getRefid());            
         }
         else if(Configs.boolDebugInfo){
             Logger.getLogger(CMValue.class.getName()).log(Level.INFO, "Copy called on CMV that is not EMTPY, INT,STRING, or Node TYPE:" + this.type);
@@ -133,6 +139,20 @@ public class CMValue {
       type = TYPE_NODE;
       sysid = id;
       s = new String(str);
+    }
+    
+    public void assign_node(String str, long id, String translit, long refIdVal) {
+      reset_values();
+      type = TYPE_NODE;
+      sysid = id;
+      this.refid = refIdVal;
+      s = new String(str);
+      if(translit!=null){
+        this.transliteration = new String(translit);
+      }
+      else{
+          this.transliteration = new String("");
+      }
     }
 
     public void assign_string(String str) {
@@ -168,6 +188,9 @@ public class CMValue {
     public long getSysid() {
       return sysid;
     }
+    public long getRefid() {
+      return refid;
+    }
 
     public Time getTime() {
       return t;
@@ -175,6 +198,10 @@ public class CMValue {
 
     public String getString() {
       return s;
+    }
+    
+    public String getTransliterationString() {
+      return transliteration;
     }
     public int getInt() {
       return n;

@@ -3643,6 +3643,12 @@ public class QClass {
         db.ChangeNodeLabelNeo4j_Id(OriginalLogicalname, NewLogicalname);
     }
     
+    
+    public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId){
+        return CHECK_Add_Node(node_name,level,updateIdentifierWithId,"","",NEW_REFERNCE_ID_ASSIGNMENT.NONE);
+    }
+    
+    public enum NEW_REFERNCE_ID_ASSIGNMENT {NONE, TERM,HIERARCHY,FACET,SOURCE};
     /**
      * Adds a node with the logical name node_name at instantiation level level 
      * (SIS_API_TOKEN_CLASS,SIS_API_S_CLASS,SIS_API_M1_CLASS,SIS_API_M2_CLASS,
@@ -3652,7 +3658,7 @@ public class QClass {
      * @param level
      * @return 
      */
-    public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId){
+    public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId, String transliteration,String selectedThesaurus, NEW_REFERNCE_ID_ASSIGNMENT assignementMode){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         START OF: sis_api::Add_Node 
@@ -3814,6 +3820,26 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
         }
         
         long newNeo4jId = db.getNextNeo4jId();
+        long newReferenceId = -1;
+        
+        switch(assignementMode){
+            case TERM:{
+                newReferenceId = db.getNextThesaurusTermId(selectedThesaurus.toUpperCase());
+                break;
+            }
+            case HIERARCHY:{
+                newReferenceId = db.getNextThesaurusHierarchyId(selectedThesaurus.toUpperCase());
+                break;
+            }
+            case FACET:{
+                newReferenceId = db.getNextThesaurusFacetId(selectedThesaurus.toUpperCase());
+                break;
+            }
+            case SOURCE:{
+                newReferenceId = db.getNextSourceId();
+                break;
+            }
+        }
         
         try{
             
@@ -3826,6 +3852,13 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
             //}
             
             newNode.setProperty(db.Neo4j_Key_For_Logicalname, node_name.getLogicalName());
+            if(transliteration!=null && transliteration.length()>0){                
+                newNode.setProperty(db.Neo4j_Key_For_Transliteration, transliteration);
+            }
+            
+            if(newReferenceId>0){
+                newNode.setProperty(db.Neo4j_Key_For_ReferenceId, newReferenceId);
+            }
         
         }
         catch(Exception ex){

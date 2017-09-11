@@ -51,6 +51,12 @@ class Configs {
     static final String regExForUnNamed="^Label[0-9abcdef]+$";
     //Neo4j_Id = 4 for Telos_Object
     static final String getNextSystemNumberQuery = "MATCH(n:Common{Logicalname:\"Telos_Object\"}) set n.MaxNeo4j_Id=n.MaxNeo4j_Id+1 return n.MaxNeo4j_Id as maxId";
+    
+    static final String getNextThesaurusFacetIdQuery = "MATCH(n:Common{Logicalname:\"%THES%Facet\"}) set n.MaxThesaurusFacetId=n.MaxThesaurusFacetId+1 return n.MaxThesaurusFacetId as maxId";
+    static final String getNextThesaurusHierarchyIdQuery = "MATCH(n:Common{Logicalname:\"%THES%Hierarchy\"}) set n.MaxThesaurusHierarchyId=n.MaxThesaurusHierarchyId+1 return n.MaxThesaurusHierarchyId as maxId";
+    static final String getNextThesaurusTermIdQuery = "MATCH(n:Common{Logicalname:\"%THES%HierarchyTerm\"}) set n.MaxThesaurusTermId=n.MaxThesaurusTermId+1 return n.MaxThesaurusTermId as maxId";
+    static final String getNextSourceIdQuery = "MATCH(n:Common{Logicalname:\"Source\"}) set n.MaxSourceId=n.MaxSourceId+1 return n.MaxSourceId as maxId";
+    
     //Initialize val 
     /*
         MATCH(n:Common) with max (n.Neo4j_Id) as newVal

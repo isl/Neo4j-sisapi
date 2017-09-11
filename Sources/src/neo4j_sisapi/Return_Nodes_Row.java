@@ -40,18 +40,34 @@ package neo4j_sisapi;
 public class Return_Nodes_Row {
     PrimitiveObject_Long nodeId;
     StringObject v1_cls;
-    
+
+	// augmented with 2 properties in order to retrieve information about the
+    // - Node reference Id (Facet/Hierarchy/Term/Source), and
+	// - Trasliteration of logicalname that can be used for search or sorting
+    PrimitiveObject_Long referenceId;    
+    StringObject transliteration;    
+	    
     public Return_Nodes_Row(){
         nodeId = new PrimitiveObject_Long();
+        referenceId = new PrimitiveObject_Long();
         v1_cls = new StringObject();
+        transliteration = new StringObject();
     }
     
     Return_Nodes_Row(long lId, String lname){
         this();
         this.nodeId.setValue(lId);
-        this.v1_cls.setValue(lname);
-        
+        this.v1_cls.setValue(lname);        
     }
+    
+    Return_Nodes_Row(long lId, String lname,long cid, String transliterationStr){
+        this();
+        this.nodeId.setValue(lId);
+        this.referenceId.setValue(cid);
+        this.v1_cls.setValue(lname);
+        this.transliteration.setValue(transliterationStr);
+    }
+    
     
     public long get_Neo4j_NodeId(){
         return nodeId.getValue();
@@ -65,5 +81,26 @@ public class Return_Nodes_Row {
      */
     public String get_v1_cls_logicalname(){
         return v1_cls.getValue();
+    }
+    
+    /**
+     * v2 stands for variable in position 2 after set_id in 
+     * the signature of the base function return_nodes
+     * 
+     * @return 
+     */
+    public long get_v2_long_referenceId(){
+        return referenceId.getValue();
+    }
+    
+    
+    /**
+     * v3 stands for variable in position 3 after set_id in 
+     * the signature of the base function return_nodes
+     * 
+     * @return 
+     */
+    public String get_v3_cls_transliteration(){
+        return transliteration.getValue();
     }
 }
