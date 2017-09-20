@@ -1041,6 +1041,14 @@ class DBaccess {
         return retVal;
     }
 	
+    String getNodeTransliterationString(Node n){
+        String retVal = "";
+        if(n.hasProperty(Configs.Neo4j_Key_For_Transliteration)){
+            retVal = (String) n.getProperty(Configs.Neo4j_Key_For_Transliteration);            
+        }
+        return retVal;
+    }
+	
     Vector<Long> getNodeClassesNeo4jIds(Node n){
         Vector<Long> retVals = new Vector<Long>();
         Iterator<Relationship> instanceOfRels = n.getRelationships(Configs.Rels.INSTANCEOF, Direction.OUTGOING).iterator();
@@ -1593,14 +1601,27 @@ class DBaccess {
         return APISucc;
     }
     
-    int resetCounter_For_ThesaurusReferenceId(String thesaurusName){
+    int resetCounter_For_ThesaurusReferenceId(String thesaurusName, long resetToSpecifiedValue){
         //another policy might be to count Facets, Hierarchies, Terms and assign the sum of them. But this is more flexible
                 
         //update MaxNeo4j_Id property in Thesarus node
-        String query = "MATCH(n:"+Configs.CommonLabelName+") with max (n."+Configs.Neo4j_Key_For_ThesaurusReferenceId+") as newVal " +
-                "MATCH(t:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+Configs.Neo4j_Node_LogicalName_For_MaxThesaurusReferenceId.replace("%THES%", thesaurusName.toUpperCase())+"\"}) " +
-                "SET t."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+" = newVal " +
-                "return t."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+" as "+ Configs.Neo4j_Key_For_MaxThesaurusReferenceId;
+        /* e.g. 
+        Match(n:Common{Logicalname:"Thesaurus`ANCIENT"})<-[:RELATION]-(link:Common{Logicalname:"ANCIENT`of_thesaurus"})<-[:RELATION]-(m)<-[:ISA*0..]-(k)<-[:INSTANCEOF*0..1]-(p) with max(p.ThesaurusReferenceId) as newVal return newVal
+        */
+        String query = "";
+        if(resetToSpecifiedValue>0){
+           query = " MATCH(t:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+Configs.Neo4j_Node_LogicalName_For_MaxThesaurusReferenceId.replace("%THES%", thesaurusName.toUpperCase())+"\"}) " +
+                    " SET t."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+" = "+resetToSpecifiedValue + 
+                    " return t."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+" as "+ Configs.Neo4j_Key_For_MaxThesaurusReferenceId;
+        }
+        else{
+            query = " Match(n:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\"Thesaurus`"+thesaurusName.toUpperCase()+"\"}) "+ 
+                    " <-[:RELATION]-(link:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+thesaurusName.toUpperCase()+"`of_thesaurus\"})<-[:RELATION]-(m)<-[:ISA*0..]-(k)<-[:INSTANCEOF*0..1]-(p) with max(p."+Configs.Neo4j_Key_For_ThesaurusReferenceId+") as newVal " +
+                    " MATCH(t:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+Configs.Neo4j_Node_LogicalName_For_MaxThesaurusReferenceId.replace("%THES%", thesaurusName.toUpperCase())+"\"}) " +
+                    " SET t."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+" = newVal " +
+                    " return t."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+" as "+ Configs.Neo4j_Key_For_MaxThesaurusReferenceId;
+        
+        }
         //System.out.println("resetCounter_For_ThesaurusReferenceId\r\n============================\r\n"+query);
         
         Result res = null;
@@ -1690,9 +1711,10 @@ class DBaccess {
         
         //each link has 1 and only one from value
         Hashtable<Long, String> Clss = new Hashtable<Long,String>();
-        Hashtable<Long, String> ClsTransliterations = new Hashtable<Long,String>();
+        
         Hashtable<Long, Long> ClsIds = new Hashtable<Long,Long>();
         Hashtable<Long, Long> ClsRefIds = new Hashtable<Long,Long>();
+        Hashtable<Long, String> ClsTransliterations = new Hashtable<Long,String>();
         Hashtable<Long, String> labels = new Hashtable<Long,String>();
         //link id i already have
         
@@ -2168,16 +2190,24 @@ class DBaccess {
         Hashtable<Long, String> fromCls = new Hashtable<Long,String>();
         Hashtable<Long, CMValue> cmvs = new Hashtable<Long,CMValue>();
         
+        Hashtable<Long, Long> ClsRefIds = new Hashtable<Long,Long>();
+        Hashtable<Long, String> ClsTransliterations = new Hashtable<Long,String>();
+        
         for (Path path : bothDirectionsTr.traverse(nodes)) {
             Node pathStartNode = path.startNode();
             long pathStartNodeId = getNodeNeo4jId(pathStartNode);
+            String lname = (String) pathStartNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
+            
             
             //take all lnames and primitive values if exist
             if(path.length()==0){
                 
-                if(linkIds.contains(pathStartNodeId)&&lnames.containsKey(pathStartNodeId) ==false){
-                    String lname = (String) pathStartNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
+                if(linkIds.contains(pathStartNodeId)&& lnames.containsKey(pathStartNodeId) ==false){
+                    
                     lnames.put(pathStartNodeId, lname);
+                    //ClsRefIds.put(pathStartNodeId,startNodeRefId);
+                    //ClsTransliterations.put(startNodeRefId, startNodTtransliterationStr);
+                    
                     
                     //get primitive if exists
                     if(nodeHasPrimitive(pathStartNode)){
@@ -2226,7 +2256,10 @@ class DBaccess {
                             String toLname = (String) otherNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
                             Long toId = getNodeNeo4jId(otherNode);
                             CMValue cmVal = new CMValue();
-                            cmVal.assign_node(toLname, toId);
+                            Long toRefId = getNodeThesaurusReferenceId(otherNode);
+                            String toTransliterationVal = getNodeTransliterationString(otherNode);
+                            
+                            cmVal.assign_node(toLname, toId,toTransliterationVal,toRefId);
                             if(cmvs.containsKey(linkId)){
                                 if(Configs.boolDebugInfo){
                                     Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Link with id: " +linkId +" found with more that one values. " + cmVal.toString() +" " +cmvs.get(linkId).toString());
@@ -2238,7 +2271,12 @@ class DBaccess {
                     }
                     else{//get the from cls value from otherNode
                         String cls = (String) otherNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
+                        long clsRefId = getNodeThesaurusReferenceId(otherNode);
+                        String clsTtransliterationStr = getNodeTransliterationString(otherNode);
                         fromCls.put(linkId, cls);
+                        ClsRefIds.put(linkId, clsRefId);
+                        ClsTransliterations.put(linkId, clsTtransliterationStr);
+                        
                     }
                 }//relationships iterator
             }//else case of if path.length() ==0
@@ -2249,20 +2287,29 @@ class DBaccess {
         Enumeration<Long> lnamesEnum =  lnames.keys();
         while(lnamesEnum.hasMoreElements()){
             Long id = lnamesEnum.nextElement();
+            Long refId = -1L;
+            
             String lname = lnames.get(id);
             String className = "";
+            String transliterationStr ="";
             CMValue cmval = new CMValue();
             cmval.assign_empty();
             
+            if(ClsRefIds.containsKey(id)){
+                refId = ClsRefIds.get(id);
+            }
             if(fromCls.containsKey(id)){
                 className = fromCls.get(id);
+            }
+            if(ClsTransliterations.containsKey(id)){
+                transliterationStr= ClsTransliterations.get(id);
             }
             
             if(cmvs.containsKey(id)){
                 cmvs.get(id).copyToOtherObject(cmval);
             }
             
-            retRows.add(new Return_Link_Row(id, className,lname,cmval));            
+            retRows.add(new Return_Link_Row(id, className,lname,cmval,refId,transliterationStr));            
         }
         
         return APISucc;
@@ -2840,6 +2887,26 @@ class DBaccess {
     
     
     long getNeo4jIdFromObject(Object o){
+        long retVal = -1;
+        if(o!=null){
+            if(o instanceof Integer){
+                retVal = (int) o;
+            }
+            else{
+                retVal = (long) o;
+            }
+        }
+        //if(Configs.CastNeo4jIdAsInt){
+            
+        //}
+        //else{
+        //    retVal = (long) o;
+        //}
+        
+        return retVal;
+    }
+    
+    long getThesaurusReferenceIdFromObject(Object o){
         long retVal = -1;
         if(o!=null){
             if(o instanceof Integer){
@@ -3484,7 +3551,76 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         */
         return APISucc;
     }
+    int getMatchedOnTransliteration(Vector<Long> ids, String searchVal, PQI_Set retIds){
+        //Vector<Pattern_info> pattrns = new Vector<Pattern_info>();
+        //CHECK_setup_patterns(ptrn_set,pattrns);
+        
+        //no check if all ids exist??
+        //Hashtable<Long, String> logicalnames = new Hashtable<Long,String>();
+        
+        int loopIndex = 0;
+        int maxIndex = ids.size();
+
+        if(maxIndex==0){
+            return APISucc;
+        }
+        
+        while (loopIndex < maxIndex) {
+
+            //-30 added because query contains , n."+ Configs.Neo4j_Key_For_Logicalname +" as lname " 
+            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY-30, ids);
+            loopIndex += subSetofIds.size();
+            if(subSetofIds.size()==0){
+                break;
+            }
+            String query ="";
+            
+            if(subSetofIds.size()==1){
+                
+                query = " MATCH (n"+getCommonLabelStr()+"{"+ prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"}) " + 
+                        " WHERE n."+Configs.Neo4j_Key_For_Transliteration +" =~ '.*" + searchVal+".*' " +
+                        " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id ";//, n."+ Configs.Neo4j_Key_For_Logicalname +" as lname ";
+						
+            }
+            else {
+                query = " MATCH (n"+getCommonLabelStr()+") "+
+                        " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + " AND " +
+                              " n."+Configs.Neo4j_Key_For_Transliteration +" =~ '.*" + searchVal+".*' " +
+                        " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id ";// , n."+ Configs.Neo4j_Key_For_Logicalname +" as lname ";
+						
+            }
+            
+            //do the job do not return
+            Result res = graphDb.execute(query);
+            try{
+                while (res.hasNext()) {
+                    Map<String,Object> row = res.next();
+                    long id = getNeo4jIdFromObject(row.get("id"));
+                    //String lname = (String) row.get("lname");
+                 
+                    retIds.set_putNeo4j_Id(id);
+                    
+                    /*if(logicalnames.containsKey(id)&& logicalnames.get(id).equals(lname)==false){
+                        throw new UnsupportedOperationException(" In get matched. Have found more than one logical name for Neo4j_Id " + id + "\nlname 1: "+lname+"\nlname 2: "+logicalnames.get(id));
+                    }
+                    
+                    logicalnames.put(id, lname);*/
+                }
+                //ATTENTION do not return here 
+                
+            }
+            catch(Exception ex){
+                utils.handleException(ex);
+                return APIFail;
+            }
+            finally{
+                res.close();
+                res = null;
+            }
+        }
     
+        return APISucc;
+    }
     int getMatched(Vector<Long> ids,PQI_Set ptrn_set, PQI_Set retIds){
         
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
@@ -5005,22 +5141,32 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
     }
     
     long setCurrentNode(Vector<Long> CurrentNode_Ids_Stack, String currentNodeName){
-        
+        return setCurrentNode(CurrentNode_Ids_Stack,currentNodeName,null);
+    }
+    
+    long setCurrentNode(Vector<Long> CurrentNode_Ids_Stack, String currentNodeName, CMValue retCMValue){
         String query = "";
+        
+        boolean skipRetCMValue = true;
+        if(retCMValue!=null){
+            skipRetCMValue = false;
+        }
 
         if (CurrentNode_Ids_Stack.size() == 0) {
 
             query = " MATCH (n" + getCommonLabelStr() + "{"+prepareLogicalNameForCypher(currentNodeName) + "}) "+
                     "WHERE NOT( \"" + Configs.Neo4j_Key_For_Type_AttributeStr+"\"  IN labels(n) ) "+
-                    " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
+                    " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" " + 
+                    (skipRetCMValue?"":", n."+Configs.Neo4j_Key_For_Logicalname +" as lname, n."+Configs.Neo4j_Key_For_Transliteration +" as translit, n." +Configs.Neo4j_Key_For_ThesaurusReferenceId +" as thesRefId" ) ;
         } else {
 
             long currentNodeId = CurrentNode_Ids_Stack.lastElement();
 
             query = " MATCH (m" + getCommonLabelStr() + "{"+prepareNeo4jIdPropertyFilterForCypher(currentNodeId)+"})"+
                     "-[:RELATION]->"+
-                    "(n" + getCommonLabelStr() + "{"+prepareLogicalNameForCypher(currentNodeName) + "}) "
-                    + " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
+                    "(n" + getCommonLabelStr() + "{"+prepareLogicalNameForCypher(currentNodeName) + "}) " + 
+                    " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" "+ 
+                    (skipRetCMValue ?"":", n."+Configs.Neo4j_Key_For_Logicalname +" as lname, n."+Configs.Neo4j_Key_For_Transliteration +" as translit, n." +Configs.Neo4j_Key_For_ThesaurusReferenceId +" as thesRefId" ) ;
         }
 
         Result res = this.graphDb.execute(query);
@@ -5036,12 +5182,19 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                     if(retVal==APIFail){
                         retVal = tempval;
                         CurrentNode_Ids_Stack.add(retVal); 
+                        
+                        if(!skipRetCMValue){
+                            String logName = (String) row.get("lname");
+                            String transliteration = (String) row.get("translit");
+                            
+                            long refId = getThesaurusReferenceIdFromObject(row.get("thesRefId"));                            
+                            retCMValue.assign_node(logName, retVal, transliteration, refId);
+                        }
                     }
                     else{
                         //SET ERROR that two ids were found
                         return APIFail;
-                    }
-                    
+                    }                    
                 } else {
                     return QClass.APIFail;
                 }
@@ -7438,6 +7591,39 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         
         return returnVec;
     }
+
+    String findLogicalNameByThesaurusReferenceId(String thesaurusName, long refId) {
+        
+        String returnVal = "";
+        String query = "Match(n:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\"Thesaurus`"+thesaurusName.toUpperCase()+"\"}) "+ 
+                " <-[:RELATION]-(link:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+thesaurusName.toUpperCase()+"`of_thesaurus\"})<-[:RELATION]-(m)<-[:ISA*0..]-(k)<-[:INSTANCEOF*0..1]-(p:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_ThesaurusReferenceId+":"+refId+"}) "+
+                " return p."+Configs.Neo4j_Key_For_Logicalname+" as lname ";
+        
+        //System.out.println("resetCounter_For_ThesaurusReferenceId\r\n============================\r\n"+query);
+        
+        Result res = null;
+        try{
+            res = graphDb.execute(query);
+            if(res!=null){
+                while (res.hasNext()) {
+
+                    Map<String, Object> row = res.next();
+                    returnVal = (String) row.get("lname");
+                }
+            }
+        }
+        catch(Exception ex){
+            utils.handleException(ex);
+        }
+        if (res == null) {
+            return "";
+        }
+        else{
+            res.close();                
+        }
+        return returnVal;
+    }
+    
     
 }
 

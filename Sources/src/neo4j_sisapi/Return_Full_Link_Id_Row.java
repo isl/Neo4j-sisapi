@@ -41,9 +41,9 @@ public class Return_Full_Link_Id_Row {
     
     StringObject cls;
     PrimitiveObject_Long clsId;    
-	// augmented with 2 properties in order to retrieve information about the from value of the link (the to value is a CMValue that is already augmented by these 2 properties)
+    // augmented with 2 properties in order to retrieve information about the from value of the link (the to value is a CMValue that is already augmented by these 2 properties)
     // - Node reference Id (Facet/Hierarchy/Term/Source), and
-	// - Trasliteration of logicalname that can be used for search or sorting
+    // - Trasliteration of logicalname that can be used for search or sorting
     PrimitiveObject_Long clsRefId;    
     StringObject clsTransliteration;    
     
@@ -83,7 +83,7 @@ public class Return_Full_Link_Id_Row {
         this.unique_category.setValue(uniqueVal);
     }
     
-    Return_Full_Link_Id_Row(long linkIdVal, String clsStr, long clsIdVal, String labelStr,String categStr, String fromClsStr, long categIdVal,CMValue cmvVal, int uniqueVal,long  clsRefIdVal, String clsTranslitVal ){
+    Return_Full_Link_Id_Row(long linkIdVal, String clsStr, long clsIdVal, String labelStr,String categStr, String fromClsStr, long categIdVal,CMValue cmvVal, int uniqueVal,long  clsRefIdVal, String clsTranslitVal){
         this();
         this.linkId.setValue(linkIdVal);
         this.cls.setValue(clsStr);

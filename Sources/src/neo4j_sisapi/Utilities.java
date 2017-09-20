@@ -12,6 +12,16 @@ import java.util.logging.Logger;
 
 class Utilities {
         
+    String removePrefix(String s) {
+        
+        if (s.contains("`")) {
+            return s.substring(s.indexOf("`") + 1);
+        } else {
+            return s;
+        }
+        
+    }
+    
     Vector<Long> collectSequenctiallyAsubsetOfValues(int startindex,int howmanyToGet, Vector<Long> targetVals){
         Vector<Long> returnVals = new Vector<Long>();
         if(howmanyToGet<=0){

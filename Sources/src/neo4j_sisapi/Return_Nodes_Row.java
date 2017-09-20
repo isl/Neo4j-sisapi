@@ -41,9 +41,9 @@ public class Return_Nodes_Row {
     PrimitiveObject_Long nodeId;
     StringObject v1_cls;
 
-	// augmented with 2 properties in order to retrieve information about the
+    // augmented with 2 properties in order to retrieve information about the
     // - Node reference Id (Facet/Hierarchy/Term/Source), and
-	// - Trasliteration of logicalname that can be used for search or sorting
+    // - Trasliteration of logicalname that can be used for search or sorting
     PrimitiveObject_Long referenceId;    
     StringObject transliteration;    
 	    

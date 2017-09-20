@@ -91,7 +91,7 @@ class UtilitiesString {
     /*-----------------------------------------------------------------
             GetToneAndCaseInsensitiveComparisonsOfPattern()
     -----------------------------------------------------------------*/    
-    Vector<String> GetToneAndCaseInsensitiveComparisonsOfPattern(String pattern) {
+        Vector<String> GetToneAndCaseInsensitiveComparisonsOfPattern(String pattern) {
         //Logger.getLogger(UtilitiesString.class.getName()).log(Level.INFO, Parameters.LogFilePrefix+"GetToneAndCaseInsensitiveComparisonsOfPattern(" + pattern + ")");
         //Logger.getLogger(UtilitiesString.class.getName()).log(Level.INFO, Parameters.LogFilePrefix+"--------------------------------------------");        
         String patternAllLower = pattern.toLowerCase();

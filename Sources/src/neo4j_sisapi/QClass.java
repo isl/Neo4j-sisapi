@@ -40,12 +40,14 @@ import java.util.Iterator;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import neo4j_sisapi.tmsapi.TMSAPIClass;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.TransactionTerminatedException;
 import org.neo4j.graphdb.schema.ConstraintDefinition;
@@ -926,6 +928,10 @@ public class QClass {
         
         
         return APISucc;
+    }
+    
+    public String findLogicalNameByThesaurusReferenceId(String thesaurus, long refId){
+        return db.findLogicalNameByThesaurusReferenceId(thesaurus, refId);
     }
     
     boolean linkTraversedBackwards(long id, PQI_Set local_b_set){
@@ -2031,6 +2037,182 @@ public class QClass {
         return db.setCurrentNode(CurrentNode_Ids_Stack, str.getValue());        
     }
     
+    public long set_current_node_and_retrieve_Cmv(StringObject str,CMValue retVal) {
+        //<editor-fold defaultstate="collapsed" desc="C++ References">
+        /*
+         answerer
+        
+         //---------------------------------------   
+         //Set Current Node
+         //---------------------------------------
+         void scn()
+         {
+         int    id;
+         l_name name;
+
+         printf("\n    SET CURRENT NODE  \n");
+         printf("    Enter logical name of node : ");
+         scan_for_loginam(name);
+         //SCANF("%s", name);
+
+         if ((id = set_current_node(name)) != -1) {
+         printf("\n    CURRENT NODE IS NOW: %s (SYSID %d)\n",name, id);;
+         }
+         else {
+         printf("\n    *** ERROR ***  QUERY FAILED \n");;
+         }
+         }
+
+         typedef struct us_sysid {
+         int id;        // sysid itself, integer number of  24 bits.
+         us_sysid()        {id = 0;}
+         us_sysid(int ii)    {id = ii;}
+         } SYSID;
+        
+    
+         SYSID *current_node;
+         SYSID stack[NAME_STACK_SIZE];
+         Translator       *api_translator;
+
+         // Returns the SYSID of the Class having the logical name lname
+         // Returns SYSID 0 if lname Class lname doesn't exist.
+         SYSID sis_api::getSysid(LOGINAM *lname) {
+         return api_translator->getSysid(lname, SYSID());
+         }
+        
+    
+         //  Returns the SYSID of the attribute with LOGINAM attr
+         //  of the class with SYSID cls
+         //  If there is not such an attribute, returns SYSID 0        
+         SYSID sis_api::getSysid(SYSID cls, LOGINAM *attr) {
+         return   api_translator->getSysid(attr, cls);
+         }
+
+
+         // ---------------------------------------------------------------------
+         // getSysid -- returns the sysid that have logical name the first name
+         //	of full name ln and its from-object have sysid sys. If that sysid
+         //	not exist it returns SYSID(0).
+         // ---------------------------------------------------------------------
+         SYSID	getSysid( LOGINAM *ln, SYSID sys) {
+        
+         Loginam	*tmpL;
+         SYSID	retVal;
+         int id;
+        
+         // check added by georgian to support unnamed objects 
+         if ( ln == ( LOGINAM * ) 0 ) {
+         return SYSID(0);
+         }
+        
+         if ( (id = ln->unnamed_id()) ) {
+         // printf("getSysid( LOGINAM *ln, SYSID sys) called on unnamed link 0x%x\n",id);
+         return (SYSID(id));
+         //		} else {
+         }
+        
+         tmpL = inv_convertion(ln);
+         retVal = symbolTable->getSysid( tmpL, sys);
+         delete	tmpL;
+         return( retVal);
+        
+         //}
+         }
+        
+         int push_name(SYSID id) {
+         int retval;
+         current_node++;
+         if (current_node == &(stack[NAME_STACK_SIZE])) {
+         retval = -1;
+         }
+         else {
+         *current_node = id;
+         retval = 0;
+         }
+        
+         return retval;
+         };
+        
+         */
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="set current node C++ Code">
+        /*
+        
+         FILE: "cpp_api\q_class_pblc.cpp"
+        
+        
+         // START OF: set_current_node(l_name node)
+         //
+         //  Set current node the object with logical name str.
+         //  If name scope is the whole SIB str is supposed to be a node
+         //  object. If there is already a current node str is supposed to
+         //  be the lagical name of a link pointing from the current node.
+         //  Returns the sysid of the new current node or -1 if any error
+         //  occured.
+         //
+         int sis_api::set_current_node(l_name node) {
+
+         // Check if the length of the given string to be used as a logical name
+         // is less than LOGINAM_SIZE
+         if(strlen(node) >= 128)
+         {
+         // The given string is longer than a loginam an thus it cannot be a logical name. set_current_node should fail.
+         return -1;
+         }	
+         LOGINAM lname(node);
+         SYSID   id;
+
+         if (current_node->id == 0) {  // Global scope
+         if ((id = getSysid(&lname)).id !=0) {
+         if (push_name(id) != -1) {
+         return id.id;;
+         }
+         else { // push_name() failed
+         return -1;
+         }
+         }
+         else  { // getSysid() failed
+         return -1;
+         }
+         }
+         else  { // See only the attribute labels of the current node
+         if ((id = getSysid(*current_node, &lname)).id != 0) {
+         if (push_name(id) != -1) {
+         return id.id;
+         }  // push_name() failed
+         else {
+         return -1;
+         }
+         }
+         else  {  // getSysid() failed
+         return -1;
+         }
+         }
+         return -1;
+         }   
+
+         END OF: set_current_node(l_name node) 
+        
+         */
+        //</editor-fold>
+        //check if in a query session
+        //check lengths
+        //if no current node is set then just try set it
+        //if current node is set then try find a node relatied to last current node with the logicalname given 
+        //check if in a query session
+        
+        if (!check_files("set_current_node")) {
+            return QClass.APIFail;
+        }
+
+        //check lengths
+        if (str == null || str.getValue() == null || str.getValue().length() == 0) {
+            return QClass.APIFail;
+        }
+
+        return db.setCurrentNode(CurrentNode_Ids_Stack, str.getValue(),retVal);        
+    }
     /**
      * Set current node the object with system identifier nodeid. This object 
      * is now at the top of the name stack and if it is a link object the name 
@@ -3645,7 +3827,7 @@ public class QClass {
     
     
     public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId){
-        return CHECK_Add_Node(node_name,level,updateIdentifierWithId,"","",false);
+        return CHECK_Add_Node(node_name,level,updateIdentifierWithId,"","",TMSAPIClass.Do_Not_Assign_ReferenceId);
     }
     
     /**
@@ -3657,7 +3839,7 @@ public class QClass {
      * @param level
      * @return 
      */
-    public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId, String transliteration,String selectedThesaurus, boolean assignNewId){
+    public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId, String transliteration,String selectedThesaurus, long refId){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         START OF: sis_api::Add_Node 
@@ -3821,8 +4003,12 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
         long newNeo4jId = db.getNextNeo4jId();
         long newReferenceId = -1;
         
-        if(assignNewId){
+        if(refId<0){
             newReferenceId = db.getNextThesaurusId(selectedThesaurus.toUpperCase());            
+        }
+        //if refId ==0 do not create at all?
+        else if (refId>0){
+            newReferenceId = refId;
         }
         
         try{
@@ -8192,6 +8378,55 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
     }
     
     //get_matched_ToneAndCaseInsensitive
+    public int get_matched_OnTransliteration(int set_target, String searchVal) {
+        int  ret;
+        PQI_Set setptr = new PQI_Set();
+        
+        if(!check_files("get_matched_OnTransliteration")){
+            return APIFail;
+        }
+        
+        
+        
+        int new_set_id = this.set_get_new();
+        PQI_Set writeset=tmp_sets.return_set(new_set_id);
+        if(writeset==null){
+            free_set(new_set_id);
+            return APIFail;
+        }
+        
+        if(set_target==0){
+            if (no_current_node("get_matched")) {
+                tmp_sets.free_set(new_set_id);
+                return APIFail;       // there is no current node set
+            }
+            setptr.set_putNeo4j_Id(CurrentNode_Ids_Stack.lastElement());
+        }
+        else{
+            
+            setptr = tmp_sets.return_set(set_target);
+            if(setptr == null){
+                tmp_sets.free_set(new_set_id);
+                return APIFail;
+            }
+
+        }
+        
+        //writes directly to writeset since any exception occurs 
+        //only before the first writing to writeset
+        ret = db.getMatchedOnTransliteration(setptr.get_Neo4j_Ids(), searchVal, writeset);
+        
+        //ON_ERROR_RETURN(ret,new_set_id);  // free new_set_id and return -1
+        if ((globalError.flag()==APIFail) || (ret == APIFail))  {
+            globalError.reset();
+            tmp_sets.free_set(new_set_id);
+            return APIFail;
+        }
+        
+        return new_set_id;    
+    }
+    
+    //get_matched_ToneAndCaseInsensitive
     public int get_matched_ToneAndCaseInsensitive(int set_target, String searchVal, boolean SEARCH_MODE_CASE_TONE_INSENSITIVE) {
         //USED IN WEBTMS API ONLY
         /*
@@ -8323,8 +8558,70 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         return db.resetCounter_For_Neo4jId();
     }
     
-    public int resetCounter_For_ThesarusReferenceId(String thesaurusName){
+    public int resetCounter_For_ThesarusReferenceId(String thesaurusName, long resetToSpecifiedValue){
         
-        return db.resetCounter_For_ThesaurusReferenceId(thesaurusName);
+        return db.resetCounter_For_ThesaurusReferenceId(thesaurusName,resetToSpecifiedValue);
+    }
+    
+    public boolean createDatabaseIndexesAndConstraints(GraphDatabaseService graphDb){
+        
+        try(Transaction tx =  graphDb.beginTx()){
+            String query = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_Logicalname+") ";
+        
+            Result res = graphDb.execute(query);
+
+            if (res == null) {
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Indexes Failed.");
+                return false;
+            }
+            res.close();
+            res = null;
+
+
+
+            String query2 = "CREATE CONSTRAINT ON (n:"+Configs.CommonLabelName+") ASSERT n."+Configs.Neo4j_Key_For_Neo4j_Id+" IS UNIQUE ";
+
+            Result res2 = graphDb.execute(query2);
+
+            if (res2 == null) {
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation Constraints Failed.");
+                return false;
+            }
+            res2.close();
+            res2=null;
+
+
+            //String query3 = "CREATE INDEX ON :"+Configs.Neo4j_Key_For_Type_IndividualStr+"("+Configs.Neo4j_Key_For_ThesaurusReferenceId+") ";
+            String query3 = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_ThesaurusReferenceId+") ";
+
+            Result res3 = graphDb.execute(query3);
+
+            if (res3 == null) {
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Index on: "+ Configs.Neo4j_Key_For_ThesaurusReferenceId +" Failed.");
+                return false;
+            }
+            res3.close();
+            res3 = null;
+
+
+
+            //String query4 = "CREATE INDEX ON :"+Configs.Neo4j_Key_For_Type_IndividualStr+"("+Configs.Neo4j_Key_For_Transliteration+") ";
+            String query4 = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_Transliteration+") ";
+
+            Result res4 = graphDb.execute(query4);
+
+            if (res4 == null) {
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Index on: "+ Configs.Neo4j_Key_For_Transliteration +" Failed.");
+                return false;
+            }
+            res4.close();
+            res4 = null;
+
+
+
+            Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "\nFinished Creation of Indexes and Constraints.\n");
+            tx.success();            
+        }
+        return true;
     }
 }

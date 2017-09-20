@@ -43,6 +43,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
  */
 public class TMSAPIClass {
+    
+    public final static int Do_Not_Assign_ReferenceId = 0;
     public final static int TMS_APISucc = 0;
     public final static int TMS_APIFail =-1;
     public final static int MAX_TMS_API_ERROR_MESSAGE_LEN = 20000;
@@ -885,7 +887,7 @@ int tms_api::Add_Del_ClassifyHierarchyInFacet(char *hierarchyName, char *facetNa
     }
 
     int CreateNode(StringObject node, int option){
-    
+        //<editor-fold defaultstate="collapsed" desc="C++ code...">  
         /*-------------------------------------------------------------------
 							tms_api::CreateNode()
 ---------------------------------------------------------------------
@@ -957,13 +959,15 @@ int tms_api::CreateNode(char *node, int option)
    CreateNodeSubRoutine(node, (char*)ClassName);
 }
         */
+        //</editor-fold>  
         
-// abort if node name is empty
+        // abort if node name is empty
 	if (node == null || node.getValue()==null || node.getValue().length()==0){
             //sprintf(errorMessage,"%s%s", translate(EMPTY_STRING), translate("Node"));
             errorMessage.setValue(String.format("%s%s", EMPTY_STRING, "Node"));
             return TMS_APIFail;
 	}
+        
 	//abort if node already exists
 	QC.reset_name_scope();
 	long nodeSySIdL = QC.set_current_node(node);
@@ -1037,6 +1041,14 @@ int tms_api::CreateNode(char *node, int option)
     }
     
     int CreateNodeSubRoutine(StringObject node, StringObject ClassName, boolean directPrefixesOnly){
+        CMValue cmv = new CMValue();
+        cmv.assign_node(node.getValue(), -1);
+        return CreateNodeSubRoutine(cmv,ClassName,directPrefixesOnly);        
+    }
+    
+    
+    int CreateNodeSubRoutine(CMValue node, StringObject ClassName, boolean directPrefixesOnly){
+        // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         //abort if ClassName does not exist
 	QC->reset_name_scope();
@@ -1084,6 +1096,8 @@ int tms_api::CreateNode(char *node, int option)
 
 	commit_create(Inode.loginam, errorMessage); return TMS_APISucc;
         */
+        // </editor-fold>
+        
         //abort if ClassName does not exist
 	QC.reset_name_scope();
 	long ClassSysidL = QC.set_current_node(ClassName);
@@ -1103,22 +1117,22 @@ int tms_api::CreateNode(char *node, int option)
 
 	// abort if node has not the correct prefix
 	//if (strncmp(prefix_node, node, strlen(prefix_node))) {
-        if(node.getValue().startsWith(prefix_node.getValue())==false){
+        if(node.getString().startsWith(prefix_node.getValue())==false){
             //sprintf(errorMessage, translate("%s has not the correct prefix: %s"), node, prefix_node);
-            errorMessage.setValue(String.format("%s has not the correct prefix: %s", node.getValue(), prefix_node.getValue()));
+            errorMessage.setValue(String.format("%s has not the correct prefix: %s", node.getString(), prefix_node.getValue()));
             return TMS_APIFail;
         }
         
   	// abort if node contains only prefix
         //int onlyPrefix = StringContainsOnlyPrefix(prefix_node, node);
 	//if (onlyPrefix) {
-        if(node.getValue().equals(prefix_node.getValue())){
+        if(node.getString().equals(prefix_node.getValue())){
             //sprintf(errorMessage, translate("Given node must not be blank after prefix: %s"), prefix_node);
             errorMessage.setValue(String.format("Given node must not be blank after prefix: %s", prefix_node.getValue()));
             return TMS_APIFail;
 	}
 
-	Identifier Inode = new Identifier(node.getValue());
+	Identifier Inode = new Identifier(node.getString());
 	//strcpy(Inode.loginam, node);
 	//Inode.tag = ID_TYPE_LOGINAM;
 
@@ -1128,23 +1142,24 @@ int tms_api::CreateNode(char *node, int option)
 	//Iclass.tag = ID_TYPE_LOGINAM;
 
 	// create the node
-	int ret = QC.CHECK_Add_Node(Inode, QClass.SIS_API_TOKEN_CLASS,true);
+	int ret = QC.CHECK_Add_Node(Inode, QClass.SIS_API_TOKEN_CLASS,true,"","",node.getRefid());
 	if (ret==QClass.APIFail) { 
-            abort_create(node, errorMessage); 
+            abort_create(node.getString(), errorMessage); 
             return TMS_APIFail;
         }
 
 	// instantiate node under ClassName
 	ret = QC.CHECK_Add_Instance(Inode, Iclass);
 	if (ret==QClass.APIFail) { 
-            abort_create(node, errorMessage); return TMS_APIFail;
+            abort_create(node.getString(), errorMessage); return TMS_APIFail;
         }
 
-	commit_create(node, errorMessage); 
+	commit_create(node.getString(), errorMessage); 
         return TMS_APISucc;        
     }
     
     int GetPrefixOfClass(long classSysidL, StringObject prefix, IntegerObject numOfPrefixes, StringObject message, boolean directOnly){
+        // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
                         tms_api::GetPrefixOfClass()
 	looks for any prefix defined for classSysid in data base:
@@ -1174,6 +1189,8 @@ int tms_api::GetPrefixOfClass(int classSysid, char *prefix, int *numOfPrefixes, 
 }
 
         */
+        //</editor-fold>
+        
         message.setValue("");
         prefix.setValue("");
 	QC.reset_name_scope();
@@ -1201,6 +1218,7 @@ int tms_api::GetPrefixOfClass(int classSysid, char *prefix, int *numOfPrefixes, 
     }
     
     int GetPrefixOfClassesSet(int classes_set_id, StringObject prefix, IntegerObject numOfPrefixes, StringObject message){
+        // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*-----------------------------------------------------------------
                 tms_api::GetPrefixOfClassesSet()
 	looks for any prefix defined for set of classes classes_set_id in data base:
@@ -1252,6 +1270,7 @@ GetPrefixOfClassesSetExitPoint:
    return ERROR;
 }
         */
+        // </editor-fold>
         
         int linksSet = QC.get_link_from_by_category(classes_set_id,new StringObject(INDIVIDUAL),new StringObject( HAS_PREFIX));
 	if (linksSet == QClass.APIFail) {
@@ -1333,6 +1352,7 @@ GetPrefixOfClassesSetExitPoint:
     }
         
     int ClassPrefixfThesaurus(StringObject thesaurus, StringObject prefix_class, StringObject message){
+        // <editor-fold defaultstate="collapsed" desc="C++ Code">
     /*
     
        			tms_api::ClassPrefixfThesaurus()
@@ -1398,8 +1418,10 @@ int tms_api::ClassPrefixfThesaurus(char *thesaurus, char *prefix_class, char *me
   return TMS_APISucc;
 }
     */
-  // get the links pointing to the given thesaurus
-  // and under category ("ThesaurusClassType","of_thesaurus")
+        // </editor-fold>
+        
+        // get the links pointing to the given thesaurus
+        // and under category ("ThesaurusClassType","of_thesaurus")
         QC.reset_name_scope();
         long thesaurusSySIdL = QC.set_current_node(thesaurus);
         if (thesaurusSySIdL<=0) { 
@@ -1891,7 +1913,6 @@ int tms_api::ClassPrefixfThesaurus(char *thesaurus, char *prefix_class, char *me
     }
     
     int CreateAttribute(StringObject linkName, StringObject from, CMValue toValue, int level, int catSet) {
-
 
         //<editor-fold defaultstate="collapsed" desc="Comments..."> 
     /*-------------------------------------------------------------------
@@ -2818,10 +2839,12 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
     }
     
     public int  CHECK_CreateDescriptor(StringObject term, StringObject btterm){
-        return CHECK_CreateDescriptor(term, btterm,"");
+        CMValue cmv = new CMValue();
+        cmv.assign_node(term.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId);
+        return CHECK_CreateDescriptor(cmv, btterm);
     }
     
-    public int  CHECK_CreateDescriptor(StringObject term, StringObject btterm, String transliteration){
+    public int  CHECK_CreateDescriptor(CMValue term, StringObject btterm){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         char   thesaurus[LOGINAM_SIZE];
@@ -3028,7 +3051,7 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         if (ret==TMS_APIFail)  {
             return TMS_APIFail;
         }
-        if (term==null || term.getValue()==null || term.getValue().length()==0){
+        if (term==null || term.getString()==null || term.getString().length()==0){
             //sprintf(errorMessage,"%s %s", translate(EMPTY_STRING), translate("Term"));
             errorMessage.setValue(String.format("%s %s", EMPTY_STRING,"Term"));
             return TMS_APIFail;
@@ -3043,9 +3066,9 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
 
         //abort if descriptor already exists
         QC.reset_name_scope();
-        long termSySIdL = QC.set_current_node(term);
+        long termSySIdL = QC.set_current_node(new StringObject(term.getString()));
         if (termSySIdL>0) {
-            errorMessage.setValue(term.getValue() + " " + OBJECT_EXISTS);
+            errorMessage.setValue(term.getString() + " " + OBJECT_EXISTS);
             //strcpy(errorMessage, term);
             //strcat(errorMessage, " ");
             //strcat(errorMessage, translate(OBJECT_EXISTS));
@@ -3120,21 +3143,21 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
 
 	// abort if descriptor has not the correct prefix
 	//if (strncmp(prefix_term, term, strlen(prefix_term))) { // "str" does not contain "prefix"
-        if(term.getValue().startsWith(prefix_term.getValue())==false){
+        if(term.getString().startsWith(prefix_term.getValue())==false){
             //sprintf(errorMessage, translate("%s has not the correct prefix: %s"), term, prefix_term);
-            errorMessage.setValue(String.format("%s has not the correct prefix: %s", term.getValue(), prefix_term.getValue()));
+            errorMessage.setValue(String.format("%s has not the correct prefix: %s", term.getString(), prefix_term.getValue()));
             return TMS_APIFail;
 	}
   	// abort if descriptor contains only prefix
         //int onlyPrefix = StringContainsOnlyPrefix(prefix_term, term);
 	//if (onlyPrefix) {
-        if(term.getValue().equals(prefix_term.getValue())){
+        if(term.getString().equals(prefix_term.getValue())){
             //sprintf(errorMessage, translate("Given descriptor must not be blanck after prefix: %s"), prefix_term);
             errorMessage.setValue(String.format("Given descriptor must not be blanck after prefix: %s", prefix_term.getValue()));
             return TMS_APIFail;
 	}
         
-        Identifier Iterm = new Identifier(term.getValue());
+        Identifier Iterm = new Identifier(term.getString());
         Identifier Ibtterm = new Identifier(bttermSySIdL);
 
         Identifier Ithesaurus_descriptor = new Identifier(thesaurus_descriptor.getValue());
@@ -3152,17 +3175,17 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         
         //retell individual descriptor in Token end
         //2 more arguements were added so that an id value for uri construction 
-        //and a transliteration property can also be assigned to the descriptor
-        ret = QC.CHECK_Add_Node(Iterm,QClass.SIS_API_TOKEN_CLASS,true,transliteration,userOperation.getValue(),true);
+        //and a transliteration property can also be assigned to the descriptor        
+        ret = QC.CHECK_Add_Node(Iterm,QClass.SIS_API_TOKEN_CLASS,true,term.getTransliterationString(),userOperation.getValue(),term.getRefid());
         if (ret==QClass.APIFail) { 
-            abort_create(term,errorMessage); 
+            abort_create(term.getString(),errorMessage); 
             return TMS_APIFail;
         }
         
         //retell descriptor in aatdescriptor end
         ret = QC.CHECK_Add_Instance(Iterm,Ithesaurus_descriptor);
         if (ret==QClass.APIFail) { 
-            abort_create(term,errorMessage); 
+            abort_create(term.getString(),errorMessage); 
             return TMS_APIFail;
         }
         
@@ -3173,14 +3196,14 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
             //retell descriptor in hierarchy end
             ret = QC.CHECK_Add_Instance(Iterm,Ihierarchy);
             if (ret==QClass.APIFail) { 
-               abort_create(term,errorMessage); return TMS_APIFail;
+               abort_create(term.getString(),errorMessage); return TMS_APIFail;
             }
         }
 
         //retell descriptor in newdescriptor end
         ret = QC.CHECK_Add_Instance(Iterm,Inew_descriptor);
         if (ret==QClass.APIFail) { 
-            abort_create(term,errorMessage); return TMS_APIFail;
+            abort_create(term.getString(),errorMessage); return TMS_APIFail;
         }
         
         //at this point associate the term with its broader term through the "BT" link.
@@ -3219,12 +3242,12 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         long scnret = QC.set_current_node(thesaurus_descriptor);
         //ret = set_current_node(Ithesaurus_hierarchy_term.loginam);
         if (scnret<=0) { 
-            abort_create(term,errorMessage); 
+            abort_create(term.getString(),errorMessage); 
             return TMS_APIFail;
         }
         scnret = QC.set_current_node(bt_cat);
         if (scnret<=0) { 
-            abort_create(term,errorMessage); 
+            abort_create(term.getString(),errorMessage); 
             return TMS_APIFail;
         }
         
@@ -3234,14 +3257,14 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         //	with aat_bt
         //		: btterm
         //end
-        ret = CreateAttribute(null, term, link_to, -1, ret_set1);
+        ret = CreateAttribute(null, new StringObject(term.getString()), link_to, -1, ret_set1);
         //ret = EF_Add_Unnamed_xxxx(&belongs_to_from_value,&link_to,ret_set1, errorMessage);
         QC.free_set(ret_set1);
         if (ret==QClass.APIFail) { 
-            abort_create(term,errorMessage); 
+            abort_create(term.getString(),errorMessage); 
             return TMS_APIFail;
         }
-        commit_create(term,errorMessage); 
+        commit_create(term.getString(),errorMessage); 
         return TMS_APISucc;
     }
     
@@ -3450,10 +3473,12 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
     }
         
     public int  CHECK_CreateFacet(StringObject facet){
-        return CHECK_CreateFacet(facet,"");
+        CMValue cmv = new CMValue();
+        cmv.assign_node(facet.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId);
+        return CHECK_CreateFacet(cmv);
     }
     
-    public int  CHECK_CreateFacet(StringObject facet, String transliteration){
+    public int  CHECK_CreateFacet(CMValue facet){
         
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
@@ -3569,7 +3594,7 @@ int tms_api::CreateFacet(char *facet)
         StringObject thesaurus_class = new StringObject();
         StringObject thesaurus = new StringObject();
         
-        if (facet==null || facet.getValue().length()==0){
+        if (facet==null || facet.getString().length()==0){
             //sprintf(errorMessage,"%s %s",translate(EMPTY_STRING),translate("Facet"));
             errorMessage.setValue(EMPTY_STRING +" Facet");
             return TMS_APIFail;
@@ -3582,10 +3607,10 @@ int tms_api::CreateFacet(char *facet)
 
         //abort if facet already exists
         QC.reset_name_scope();
-        long facetSySIdL = QC.set_current_node(facet);
+        long facetSySIdL = QC.set_current_node(new StringObject(facet.getString()));
         if (facetSySIdL>0) {
             //sprintf(errorMessage,"%s %s",facet,translate(OBJECT_EXISTS));
-            errorMessage.setValue(facet.getValue() +" "+OBJECT_EXISTS);
+            errorMessage.setValue(facet.getString() +" "+OBJECT_EXISTS);
             return TMS_APIFail;
         }
 
@@ -3601,14 +3626,14 @@ int tms_api::CreateFacet(char *facet)
         }
 
 	// abort if facet has not the correct prefix
-	if (facet.getValue().startsWith(prefix_class.getValue())==false) {
+	if (facet.getString().startsWith(prefix_class.getValue())==false) {
             //sprintf(errorMessage, translate("%s has not the correct prefix: %s"), facet, prefix_class);
-            errorMessage.setValue(String.format("%s has not the correct prefix: %s", facet.getValue(), prefix_class.getValue()));
+            errorMessage.setValue(String.format("%s has not the correct prefix: %s", facet.getString(), prefix_class.getValue()));
             return TMS_APIFail;
 	}
   	// abort if facet contains only prefix
         //int onlyPrefix = StringContainsOnlyPrefix(prefix_class, facet);
-	if (prefix_class.getValue().equals(facet.getValue())) {
+	if (prefix_class.getValue().equals(facet.getString())) {
             //sprintf(errorMessage, translate("Given descriptor must not be blanck after prefix: %s"), prefix_class);
             errorMessage.setValue("Given descriptor must not be blanck after prefix: "+prefix_class.getValue());
             return TMS_APIFail;
@@ -3629,7 +3654,7 @@ int tms_api::CreateFacet(char *facet)
             return TMS_APIFail;
         }
         
-        Identifier Ifacet = new Identifier(facet.getValue());
+        Identifier Ifacet = new Identifier(facet.getString());
         //IDENTIFIER Ifacet;
         //strcpy(Ifacet.loginam,facet);
         //Ifacet.tag = ID_TYPE_LOGINAM;
@@ -3661,42 +3686,44 @@ int tms_api::CreateFacet(char *facet)
         //Ithesaurus_class.tag = ID_TYPE_LOGINAM;
         
         //retell individual facet in S_Class end
-        ret = QC.CHECK_Add_Node(Ifacet,QClass.SIS_API_S_CLASS,true,transliteration,userOperation.getValue(),true);
+        ret = QC.CHECK_Add_Node(Ifacet,QClass.SIS_API_S_CLASS,true,facet.getTransliterationString(),userOperation.getValue(),facet.getRefid());
         if (ret==QClass.APIFail) { 
-            abort_create(facet,errorMessage); 
+            abort_create(facet.getString(),errorMessage); 
             return TMS_APIFail; 
         }
         
         //retell facet in newthesaurusclass end
         ret = QC.CHECK_Add_Instance(Ifacet,Inew_thesaurus_class);
         if (ret==QClass.APIFail) { 
-            abort_create(facet,errorMessage); 
+            abort_create(facet.getString(),errorMessage); 
             return TMS_APIFail; 
         }
         
         //retell facet in aatfacet end
         ret = QC.CHECK_Add_Instance(Ifacet,Iclass_facet);
         if (ret==QClass.APIFail) { 
-            abort_create(facet,errorMessage); 
+            abort_create(facet.getString(),errorMessage); 
             return TMS_APIFail; 
         }
 
         //retell facet in aatclass end
         ret = QC.CHECK_Add_Instance(Ifacet,Ithesaurus_class);
         if (ret==QClass.APIFail) { 
-            abort_create(facet,errorMessage); 
+            abort_create(facet.getString(),errorMessage); 
             return TMS_APIFail; 
         }
         
-        commit_create(facet,errorMessage); 
+        commit_create(facet.getString(),errorMessage); 
         return TMS_APISucc;        
     }
     
     public int  CHECK_CreateHierarchy(StringObject hierarchy, StringObject facet){
-        return CHECK_CreateHierarchy(hierarchy,facet,"");
+        CMValue cmv = new CMValue();
+        cmv.assign_node(hierarchy.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId);
+        return CHECK_CreateHierarchy(cmv,facet);
     }
     
-    public int  CHECK_CreateHierarchy(StringObject hierarchy, StringObject facet, String transliteration){
+    public int  CHECK_CreateHierarchy(CMValue hierarchy, StringObject facet){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
 -----------------------------------------------------------------
@@ -3995,7 +4022,7 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
         
         int ret;
 
-	if (hierarchy==null || hierarchy.getValue()==null || hierarchy.getValue().length()==0){
+	if (hierarchy==null || hierarchy.getString()==null || hierarchy.getString().length()==0){
             //sprintf(errorMessage,"%s %s",translate(EMPTY_STRING),translate("Hierarchy")); 
             errorMessage.setValue(String.format("%s %s", EMPTY_STRING, "Hierarchy"));
             return TMS_APIFail;            
@@ -4016,10 +4043,10 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 
 	//abort if hierarchy already exists
 	QC.reset_name_scope();
-	long hierarchySySIdL = QC.set_current_node(hierarchy);
+	long hierarchySySIdL = QC.set_current_node(new StringObject(hierarchy.getString()));
 	if (hierarchySySIdL>=0) {
             //sprintf(errorMessage,"%s %s",hierarchy,translate(OBJECT_EXISTS));
-            errorMessage.setValue(String.format("%s %s", hierarchy.getValue(), OBJECT_EXISTS));
+            errorMessage.setValue(String.format("%s %s", hierarchy.getString(), OBJECT_EXISTS));
             return TMS_APIFail;
         }
 
@@ -4097,14 +4124,14 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 		//sprintf(facet,"%s%s",prefix_class, "TopFacet");
 
 	// abort if hierarchy has not the correct prefix
-	if (hierarchy.getValue().startsWith(prefix_class.getValue())==false){
+	if (hierarchy.getString().startsWith(prefix_class.getValue())==false){
             //strncmp(prefix_class, hierarchy, strlen(prefix_class))) { // "str" does not contain "prefix"
             //sprintf(errorMessage, translate("%s has not the correct prefix: %s"), hierarchy, prefix_class);
-            errorMessage.setValue(String.format("%s has not the correct prefix: %s", hierarchy.getValue(), prefix_class.getValue()));
+            errorMessage.setValue(String.format("%s has not the correct prefix: %s", hierarchy.getString(), prefix_class.getValue()));
             return TMS_APIFail;
         }
 	// abort if hierarchy contains only prefix
-	boolean onlyPrefix = prefix_class.getValue().equals(hierarchy.getValue());//StringContainsOnlyPrefix(prefix_class, hierarchy);
+	boolean onlyPrefix = prefix_class.getValue().equals(hierarchy.getString());//StringContainsOnlyPrefix(prefix_class, hierarchy);
 	if (onlyPrefix) {
             //sprintf(errorMessage, translate("Given hierarchy must not be blanck after prefix: %s"), prefix_class);
             errorMessage.setValue(String.format("Given hierarchy must not be blanck after prefix: %s", prefix_class.getValue()));
@@ -4134,12 +4161,12 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	//get top term name from hierarchy name
 	int length = top_term.getValue().length();
 	
-	if (hierarchy.getValue().contains("`")==false) { 
+	if (hierarchy.getString().contains("`")==false) { 
             
-            abort_create(hierarchy,errorMessage); 
+            abort_create(hierarchy.getString(),errorMessage); 
             return TMS_APIFail; 
         }
-        String tmp = hierarchy.getValue().split("`")[1];
+        String tmp = hierarchy.getString().split("`")[1];
 	//for (i=1;i<strlen(tmp);i++)
 	//	top_term[length+i-1] = tmp[i];
 
@@ -4160,7 +4187,7 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	//strcpy(Ifacet.loginam,facet);
 	//Ifacet.tag = ID_TYPE_LOGINAM;
 
-        Identifier Ihierarchy = new Identifier(hierarchy.getValue());
+        Identifier Ihierarchy = new Identifier(hierarchy.getString());
 	//IDENTIFIER Ihierarchy; //assign an identifier to the given hierarchy
 	//strcpy(Ihierarchy.loginam,hierarchy);
 	//Ihierarchy.tag = ID_TYPE_LOGINAM;
@@ -4238,37 +4265,38 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	//Ithesaurus_class.tag = ID_TYPE_LOGINAM;
 
 	//retell individual hierarchy in S_Class end
-	ret = QC.CHECK_Add_Node(Ihierarchy,QClass.SIS_API_S_CLASS, true,transliteration,userOperation.getValue(),true);
+        //Finally no URI will be added to the hierarchy. Uri for the top term should be enough
+	ret = QC.CHECK_Add_Node(Ihierarchy,QClass.SIS_API_S_CLASS, true,hierarchy.getTransliterationString(),userOperation.getValue(),TMSAPIClass.Do_Not_Assign_ReferenceId);
 	if (ret==QClass.APIFail) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
 	//retell hierarchy in aathierarchy end
 	ret = QC.CHECK_Add_Instance(Ihierarchy,Ithesaurus_hierarchy_class);
 	if (ret==QClass.APIFail) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
 	//retell hierarchy in newthesaurusclass end
 	ret = QC.CHECK_Add_Instance(Ihierarchy,Inew_thesaurus_class);
 	if (ret==QClass.APIFail) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
 	//retell hierarchy in aatclass end
 	ret = QC.CHECK_Add_Instance(Ihierarchy,Ithesaurus_class);
 	if (ret==QClass.APIFail) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
 	//retell hierarchy isa hierarchyclass
 	ret = QC.CHECK_Add_IsA(Ihierarchy,Ihierarchy_class);
 	if (ret==QClass.APIFail) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
@@ -4281,35 +4309,35 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	//retell hierarchy isa facet end
 	ret = QC.CHECK_Add_IsA(Ihierarchy,Ifacet);
 	if (ret==QClass.APIFail) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
 	//retell individual topterm in Token end
-	ret = QC.CHECK_Add_Node(Itopterm,QClass.SIS_API_TOKEN_CLASS,true,transliteration,userOperation.getValue(),true);
+	ret = QC.CHECK_Add_Node(Itopterm,QClass.SIS_API_TOKEN_CLASS,true,hierarchy.getTransliterationString(),userOperation.getValue(),hierarchy.getRefid());
 	if (ret==QClass.APIFail) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
 	//retell topterm in aattopterm end
 	ret = QC.CHECK_Add_Instance(Itopterm,Itop_term_class);
 	if (ret==QClass.APIFail) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
 	//retell topterm in hierarchy end
 	ret = QC.CHECK_Add_Instance(Itopterm,Ihierarchy);
 	if (ret==QClass.APIFail) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
 	//retell topterm in newdescriptor end
 	ret = QC.CHECK_Add_Instance(Itopterm,Inew_descriptor);
 	if (ret==QClass.APIFail) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
@@ -4319,19 +4347,19 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	QC.reset_name_scope();
 	toptermSySIdL = QC.set_current_node(top_term);
 	if(toptermSySIdL<=0){
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
 	QC.reset_name_scope();
-	hierarchySySIdL = QC.set_current_node(hierarchy);
+	hierarchySySIdL = QC.set_current_node(new StringObject(hierarchy.getString()));
 	if (hierarchySySIdL<=0) {
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail; 
         }
 
         CMValue link_to = new CMValue();
-        link_to.assign_node(hierarchy.getValue(), hierarchySySIdL);
+        link_to.assign_node(hierarchy.getString(), hierarchySySIdL);
 	//cm_value link_to;
 	//QC.assign_node(&link_to,Ihierarchy.loginam,hierarchySySId);
 
@@ -4348,14 +4376,14 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
         StringObject belongs_cat = new StringObject(String.format("belongs_to_%s_hierarchy", prefix_thesaurus_l.getValue()));
 	long retL = QC.set_current_node(top_term_class);
 	if (retL<=0) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
 	//TO_DO : to be taken by the rule!!!!
 	retL = QC.set_current_node(belongs_cat);
 	if (retL<=0) { 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
@@ -4370,11 +4398,11 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	//ret = EF_Add_Unnamed_xxx(&belongs_to_from_value,&link_to,ret_set1, errorMessage);
 	QC.free_set(ret_set1);
 	if (ret==QClass.APIFail){ 
-            abort_create(hierarchy,errorMessage);
+            abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
-	commit_create(hierarchy,errorMessage); 
+	commit_create(hierarchy.getString(),errorMessage); 
         return TMS_APISucc;
     }
     
@@ -4384,6 +4412,12 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
     }
     
     public int  CHECK_CreateTranslationWord(StringObject TranslationWord, StringObject TranslationWordClass){
+        CMValue cmv = new CMValue();
+        cmv.assign_node(TranslationWord.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId);
+        return CHECK_CreateTranslationWord(cmv,TranslationWordClass);
+    }
+    
+    public int  CHECK_CreateTranslationWord(CMValue TranslationWord, StringObject TranslationWordClass){
         /*
         // abort if translation category name is invalid
 	if (*TranslationWordClass == '\0'){
@@ -4435,19 +4469,19 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 
    //as in create node
    // abort if node name is empty
-	if (TranslationWord == null || TranslationWord.getValue() == null || TranslationWord.getValue().length() ==0){
+	if (TranslationWord == null || TranslationWord.getString()== null || TranslationWord.getString().length() ==0){
             //sprintf(errorMessage,"%s%s", translate(EMPTY_STRING), translate("Node"));
             errorMessage.setValue(EMPTY_STRING+"Node");
             return TMS_APIFail;
 	}
 	//abort if node already exists
 	QC.reset_name_scope();
-	long nodeSySIdL = QC.set_current_node(TranslationWord);
+	long nodeSySIdL = QC.set_current_node(new StringObject(TranslationWord.getString()));
 	if (nodeSySIdL != QClass.APIFail) {
             //strcpy(errorMessage, TranslationWord);
             //strcat(errorMessage, " ");
             //strcat(errorMessage, translate(OBJECT_EXISTS));
-            errorMessage.setValue(TranslationWord.getValue()+" " + OBJECT_EXISTS);
+            errorMessage.setValue(TranslationWord.getString()+" " + OBJECT_EXISTS);
             return TMS_APIFail;
 	}
 
@@ -8662,7 +8696,7 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
         }
     }
     
-    void abort_create(StringObject nobject, StringObject message){
+    void abort_create(String nStr, StringObject message){
         //<editor-fold defaultstate="collapsed" desc="C++ code...">
         /*
         void tms_api::abort_create(char *nobject,char *message)
@@ -8673,7 +8707,7 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
         */
         //</editor-fold>
         //sprintf(message,translate("Failed to add %s in database.Creation failed"),nobject);
-        message.setValue("Αποτυχία προσθήκης του κόμβου " + nobject.getValue() + " στην βάση. Η δημιουργία απέτυχε.");
+        message.setValue("Αποτυχία προσθήκης του κόμβου " + nStr + " στην βάση. Η δημιουργία απέτυχε.");
     }
     
     void abort_create_attribute(StringObject fobject, StringObject lobject, StringObject message) {
@@ -8887,7 +8921,7 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
         message.setValue(String.format("Succeeded to declassify %s under %s",objectName.getValue(), className.getValue()));
     }
 
-    void commit_create(StringObject nobject, StringObject message){
+    void commit_create(String nStr, StringObject message){
         //<editor-fold defaultstate="collapsed" desc="C++ code...">
         /*
         void tms_api::commit_create(char *nobject,char *message)
@@ -8897,7 +8931,7 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
         }
         */
         //</editor-fold>
-        //sprintf(message,translate("%s added in database"),nobject);
+        //sprintf(message,translate("%s added in database"),nStr);
     }
    
     void commit_delete_attribute(StringObject fobject, long linkSysidL, StringObject message){
@@ -8975,10 +9009,20 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
     }
     
     public int  CHECK_CreateUsedForTerm(StringObject term){
-        //USED IN WEBTMS API ONLY
+        /*//USED IN WEBTMS API ONLY
+        CMValue cmv = new CMValue();
+        cmv.assign_node(term.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId);
+        return CHECK_CreateUsedForTerm(cmv);
+        */
         int ret = CreateNode(term, CREATE_USED_FOR_TERM);
         return ret;
     }
+    /*
+    public int  CHECK_CreateUsedForTerm(CMValue term){
+        //USED IN WEBTMS API ONLY
+        int ret = CreateNode(term, CREATE_USED_FOR_TERM);
+        return ret;
+    }*/
    
     public int  CHECK_DeleteDescriptorAttribute(long linkSysidL, StringObject descriptorName){
         //USED IN WEBTMS API ONLY

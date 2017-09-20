@@ -79,7 +79,7 @@ public class Configs {
     //static final int MAX_NEO4j_ID_FOR_PRIMITIVE = 2;
     static final int MAX_IDS_PER_QUERY = 500;
     
-    static final String CommonLabelName = "Common";
+    public static final String CommonLabelName = "Common";
     
     static final String Neo4j_Level_Token = "Token";
     static final String Neo4j_Level_S_Class = "S_Class";
