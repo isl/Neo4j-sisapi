@@ -24,6 +24,17 @@ Authors: Elias Tzortzakakis <tzortzak@ics.forth.gr>
 
 This file is part of the Neo4j-sisapi project.
 
+Neo4j-sis-api 1.1
+=============================================================================
+Reference Id support per thesaurus + transliteration property support for searching
+Added functionality:
+- findLogicalNameByThesaurusReferenceId
+- set_current_node_and_retrieve_Cmv
+- get_matched_OnTransliteration
+- resetCounter_For_ThesarusReferenceId
+- createDatabaseIndexesAndConstraints
+- Rename transltiteration together with rename Facet/ Hierarchy / New Descriptor in TMSAPI
+
 
 Neo4j-sis-api
 =============================================================================

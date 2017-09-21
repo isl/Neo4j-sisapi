@@ -5760,6 +5760,64 @@ int sis_api::GetSYSID(IDENTIFIER *obj_ID, SYSID *sysid)
         return APISucc;        
     }
     
+    private int GetSYSID(CMValue obj_ID, PrimitiveObject_Long sysid){
+        // <editor-fold defaultstate="collapsed" desc="C++ Code">
+        /*
+        ////////////////////////////////////////////////////////////////////////
+//  GetSYSID :
+//          GetSYSID is used to get a SYSID from the given IDENTIFIER.
+//          Returns APISuccess on Succ, APIFail on Failure.
+//
+int sis_api::GetSYSID(IDENTIFIER *obj_ID, SYSID *sysid)
+{
+	// Check if the obj_ID is valid
+	if(obj_ID->tag != ID_TYPE_LOGINAM && obj_ID->tag != ID_TYPE_SYSID)
+		return APIFail;
+	// If the node name is a loginam get the SYSID
+	if(obj_ID->tag == ID_TYPE_LOGINAM)
+	{
+		// Make a loginam
+		LOGINAM name(obj_ID->loginam);
+		// Get the node SYSID. If the name is not unique or does not exist fail.
+		if(api_translator->getSysid(&name, sysid) != EXIST_ONE)
+			return APIFail;
+	}
+	else
+	{
+		// If the node_name is a sysid setup the SYSID
+		sysid->id = obj_ID->sysid;
+	}
+	return APISucc;
+}
+        */
+        // </editor-fold> 
+        if(obj_ID ==null){
+            return APIFail;
+        }
+        // If the node name is a loginam get the SYSID
+        if(obj_ID.getSysid()>0){
+            sysid.setValue(obj_ID.getSysid());
+        }
+        else if(obj_ID.getString()!=null && obj_ID.getString().length()>0){
+            
+            long tmp = db.getClassId(obj_ID.getString());
+            if(tmp>0){
+                sysid.setValue(tmp);                
+            }
+            else{
+                throw new UnsupportedOperationException();
+                //sysid.setValue(0);
+                //return APIFail;
+            }
+        }
+        else{
+            return APIFail;
+		
+        }
+        
+        return APISucc;        
+    }
+    
     private int GetLogicalName(Identifier obj_ID, StringObject lnam){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
@@ -6891,6 +6949,19 @@ int sis_api::Delete_Instance_Set(int from_set, IDENTIFIER * to)
      * @return 
      */
     public int CHECK_Rename_Node(Identifier node, Identifier NewNodeName){
+        CMValue nodeCmv = new CMValue();
+        CMValue NewNodeNameCmv = new CMValue();
+        if(node!=null){
+            nodeCmv.assign_node(node.getLogicalName(), node.getSysid(),"",TMSAPIClass.Do_Not_Assign_ReferenceId);                    
+        }
+        if(NewNodeNameCmv!=null){
+            NewNodeNameCmv.assign_node(NewNodeName.getLogicalName(), NewNodeName.getSysid(),"",TMSAPIClass.Do_Not_Assign_ReferenceId);                    
+        }
+        
+        return CHECK_Rename_NodeCMValue(nodeCmv,NewNodeNameCmv);
+    }
+    
+    public int CHECK_Rename_NodeCMValue(CMValue node, CMValue NewNodeName){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
 //  Rename_Node :
@@ -6958,11 +7029,12 @@ int sis_api::Rename_Node(IDENTIFIER * node, IDENTIFIER * NewNodeName)
             return APIFail;                    
         }
         
-        if(node==null || NewNodeName == null || NewNodeName.tag!= Identifier.ID_TYPE_LOGINAM){
+        //if(node==null || NewNodeName == null || NewNodeName.tag!= Identifier.ID_TYPE_LOGINAM){
+        if(node==null || NewNodeName == null || NewNodeName.getSysid()>0){
             return APIFail;
         }
         
-        if(NewNodeName.getLogicalName() ==null || NewNodeName.getLogicalName().length()==0){
+        if(NewNodeName.getString()==null || NewNodeName.getString().length()==0){
             return APIFail;
         }
         
@@ -6971,7 +7043,7 @@ int sis_api::Rename_Node(IDENTIFIER * node, IDENTIFIER * NewNodeName)
         //check that New Name does not exist
         
         //check Newname is ok
-        if(api_sem_check.newNodeNameIsOk(NewNodeName.getLogicalName())==false){
+        if(api_sem_check.newNodeNameIsOk(NewNodeName.getString())==false){
             return APIFail;
         }
         
@@ -6983,7 +7055,7 @@ int sis_api::Rename_Node(IDENTIFIER * node, IDENTIFIER * NewNodeName)
         }
         
         //check that New Name does not exist ( GetSYSID still throws an exception if not found by getClassId)
-        long iNewNodeNameL = db.getClassId(NewNodeName.getLogicalName());        
+        long iNewNodeNameL = db.getClassId(NewNodeName.getString());        
         if(iNewNodeNameL>0){
             return APIFail;
         }
@@ -6994,8 +7066,11 @@ int sis_api::Rename_Node(IDENTIFIER * node, IDENTIFIER * NewNodeName)
             if(n==null){
                 return APIFail;
             }
+            n.setProperty(Configs.Neo4j_Key_For_Logicalname, NewNodeName.getString());
+            if(NewNodeName.getTransliterationString()!=null && NewNodeName.getTransliterationString().length()>0){
+                n.setProperty(Configs.Neo4j_Key_For_Transliteration, NewNodeName.getTransliterationString());
+            }
             
-            n.setProperty(Configs.Neo4j_Key_For_Logicalname, NewNodeName.getLogicalName());
         }
         catch(Exception ex){
             utils.handleException(ex);
