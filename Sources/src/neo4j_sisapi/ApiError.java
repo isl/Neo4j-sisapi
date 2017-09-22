@@ -42,6 +42,9 @@ class ApiError {
     //char message[MAX_NUM_OF_THREADS][maxMessLen]; 	/* string describing the occured error */
     //int  ThreadFlag[MAX_NUM_OF_THREADS];		        /* flags indicating an error existence */
     String message ="";
+    String errorCode ="";//coming from messages
+    String[] errorArgs = null;
+    
     int  ThreadFlag; 
     //int  findTidPos(void);
     
@@ -88,6 +91,22 @@ class ApiError {
         // </editor-fold>         
         mess.setValue(message);
     }
+    void getErrorCode(StringObject mess){
+        // <editor-fold defaultstate="collapsed" desc="C++ Code">
+        /*
+        void telosError::getMessage(char* mess)
+        {
+            if(mess == 0)
+               return;      // To avoid NULL pointers.
+            int idx;
+            idx = findTidPos();
+            if(idx != 0)
+               strcpy(mess, message[idx]);
+        }
+        */
+        // </editor-fold>         
+        mess.setValue(errorCode);
+    }    
     
     void printMessage(){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
@@ -117,6 +136,7 @@ class ApiError {
         // </editor-fold>         
         
         this.message = "";
+        this.errorCode = "";
         this.ThreadFlag = 0;
     }
     
@@ -145,6 +165,26 @@ class ApiError {
         this.message = s;
     }
     
+    void setMessageWithErrorCodeAndArgs(String keyword, String... args){
+        String msg = Messages.allMessages.get(keyword);
+        if(msg!=null && msg.length()>0){
+            errorCode = keyword;
+            
+            if(args!=null){
+                errorArgs = new String[args.length];
+                
+                for(int i=0;i< args.length ; i++){
+                    errorArgs[i] = args[i];
+                }
+                msg = String.format(msg, (Object[]) args);
+            }
+            else{
+                errorArgs = null;
+            }
+            putMessage(msg);
+        }        
+    }
+    
     int checkError(String s){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">        
         /*
@@ -170,8 +210,7 @@ class ApiError {
         if(flag()!=0){
             putMessage(s);
             return(QClass.APIFail);
-        }
-        
+        }        
         return QClass.APISucc;
     }
 }

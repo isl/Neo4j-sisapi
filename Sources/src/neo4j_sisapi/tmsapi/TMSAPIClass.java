@@ -242,6 +242,7 @@ public class TMSAPIClass {
     protected static final String TERM_STR = "HierarchyTerm";
     protected static final String HAS_PREFIX ="has_prefix";
     protected static final String INVALID_TRANSLATION_KEYWORD = "Translation Word %s is not defined in the database";
+    
     // Open/Close the SIS TMS-API
     public int ALMOST_DONE_create_TMS_API_Session(QClass Q, String selectedThesaurus){
         
@@ -3173,11 +3174,13 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         Identifier Ithesaurus_hierarchy_term = new Identifier(thesaurus_hierarchy_term.getValue());
 
         
+        
         //retell individual descriptor in Token end
         //2 more arguements were added so that an id value for uri construction 
         //and a transliteration property can also be assigned to the descriptor        
         ret = QC.CHECK_Add_Node(Iterm,QClass.SIS_API_TOKEN_CLASS,true,term.getTransliterationString(),userOperation.getValue(),term.getRefid());
         if (ret==QClass.APIFail) { 
+            QC.get_error_message(errorMessage);
             abort_create(term.getString(),errorMessage); 
             return TMS_APIFail;
         }
@@ -8855,7 +8858,7 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
         */
         //</editor-fold>
         //sprintf(message,translate("Failed to add %s in database.Creation failed"),nobject);
-        message.setValue("Αποτυχία προσθήκης του κόμβου " + nStr + " στην βάση. Η δημιουργία απέτυχε.");
+        message.setValue(String.format("Failed to add %s in database.Creation failed.", nStr));
     }
     
     void abort_create_attribute(StringObject fobject, StringObject lobject, StringObject message) {
@@ -8870,7 +8873,7 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
         }
         */
         //</editor-fold>
-        message.setValue("Αποτυχία δημιουργίας συνδέσμου " + lobject.getValue() + " από τον κόμβο " + fobject.getValue());
+        message.setValue(String.format("Failed to create link %s from %s", lobject.getValue(),fobject.getValue()));
         //abort_transaction();
 
     }

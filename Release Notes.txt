@@ -33,8 +33,9 @@ Added functionality:
 - get_matched_OnTransliteration
 - resetCounter_For_ThesarusReferenceId
 - createDatabaseIndexesAndConstraints
-- Rename transltiteration together with rename Facet/ Hierarchy / New Descriptor in TMSAPI
-
+- Rename transltiteration together with rename Facet/ Hierarchy / Descriptor in TMSAPI
+- Included checking if thesaurus reference id is already assgined to other concept
+- started mechanism with error codes instead of direct hard coded messages (args is an issue)
 
 Neo4j-sis-api
 =============================================================================

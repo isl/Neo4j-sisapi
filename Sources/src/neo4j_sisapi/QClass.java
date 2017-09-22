@@ -448,6 +448,14 @@ public class QClass {
         return APISucc;
     }
     
+    public String get_error_code(){
+        
+        if(!check_files("get_error_code")){
+            return "";
+        }
+        return globalError.errorCode;
+    }
+    
     /**
      * Clears the error object of the api.
      * 
@@ -4003,12 +4011,21 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
         long newNeo4jId = db.getNextNeo4jId();
         long newReferenceId = -1;
         
+        //if refId ==0 do not create at all
         if(refId<0){
             newReferenceId = db.getNextThesaurusId(selectedThesaurus.toUpperCase());            
-        }
-        //if refId ==0 do not create at all?
+        }        
         else if (refId>0){
             newReferenceId = refId;
+        }
+        
+        if(newReferenceId>0){
+            //check if uri thesaurus reference exists
+            if(db.IsThesaurusReferenceIdAssigned(selectedThesaurus,newReferenceId)){
+                //globalError.putMessage(Messages.ErrorCode_For_ThesaurusReferenceIdAlreadyAssigned);
+                globalError.setMessageWithErrorCodeAndArgs(Messages.ErrorCode_For_ThesaurusReferenceIdAlreadyAssigned, new String[] {""+newReferenceId,selectedThesaurus});
+                return APIFail;
+            }
         }
         
         try{
@@ -8698,5 +8715,19 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             tx.success();            
         }
         return true;
+    }
+    
+    /**
+     * Function used in order to find out if thesaurus reference Id is 
+     * already assigned to the specified thesaurus. 
+     * 
+     * Useful in bulk data import where errors may be included.
+     * 
+     * @param selectedTehsarus
+     * @param referenceId
+     * @return 
+     */
+    public boolean IsThesaurusReferenceIdAssigned(String selectedTehsarus, long referenceId){
+        return db.IsThesaurusReferenceIdAssigned(selectedTehsarus, referenceId);
     }
 }

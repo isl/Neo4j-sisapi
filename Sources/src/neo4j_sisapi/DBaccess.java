@@ -7625,5 +7625,47 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
     }
     
     
+    boolean IsThesaurusReferenceIdAssigned(String thesaurusCheck, long refIdToCheck){
+        boolean returnVal = false;
+        String labelForHowmany = "howmanyFound";
+        String query = "Match(n:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\"Thesaurus`"+thesaurusCheck.toUpperCase()+"\"}) "+ 
+                " <-[:RELATION]-(link:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+thesaurusCheck.toUpperCase()+"`of_thesaurus\"})<-[:RELATION]-(m)<-[:ISA*0..]-(k)<-[:INSTANCEOF*0..1]-(p:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_ThesaurusReferenceId+":"+refIdToCheck+"}) "+
+                " return count(p) as "+labelForHowmany+" ";
+        
+        //System.out.println("resetCounter_For_ThesaurusReferenceId\r\n============================\r\n"+query);
+        
+        Result res = null;
+        try{
+            res = graphDb.execute(query);
+            if(res!=null){
+                while (res.hasNext()) {
+
+                    Map<String, Object> row = res.next();
+                    if(row.get(labelForHowmany) instanceof Integer){
+                        int howmany = (int) row.get("howmanyFound");
+                        if(howmany>0){
+                            return true;
+                        }
+                    }
+                    else if (row.get(labelForHowmany) instanceof Long) {
+                        long howmany = (long) row.get("howmanyFound");
+                        if (howmany > 0) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        catch(Exception ex){
+            utils.handleException(ex);
+        }
+        finally{
+            if (res != null) {
+                res.close();                
+            }
+        }
+        return returnVal;
+    }
+    
 }
 
