@@ -42,10 +42,25 @@ public class Return_Full_Nodes_Row {
     StringObject logicalname;
     StringObject systemClass;
     
+    // augmented with 2 properties in order to retrieve information about the
+    // - Node reference Id (Facet/Hierarchy/Term/Source), and
+    // - Trasliteration of logicalname that can be used for search or sorting
+    PrimitiveObject_Long referenceId;    
+    StringObject transliteration;  
+    
     public Return_Full_Nodes_Row(){
         nodeId = new PrimitiveObject_Long();
+        referenceId = new PrimitiveObject_Long();
         logicalname = new StringObject("");
-        systemClass = new StringObject("");        
+        systemClass = new StringObject("");     
+        transliteration = new StringObject("");
+    }
+    
+    Return_Full_Nodes_Row(long lId, String lname, scala.collection.convert.Wrappers.SeqWrapper labels,long refId, String lnameTransliteration){
+        this(lId,lname,labels);
+        this.referenceId.setValue(refId);
+        this.transliteration.setValue(lnameTransliteration);
+        
     }
     
     Return_Full_Nodes_Row(long lId, String lname, scala.collection.convert.Wrappers.SeqWrapper labels){
@@ -129,6 +144,7 @@ public class Return_Full_Nodes_Row {
         
     }
     
+    
     public long get_Neo4j_NodeId(){
         return nodeId.getValue();
     }
@@ -158,5 +174,13 @@ public class Return_Full_Nodes_Row {
      */
     public String get_v3_Sclass_logicalname(){
         return systemClass.getValue();
+    }
+    
+    public long get_v4_long_referenceId(){
+        return referenceId.getValue();
+    }
+    
+    public String get_v5_node_transliteration(){
+        return transliteration.getValue();
     }
 }

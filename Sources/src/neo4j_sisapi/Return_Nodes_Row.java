@@ -50,8 +50,8 @@ public class Return_Nodes_Row {
     public Return_Nodes_Row(){
         nodeId = new PrimitiveObject_Long();
         referenceId = new PrimitiveObject_Long();
-        v1_cls = new StringObject();
-        transliteration = new StringObject();
+        v1_cls = new StringObject("");
+        transliteration = new StringObject("");
     }
     
     Return_Nodes_Row(long lId, String lname){

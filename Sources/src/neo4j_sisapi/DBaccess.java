@@ -1144,14 +1144,14 @@ class DBaccess {
             if(subSetofIds.size()==1){
                 
                 query = " MATCH (n"+getCommonLabelStr()+"{"+ prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"}) "
-                        + " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+Configs.Neo4j_Key_For_Logicalname +" as lname, labels(n) as lbls ";
+                        + " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+Configs.Neo4j_Key_For_Logicalname +" as lname, labels(n) as lbls, n."+Configs.Neo4j_Key_For_ThesaurusReferenceId +" as refId, n."+Configs.Neo4j_Key_For_Transliteration +" as translit ";
 						
             }
             else {
                 
                 query = " MATCH (n"+getCommonLabelStr()+") "+
                         " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" in " +subSetofIds.toString() +
-                        " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+Configs.Neo4j_Key_For_Logicalname +" as lname, labels(n) as lbls  ";
+                        " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id, n."+Configs.Neo4j_Key_For_Logicalname +" as lname, labels(n) as lbls, n."+Configs.Neo4j_Key_For_ThesaurusReferenceId +" as refId, n."+Configs.Neo4j_Key_For_Transliteration +" as translit ";;
 						
             }
             
@@ -1168,9 +1168,12 @@ class DBaccess {
                     
                     scala.collection.convert.Wrappers.SeqWrapper labels = (scala.collection.convert.Wrappers.SeqWrapper)row.get("lbls");
                     
+                    long refIdVal = getNeo4jIdFromObject(row.get("refId"));
+                    String transliteration = (String)row.get("translit");
+                    
                     if(idVal>0 && lname.length()>0){
                         
-                        retRows.add(new Return_Full_Nodes_Row(idVal,lname,labels));
+                        retRows.add(new Return_Full_Nodes_Row(idVal,lname,labels,refIdVal,transliteration));
                     }
                     else{
                         abort = true;
