@@ -5,7 +5,7 @@
  */
 package neo4j_sisapi;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * Class created in order to hold the response messages from the api.
@@ -20,7 +20,7 @@ import java.util.Hashtable;
 public class Messages {
     
     public static final String ErrorCode_For_ThesaurusReferenceIdAlreadyAssigned = "THESAURUS_REFERENCE_ID_ALREADY_ASSIGNED";
-    public static final Hashtable<String,String> allMessages = new  Hashtable<String,String>(){{
+    public static final HashMap<String,String> allMessages = new  HashMap<String,String>(){{
         put(ErrorCode_For_ThesaurusReferenceIdAlreadyAssigned, "Reference Id %s is already used in thesaurus %s.");        
     }};
         

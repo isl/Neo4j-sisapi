@@ -33,8 +33,8 @@
  */
 package neo4j_sisapi;
 
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.ArrayList;
 import static neo4j_sisapi.QClass.APIFail;
 import static neo4j_sisapi.QClass.APISucc;
 
@@ -55,8 +55,8 @@ class Sets_Class {
                                 // n >= 0  read object from set (field) n  
     
     */
-    private Vector<PQI_Set> sets = new Vector<PQI_Set>();
-    private Vector<Integer> proj_status = new Vector<Integer>();
+    private ArrayList<PQI_Set> sets = new ArrayList<PQI_Set>();
+    private ArrayList<Integer> proj_status = new ArrayList<Integer>();
     
     Sets_Class(){
         super();
@@ -65,8 +65,8 @@ class Sets_Class {
     void ClearAndReset(){
         sets.clear();
         proj_status.clear();
-        sets = new Vector<PQI_Set>();
-        proj_status = new Vector<Integer>();
+        sets = new ArrayList<PQI_Set>();
+        proj_status = new ArrayList<Integer>();
     }
     
      enum Set_Operation_Identifiers {

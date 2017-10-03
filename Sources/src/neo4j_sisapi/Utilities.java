@@ -5,7 +5,7 @@
  */
 package neo4j_sisapi;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,8 +22,8 @@ class Utilities {
         
     }
     
-    Vector<Long> collectSequenctiallyAsubsetOfValues(int startindex,int howmanyToGet, Vector<Long> targetVals){
-        Vector<Long> returnVals = new Vector<Long>();
+    ArrayList<Long> collectSequenctiallyAsubsetOfValues(int startindex,int howmanyToGet, ArrayList<Long> targetVals){
+        ArrayList<Long> returnVals = new ArrayList<Long>();
         if(howmanyToGet<=0){
             throw new UnsupportedOperationException("collectSequenctiallyAsubsetOfValues was called with howmanyToGet: " +howmanyToGet);
         }

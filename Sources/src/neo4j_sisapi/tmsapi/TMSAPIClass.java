@@ -33,11 +33,11 @@
  */
 package neo4j_sisapi.tmsapi;
 
+import java.util.ArrayList;
 import neo4j_sisapi.*;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.neo4j.graphdb.GraphDatabaseService;
 /**
  *
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
@@ -145,13 +145,13 @@ public class TMSAPIClass {
     StringObject userOperationLow = new StringObject("");
     StringObject errorMessage = new StringObject("");
     // The names of the existing thesaurus in currently used data base
-    Vector<String> ThesaurusNames = new Vector<String>();
+    ArrayList<String> ThesaurusNames = new ArrayList<String>();
     // Categories of attributes allowed to be edited by TMS API
-    Vector<String[]> FacetCategories = new Vector();
-    Vector<String[]> HierarchyCategories= new Vector();
-    Vector<String[]> NewDescriptorCategories = new Vector();
-    Vector<String[]> VersionedDescriptorCategories = new Vector();
-    Vector<String[]> CommentCategories = new Vector();
+    ArrayList<String[]> FacetCategories = new ArrayList();
+    ArrayList<String[]> HierarchyCategories= new ArrayList();
+    ArrayList<String[]> NewDescriptorCategories = new ArrayList();
+    ArrayList<String[]> VersionedDescriptorCategories = new ArrayList();
+    ArrayList<String[]> CommentCategories = new ArrayList();
     
     //<editor-fold defaultstate="collapsed" desc="C++ code...">     
  //FROM FILE u_msgs.h
@@ -339,7 +339,7 @@ public class TMSAPIClass {
         }
         QC.reset_set(thesaurus_set);
         
-        Vector<Return_Nodes_Row> retVals = new Vector<Return_Nodes_Row>();
+        ArrayList<Return_Nodes_Row> retVals = new ArrayList<Return_Nodes_Row>();
         
         if(QC.bulk_return_nodes(thesaurus_set, retVals)!=QClass.APIFail){
             for(Return_Nodes_Row row: retVals){
@@ -711,7 +711,7 @@ int tms_api::ClassifyHierarchyInFacet(char *hierarchyName, char *facetName)
         //StringObject label = new StringObject();
         //CMValue cmv = new CMValue();
         //int counter = 0;
-        Vector<Return_Link_Row> retVals = new Vector<Return_Link_Row>();
+        ArrayList<Return_Link_Row> retVals = new ArrayList<Return_Link_Row>();
         if(QC.bulk_return_link(instSet1, retVals)!=QClass.APIFail){
             for(Return_Link_Row row: retVals){
                 String[] commentCateg = {row.get_v1_cls(), row.get_v2_label()};
@@ -1325,7 +1325,7 @@ GetPrefixOfClassesSetExitPoint:
 	//	case TYPE_STRING : case TYPE_NODE :
 	//		free(cmv.value.s);
 	//}
-        Vector<Return_Link_Row> retVals = new Vector<Return_Link_Row>();
+        ArrayList<Return_Link_Row> retVals = new ArrayList<Return_Link_Row>();
         if(QC.bulk_return_link(linksSet, retVals)==QClass.APIFail){
             //no need for return_link_id
             //strcpy(message, "In GetPrefixOfClassesSet : fail to QC->return_link_id()");
@@ -1741,7 +1741,7 @@ int tms_api::ClassPrefixfThesaurus(char *thesaurus, char *prefix_class, char *me
         QC.reset_set(catSet);
         StringObject fromCateg = new StringObject();
         StringObject categName= new StringObject();
-        Vector<Return_Link_Row> retLvals = new Vector<Return_Link_Row>();
+        ArrayList<Return_Link_Row> retLvals = new ArrayList<Return_Link_Row>();
         if(QC.bulk_return_link(catSet, retLvals)==QClass.APIFail){
             QC.free_set(catSet);
             return TMS_APIFail;
@@ -1856,7 +1856,7 @@ int tms_api::ClassPrefixfThesaurus(char *thesaurus, char *prefix_class, char *me
         //StringObject categ = new StringObject();
         //StringObject fromcls = new StringObject();
 
-        Vector<Return_Full_Link_Id_Row> retVals = new Vector<Return_Full_Link_Id_Row>();
+        ArrayList<Return_Full_Link_Id_Row> retVals = new ArrayList<Return_Full_Link_Id_Row>();
         if(QC.bulk_return_full_link_id(category_set, retVals)!=QClass.APIFail){
             for(Return_Full_Link_Id_Row row:retVals){
                 // check if current category is of type DAG
@@ -2395,7 +2395,7 @@ int tms_api::ClassPrefixfThesaurus(char *thesaurus, char *prefix_class, char *me
         QC.reset_set(linkClasses);
         StringObject fromCateg = new StringObject();
         StringObject categName= new StringObject();
-        Vector<Return_Link_Row> retLvals = new Vector<Return_Link_Row>();
+        ArrayList<Return_Link_Row> retLvals = new ArrayList<Return_Link_Row>();
         if(QC.bulk_return_link(linkClasses, retLvals)==QClass.APIFail){
             QC.free_set(linkClasses);
             return TMS_APIFail;
@@ -2537,7 +2537,7 @@ int tms_api::IsLinkPointingFromTarget(int linkSysid, char *fromName)
         }
         QC.reset_set(from_value_set);
         
-        Vector<Return_Full_Nodes_Row> retFNvals = new Vector<Return_Full_Nodes_Row>();
+        ArrayList<Return_Full_Nodes_Row> retFNvals = new ArrayList<Return_Full_Nodes_Row>();
         
         if(QC.bulk_return_full_nodes(from_value_set, retFNvals)==QClass.APIFail){
             QC.free_set(from_value_set);
@@ -3129,7 +3129,7 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
             return TMS_APIFail;
         }
 
-        Vector<StringObject> hierarchy = new Vector<StringObject>();
+        ArrayList<StringObject> hierarchy = new ArrayList<StringObject>();
         //get the hierarchies of the broader term
         int num_hierarchies = gethierarchy(hierarchy,btterm,errorMessage);
         if (num_hierarchies<=0) {
@@ -3391,7 +3391,7 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         return TMS_APISucc;
     }
     
-    int gethierarchy(Vector<StringObject> hierarchy, StringObject term, StringObject message){
+    int gethierarchy(ArrayList<StringObject> hierarchy, StringObject term, StringObject message){
         // get in a set all the terms having "BT" connection with the given term (including it)
         QC.reset_name_scope();
         long termSySIdL = QC.set_current_node(term);
@@ -3470,7 +3470,7 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         //l_name label;
         QC.reset_set(ret_set3);
         int retnum = 0;
-        Vector<Return_Nodes_Row> retVals = new Vector<Return_Nodes_Row>();
+        ArrayList<Return_Nodes_Row> retVals = new ArrayList<Return_Nodes_Row>();
         if(QC.bulk_return_nodes(ret_set3, retVals)==QClass.APIFail){
             message.setValue(IN_GETHIERARCHY+term.getValue());
             return TMS_APIFail;
@@ -5322,7 +5322,7 @@ int tms_api::DelLinksToPrmtv(char *target_name)
             return TMS_APIFail;
         }
 	QC.reset_set(set_id);
-        Vector<Return_Link_Row> rlVals = new Vector<Return_Link_Row>();
+        ArrayList<Return_Link_Row> rlVals = new ArrayList<Return_Link_Row>();
         if(QC.bulk_return_link(set_id, rlVals)==QClass.APIFail){
             return TMS_APIFail;
         }
@@ -5593,7 +5593,7 @@ int tms_api::DeleteLinks(char *target_name, int set_id, int neces_set)
 	}
 	QC.reset_set(set_id);
         
-        Vector<Return_Link_Row> retVals = new Vector<Return_Link_Row>();
+        ArrayList<Return_Link_Row> retVals = new ArrayList<Return_Link_Row>();
         QC.bulk_return_link(set_id, retVals);
         
         for(Return_Link_Row row: retVals){
@@ -5879,7 +5879,7 @@ int tms_api::RedirectAttributeLink(char *target_name, int cat_set_id)
         
 	QC.reset_set(cat_set_id) ;
         
-        Vector<Return_Link_Row> retLvals = new Vector<Return_Link_Row>();
+        ArrayList<Return_Link_Row> retLvals = new ArrayList<Return_Link_Row>();
         QC.bulk_return_link(cat_set_id, retLvals);
         
         for(Return_Link_Row RL1row: retLvals){
@@ -5910,7 +5910,7 @@ int tms_api::RedirectAttributeLink(char *target_name, int cat_set_id)
             from_links = GetFromSetDirectInstancesOfCategory(from_links, fromClass, category);
             QC.reset_set(from_links);
             
-            Vector<Return_Link_Row> retVals2 = new Vector<Return_Link_Row>();
+            ArrayList<Return_Link_Row> retVals2 = new ArrayList<Return_Link_Row>();
             QC.bulk_return_link(to_links, retVals2);
             for(Return_Link_Row row2: retVals2){
                 //while (QC.return_link(to_links, to_cls, label, &to_cmv) >= 0) {
@@ -5927,7 +5927,7 @@ int tms_api::RedirectAttributeLink(char *target_name, int cat_set_id)
                 QC.reset_set(from_links) ;
                 
                 
-                Vector<Return_Link_Row> retVals3 = new Vector<Return_Link_Row>();
+                ArrayList<Return_Link_Row> retVals3 = new ArrayList<Return_Link_Row>();
                 QC.bulk_return_link(from_links, retVals3);
                 
                 
@@ -5983,7 +5983,7 @@ int tms_api::RedirectAttributeLink(char *target_name, int cat_set_id)
 	// for each link of linkSet
 	QC.reset_set(linksSet);
         
-        Vector<Return_Link_Row> retVals = new Vector<Return_Link_Row>();
+        ArrayList<Return_Link_Row> retVals = new ArrayList<Return_Link_Row>();
         QC.bulk_return_link(linksSet, retVals);
         for(Return_Link_Row row : retVals){
             //while (QC.return_link_id(linksSet, from, &fcid, &lsysid, &cmv, &flag) >= 0) {
@@ -6925,7 +6925,7 @@ INPUT: - term : the name of a released descriptor
             l_name link_name;
             */
             QC.reset_set(ret_set1);
-            Vector<Return_Link_Row> rLvals = new Vector<Return_Link_Row>();
+            ArrayList<Return_Link_Row> rLvals = new ArrayList<Return_Link_Row>();
             if(QC.bulk_return_link(ret_set1, rLvals)==QClass.APIFail){
                 abort_move_to_hierarchy(term,bhierarchy,message);
                 return TMS_APIFail;
@@ -7344,7 +7344,7 @@ INPUT: - term : the name of a released descriptor
         
         
         //delete all bt and nt links originating and targeting respectively from obsolete term.
-        Vector<Return_Link_Row> retLvals = new Vector<Return_Link_Row>();
+        ArrayList<Return_Link_Row> retLvals = new ArrayList<Return_Link_Row>();
         if(QC.bulk_return_link(ret_set1, retLvals)==QClass.APIFail){
             abort_move_to_hierarchy(term,bhierarchy,message);
             return TMS_APIFail;
@@ -7428,7 +7428,7 @@ INPUT: - term : the name of a released descriptor
         if (QC.set_get_card(ret_set4)==0){
             ;
         } else {
-            Vector<Return_Nodes_Row> rn1 = new Vector<Return_Nodes_Row>();
+            ArrayList<Return_Nodes_Row> rn1 = new ArrayList<Return_Nodes_Row>();
             
             if(QC.bulk_return_nodes(ret_set4, rn1)==QClass.APIFail){
                 abort_move_to_hierarchy(term,bhierarchy,message);
@@ -7439,7 +7439,7 @@ INPUT: - term : the name of a released descriptor
                 Identifier from_node_ident = new Identifier(row1.get_Neo4j_NodeId());
                 StringObject from_node_name = new StringObject(row1.get_v1_cls_logicalname());
                 
-                Vector<Return_Nodes_Row> rn2 = new Vector<Return_Nodes_Row>();
+                ArrayList<Return_Nodes_Row> rn2 = new ArrayList<Return_Nodes_Row>();
             
                 if(QC.bulk_return_nodes(ret_set2, rn2)==QClass.APIFail){
                     abort_move_to_hierarchy(term,bhierarchy,message);

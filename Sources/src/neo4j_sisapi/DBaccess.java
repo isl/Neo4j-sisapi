@@ -35,31 +35,23 @@ package neo4j_sisapi;
 
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static neo4j_sisapi.QClass.APIFail;
 import static neo4j_sisapi.QClass.APISucc;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.DynamicLabel;
-import org.neo4j.graphdb.DynamicRelationshipType;
+
+//import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.schema.ConstraintDefinition;
-import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.Evaluator;
 import org.neo4j.graphdb.traversal.Evaluators;
@@ -165,7 +157,7 @@ class DBaccess {
              return APIFail;
         }
         
-        Vector<Long> ids = setIDs.get_Neo4j_Ids();
+        ArrayList<Long> ids = setIDs.get_Neo4j_Ids();
         
         if(DebugInfo == true)
         {
@@ -174,7 +166,7 @@ class DBaccess {
 
         String query = "";
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
                         
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -185,7 +177,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -200,8 +192,8 @@ class DBaccess {
                         " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
                         " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                 
-                /*query = "UNWIND "+subSetofIds+" AS vector "
-                        +" MATCH (n"+getCommonLabelStr()+"{"+Configs.Neo4j_Key_For_Neo4j_Id+":vector})<-[:INSTANCEOF]-(m) "
+                /*query = "UNWIND "+subSetofIds+" AS ArrayList "
+                        +" MATCH (n"+getCommonLabelStr()+"{"+Configs.Neo4j_Key_For_Neo4j_Id+":ArrayList})<-[:INSTANCEOF]-(m) "
                         +" RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";*/
             }
             
@@ -291,7 +283,7 @@ class DBaccess {
     //used in getClassesSET but kept the same naming convention getInstOfSET as in  sisapi
     int DBACCESS_getInstOfSET(PQI_Set setIDs, PQI_Set retSysids){
         
-        Vector<Long> ids = new Vector<Long>();
+        ArrayList<Long> ids = new ArrayList<Long>();
         ids = setIDs.get_Neo4j_Ids();
         
         if(DebugInfo)
@@ -301,7 +293,7 @@ class DBaccess {
         
         String query = "";
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
                 
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -312,7 +304,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -327,8 +319,8 @@ class DBaccess {
                         " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + 
                         " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+ Configs.Neo4j_Key_For_Neo4j_Id +" ";
                 /*
-                query = "UNWIND "+subSetofIds+" AS vector "
-                       +" MATCH (n"+getCommonLabelStr()+"{"+Configs.Neo4j_Key_For_Neo4j_Id+":vector})-[:INSTANCEOF]->(m) "
+                query = "UNWIND "+subSetofIds+" AS ArrayList "
+                       +" MATCH (n"+getCommonLabelStr()+"{"+Configs.Neo4j_Key_For_Neo4j_Id+":ArrayList})-[:INSTANCEOF]->(m) "
                        +" RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
 				*/
             }
@@ -376,7 +368,7 @@ class DBaccess {
     
     int DBACCESS_getInstOf(long objSysid, PQI_Set retSysids){
         
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
         
         String query = " MATCH(n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(objSysid)+"})-[:INSTANCEOF]->(m) "+
                         " RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
@@ -518,7 +510,7 @@ class DBaccess {
   
     
     
-    private int DBACCESS_get_From_or_To_For_TraverseByCategory(Vector<Long> attributeIds,boolean linksFromInsteadOfTo, boolean excludeTokens, Vector<Long> returnSet){
+    private int DBACCESS_get_From_or_To_For_TraverseByCategory(ArrayList<Long> attributeIds,boolean linksFromInsteadOfTo, boolean excludeTokens, ArrayList<Long> returnSet){
         
         if(attributeIds.size()==0){
             return APISucc;
@@ -528,7 +520,7 @@ class DBaccess {
         int maxIndex = attributeIds.size();
         
         while(loopIndex<maxIndex){
-            Vector<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, attributeIds);
+            ArrayList<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, attributeIds);
             loopIndex += subSetIds.size();
             
             if(subSetIds.size()==0){
@@ -612,7 +604,7 @@ class DBaccess {
     
     int DBACCESS_getFromNode_Or_ToNodeSET(PQI_Set setIDs, PQI_Set retSysids, boolean linksFromInsteadOfToNode){
         
-        Vector<Long> ids = new Vector<Long>();
+        ArrayList<Long> ids = new ArrayList<Long>();
         ids = setIDs.get_Neo4j_Ids();
         
         if(DebugInfo == true)
@@ -622,7 +614,7 @@ class DBaccess {
         
         String query = "";
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
         
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -633,7 +625,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -771,7 +763,7 @@ class DBaccess {
     
     int DBACCESS_getLinkFromSET(PQI_Set setIDs, PQI_Set retSysids){
         
-        Vector<Long> ids = new Vector<Long>();
+        ArrayList<Long> ids = new ArrayList<Long>();
         ids = setIDs.get_Neo4j_Ids();
         
         if(DebugInfo == true)
@@ -781,7 +773,7 @@ class DBaccess {
         
         String query = "";
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
         
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -792,7 +784,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -999,7 +991,7 @@ class DBaccess {
             return APISucc;
         }
         // traverse the set of links 
-        Vector<Long> objSysidVec = objSysids.get_Neo4j_Ids();
+        ArrayList<Long> objSysidVec = objSysids.get_Neo4j_Ids();
         for(long obj_sysid : objSysidVec){
 
             if(DBaccess.this.getTraverseByCategory_With_SIS_Server_Implementation(obj_sysid, f_set, b_set, depth, isa, edge_set, retSysids, checked_set)==QClass.APIFail){
@@ -1049,9 +1041,12 @@ class DBaccess {
         return retVal;
     }
 	
-    Vector<Long> getNodeClassesNeo4jIds(Node n){
-        Vector<Long> retVals = new Vector<Long>();
-        Iterator<Relationship> instanceOfRels = n.getRelationships(Configs.Rels.INSTANCEOF, Direction.OUTGOING).iterator();
+    ArrayList<Long> getNodeClassesNeo4jIds(Node n){
+        ArrayList<Long> retVals = new ArrayList<Long>();
+        
+        
+        Iterator<Relationship> instanceOfRels =  n.getRelationships(Configs.Rels.INSTANCEOF, Direction.OUTGOING).iterator();
+        
         while(instanceOfRels.hasNext()){
             Relationship instanceOfRel = instanceOfRels.next();
             long classId = getNodeNeo4jId(instanceOfRel.getEndNode());
@@ -1120,7 +1115,7 @@ class DBaccess {
         return SystemClass;
     }
     
-    int get_Bulk_Return_Full_Nodes_Rows(Vector<Long> nodeIds, Vector<Return_Full_Nodes_Row> retRows){
+    int get_Bulk_Return_Full_Nodes_Rows(ArrayList<Long> nodeIds, ArrayList<Return_Full_Nodes_Row> retRows){
         
         int loopIndex = 0;
         int maxIndex = nodeIds.size();
@@ -1135,7 +1130,7 @@ class DBaccess {
 
             //the query is a little bit larger since it also requests logical name so 
             //here i use a value slightly less than Configs.MAX_IDS_PER_QUERY
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-30), nodeIds);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-30), nodeIds);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -1202,7 +1197,7 @@ class DBaccess {
         return APISucc;
     }
     
-    int get_Bulk_Return_Prm_Nodes(Vector<Long> nodeIds, Vector<Return_Prm_Row> retRows){
+    int get_Bulk_Return_Prm_Nodes(ArrayList<Long> nodeIds, ArrayList<Return_Prm_Row> retRows){
         int loopIndex = 0;
         int maxIndex = nodeIds.size();
         
@@ -1216,7 +1211,7 @@ class DBaccess {
 
             //the query is a little bit larger since it also requests logical name so 
             //here i use a value slightly less than Configs.MAX_IDS_PER_QUERY
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-20), nodeIds);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-20), nodeIds);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -1272,7 +1267,7 @@ class DBaccess {
         return APISucc;
     }
     
-    int get_Bulk_Return_Nodes_Rows(Vector<Long> nodeIds, Vector<Return_Nodes_Row> retRows){
+    int get_Bulk_Return_Nodes_Rows(ArrayList<Long> nodeIds, ArrayList<Return_Nodes_Row> retRows){
         
         int loopIndex = 0;
         int maxIndex = nodeIds.size();
@@ -1287,7 +1282,7 @@ class DBaccess {
 
             //the query is a little bit larger since it also requests logical name so 
             //here i use a value slightly less than Configs.MAX_IDS_PER_QUERY
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-20), nodeIds);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, (Configs.MAX_IDS_PER_QUERY-20), nodeIds);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -1348,8 +1343,8 @@ class DBaccess {
     }
     
     //if everything is in token level then link can be easily queried via 1 cypher query
-    int get_Bulk_Return_Full_Link_Rows(Vector<Long> linkIds, Vector<Return_Full_Link_Row> retRows,Vector<Long> b_set){
-        Vector<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
+    int get_Bulk_Return_Full_Link_Rows(ArrayList<Long> linkIds, ArrayList<Return_Full_Link_Row> retRows,ArrayList<Long> b_set){
+        ArrayList<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
         if(linkIds.size()!= nodes.size()){
             return APIFail;
         }
@@ -1400,23 +1395,23 @@ class DBaccess {
         */
         
         //each link has 1 and only one from value
-        Hashtable<Long, String> Clss = new Hashtable<Long,String>();
-        Hashtable<Long, String> labels = new Hashtable<Long,String>();
+        HashMap<Long, String> Clss = new HashMap<Long,String>();
+        HashMap<Long, String> labels = new HashMap<Long,String>();
         //link id i already have
         
-        Hashtable<Long, String> categs = new Hashtable<Long,String>();
-        Hashtable<Long, String> fromClss = new Hashtable<Long,String>();
+        HashMap<Long, String> categs = new HashMap<Long,String>();
+        HashMap<Long, String> fromClss = new HashMap<Long,String>();
         
         //do not need it for return just to check unique and traversed categories
-        Hashtable<Long, Long> categIds = new Hashtable<Long,Long>();
+        HashMap<Long, Long> categIds = new HashMap<Long,Long>();
         
         
         //each link must have one and only one to value (node or primitive) 
         //but may be also the from value of another link
-        Hashtable<Long, CMValue> cmvalues = new Hashtable<Long,CMValue>();
+        HashMap<Long, CMValue> cmvalues = new HashMap<Long,CMValue>();
         
-        Hashtable<Long, Boolean> uniqueCategs = new Hashtable<Long,Boolean>();
-        Hashtable<Long, Boolean> traversedCategs = new Hashtable<Long,Boolean>();
+        HashMap<Long, Boolean> uniqueCategs = new HashMap<Long,Boolean>();
+        HashMap<Long, Boolean> traversedCategs = new HashMap<Long,Boolean>();
         
         
         
@@ -1439,7 +1434,7 @@ class DBaccess {
                         if(cmVal!=null){
                             if(cmvalues.containsKey(pathStartNodeId)){
                                 if(Configs.boolDebugInfo){
-                                    Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Link with id: " +pathStartNodeId +" found with more that one values. " + cmVal.toString() +" " +cmvalues.get(pathStartNodeId).toString());
+                                    Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Link with id: {0} found with more that one values. {1} {2}", new Object[]{pathStartNodeId, cmVal.toString(), cmvalues.get(pathStartNodeId).toString()});
                                 }
                                 return APIFail;
                             }
@@ -1645,13 +1640,13 @@ class DBaccess {
         return APISucc;
     }
     
-    int get_Bulk_Return_Full_Link_Id_Rows(Vector<Long> linkIds, Vector<Return_Full_Link_Id_Row> retRows){
+    int get_Bulk_Return_Full_Link_Id_Rows(ArrayList<Long> linkIds, ArrayList<Return_Full_Link_Id_Row> retRows){
         /*
         - The following query is applicable to tokens where categ is instance of 1 and only one category 
         - needs some optimization 
         --    instead of , in MATCH use cascading matches with WITH clause
         --    categs should include the sub-superclasses??? not here but this stands in get_links_to_by_category
-        --    Vector<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds); is useless anymore but we could ask if everything exists and also get the list of things that are not tokens
+        --    ArrayList<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds); is useless anymore but we could ask if everything exists and also get the list of things that are not tokens
         e.g. Neo4j_Id:60470 Logicalname:AATDEMOEN`cameras
         MATCH(n:Common{Logicalname:"AATDEMOEN`cameras"})-[:RELATION]-(m) return m.Neo4j_Id
         
@@ -1669,7 +1664,7 @@ class DBaccess {
                 n.Value as linkVal, to.Neo4j_Id as toId, to.Logicalname as toLabel, categ.Neo4j_Id as categId, categ.Logicalname as categLabel, 
                 fromSuper.Logicalname as categFromLabel  
         */
-        Vector<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
+        ArrayList<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
         if(linkIds.size()!= nodes.size()){
             return APIFail;
         }
@@ -1713,22 +1708,22 @@ class DBaccess {
         */
         
         //each link has 1 and only one from value
-        Hashtable<Long, String> Clss = new Hashtable<Long,String>();
+        HashMap<Long, String> Clss = new HashMap<Long,String>();
         
-        Hashtable<Long, Long> ClsIds = new Hashtable<Long,Long>();
-        Hashtable<Long, Long> ClsRefIds = new Hashtable<Long,Long>();
-        Hashtable<Long, String> ClsTransliterations = new Hashtable<Long,String>();
-        Hashtable<Long, String> labels = new Hashtable<Long,String>();
+        HashMap<Long, Long> ClsIds = new HashMap<Long,Long>();
+        HashMap<Long, Long> ClsRefIds = new HashMap<Long,Long>();
+        HashMap<Long, String> ClsTransliterations = new HashMap<Long,String>();
+        HashMap<Long, String> labels = new HashMap<Long,String>();
         //link id i already have
         
-        Hashtable<Long, String> categs = new Hashtable<Long,String>();
-        Hashtable<Long, String> fromClss = new Hashtable<Long,String>();
-        Hashtable<Long, Long> categIds = new Hashtable<Long,Long>();
+        HashMap<Long, String> categs = new HashMap<Long,String>();
+        HashMap<Long, String> fromClss = new HashMap<Long,String>();
+        HashMap<Long, Long> categIds = new HashMap<Long,Long>();
         //each link must have one and only one to value (node or primitive) 
         //but may be also the from value of another link
-        Hashtable<Long, CMValue> cmvalues = new Hashtable<Long,CMValue>();
+        HashMap<Long, CMValue> cmvalues = new HashMap<Long,CMValue>();
         
-        Hashtable<Long, Boolean> uniqueCategs = new Hashtable<Long,Boolean>();
+        HashMap<Long, Boolean> uniqueCategs = new HashMap<Long,Boolean>();
         
         
         for (Path path : bothDirectionsTr.traverse(nodes)) {
@@ -1750,7 +1745,7 @@ class DBaccess {
                         if(cmVal!=null){
                             if(cmvalues.containsKey(pathStartNodeId)){
                                 if(Configs.boolDebugInfo){
-                                    Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Link with id: " +pathStartNodeId +" found with more that one values. " + cmVal.toString() +" " +cmvalues.get(pathStartNodeId).toString());
+                                    Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Link with id: {0} found with more that one values. {1} {2}", new Object[]{pathStartNodeId, cmVal.toString(), cmvalues.get(pathStartNodeId).toString()});
                                 }
                                 return APIFail;
                             }
@@ -1835,7 +1830,7 @@ class DBaccess {
                             
                             if(cmvalues.containsKey(linkId)){
                                 if(Configs.boolDebugInfo){
-                                    Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Link with id: " +linkId +" found with more that one values. " + cmVal.toString() +" " +cmvalues.get(linkId).toString());
+                                    Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Link with id: {0} found with more that one values. {1} {2}", new Object[]{linkId, cmVal.toString(), cmvalues.get(linkId).toString()});
                                 }
                                 return APIFail;
                             }
@@ -1862,19 +1857,19 @@ class DBaccess {
         }//paths iterator
         
         /*
-        Hashtable<Long, String> Clss = new Hashtable<Long,String>();
-        Hashtable<Long, Long> ClsIds = new Hashtable<Long,Long>();
-        Hashtable<Long, String> labels = new Hashtable<Long,String>();
+        HashMap<Long, String> Clss = new HashMap<Long,String>();
+        HashMap<Long, Long> ClsIds = new HashMap<Long,Long>();
+        HashMap<Long, String> labels = new HashMap<Long,String>();
         //link id i already have
         
-        Hashtable<Long, String> categs = new Hashtable<Long,String>();
-        Hashtable<Long, String> fromClss = new Hashtable<Long,String>();
-        Hashtable<Long, Long> categIds = new Hashtable<Long,Long>();
+        HashMap<Long, String> categs = new HashMap<Long,String>();
+        HashMap<Long, String> fromClss = new HashMap<Long,String>();
+        HashMap<Long, Long> categIds = new HashMap<Long,Long>();
         //each link must have one and only one to value (node or primitive) 
         //but may be also the from value of another link
-        Hashtable<Long, CMValue> cmvalues = new Hashtable<Long,CMValue>();
+        HashMap<Long, CMValue> cmvalues = new HashMap<Long,CMValue>();
         
-        Hashtable<Long, Boolean> uniqueCategs = new Hashtable<Long,Boolean>();
+        HashMap<Long, Boolean> uniqueCategs = new HashMap<Long,Boolean>();
         */
         for(Long linkId : linkIds){
             String cls="";
@@ -1928,8 +1923,8 @@ class DBaccess {
         
         
     }
-    int get_Bulk_Return_Link_Id_Rows(Vector<Long> linkIds, Vector<Return_Link_Id_Row> retRows, PQI_Set b_set){
-        Vector<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
+    int get_Bulk_Return_Link_Id_Rows(ArrayList<Long> linkIds, ArrayList<Return_Link_Id_Row> retRows, PQI_Set b_set){
+        ArrayList<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
         if(linkIds.size()!= nodes.size()){
             return APIFail;
         }
@@ -1961,14 +1956,14 @@ class DBaccess {
                     });
         
         //each link has 1 and only one from value
-        Hashtable<Long, Long> fromClsId = new Hashtable<Long,Long>();
-        Hashtable<Long, String> fromClsass = new Hashtable<Long,String>();
+        HashMap<Long, Long> fromClsId = new HashMap<Long,Long>();
+        HashMap<Long, String> fromClsass = new HashMap<Long,String>();
         
         //each link must have one and only one to value (node or primitive) 
         //but may be also the from value of another link
-        Hashtable<Long, CMValue> cmvalues = new Hashtable<Long,CMValue>();
+        HashMap<Long, CMValue> cmvalues = new HashMap<Long,CMValue>();
         
-        Hashtable<Long, PQI_Set> classids = new Hashtable<Long,PQI_Set>();
+        HashMap<Long, PQI_Set> classids = new HashMap<Long,PQI_Set>();
         
         
         for (Path path : bothDirectionsTr.traverse(nodes)) {
@@ -2042,7 +2037,7 @@ class DBaccess {
                             cmVal.assign_node(toLname, toId);
                             if(cmvalues.containsKey(linkId)){
                                 if(Configs.boolDebugInfo){
-                                    Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Link with id: " +linkId +" found with more that one values. " + cmVal.toString() +" " +cmvalues.get(linkId).toString());
+                                    Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Link with id: {0} found with more that one values. {1} {2}", new Object[]{linkId, cmVal.toString(), cmvalues.get(linkId).toString()});
                                 }
                                 return APIFail;
                             }
@@ -2059,8 +2054,7 @@ class DBaccess {
             
         }//paths iterator
         
-        
-        for(Long linkId : linkIds){
+        linkIds.stream().forEach((linkId) -> {
             long fromClsIdVal = 0;
             String fromClsName ="";
             CMValue cmval = new CMValue();
@@ -2083,13 +2077,13 @@ class DBaccess {
                 }
             }
             retRows.add(new Return_Link_Id_Row(linkId,fromClsIdVal,fromClsName,linkId,cmval,traversedVal));
-        }
+        });
         
         return APISucc;
     }
     
-    int get_Bulk_Return_Isa_Rows(Vector<Long> linkIds, Vector<Return_Isa_Row> retRows){
-        Vector<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
+    int get_Bulk_Return_Isa_Rows(ArrayList<Long> linkIds, ArrayList<Return_Isa_Row> retRows){
+        ArrayList<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
         if(linkIds.size()!= nodes.size()){
             return APIFail;
         }
@@ -2122,7 +2116,7 @@ class DBaccess {
                             return Evaluation.INCLUDE_AND_PRUNE;
                         }
                     })*/;
-        Hashtable<String, Vector<String>> isaRelationships = new Hashtable<String, Vector<String>>();
+        HashMap<String, ArrayList<String>> isaRelationships = new HashMap<String, ArrayList<String>>();
         for (Path path : bothDirectionsTr.traverse(nodes)) {
             for(Relationship rel : path.relationships()){
                 String startNodeName = (String)rel.getStartNode().getProperty(Configs.Neo4j_Key_For_Logicalname);
@@ -2130,7 +2124,7 @@ class DBaccess {
                 //long startNodeId = getNodeNeo4jId(rel.getStartNode());
                 //long endNodeId = getNodeNeo4jId(rel.getEndNode());
                 if(isaRelationships.containsKey(startNodeName)==false){
-                    isaRelationships.put(startNodeName, new Vector<String>());
+                    isaRelationships.put(startNodeName, new ArrayList<String>());
                 }
                 if(isaRelationships.get(startNodeName).contains(endNodeName)==false){
                    isaRelationships.get(startNodeName).add(endNodeName);
@@ -2138,22 +2132,20 @@ class DBaccess {
             }
         }
         
-        Enumeration<String> isaEnum =  isaRelationships.keys();
-        while(isaEnum.hasMoreElements()){
-            String startNodeName = isaEnum.nextElement();
-            Vector<String> endNodeNames = isaRelationships.get(startNodeName);
+        isaRelationships.keySet().stream().forEach((startNodeName) -> {
+            ArrayList<String> endNodeNames = isaRelationships.get(startNodeName);
             
-            for(String endName : endNodeNames){
+            endNodeNames.stream().forEach((endName) -> {
                 retRows.add(new Return_Isa_Row(startNodeName, endName));
-            }
-        }
+            });
+        });
         
         return APISucc;
     }
     
-    int get_Bulk_Return_Link_Rows(Vector<Long> linkIds, Vector<Return_Link_Row> retRows){
+    int get_Bulk_Return_Link_Rows(ArrayList<Long> linkIds, ArrayList<Return_Link_Row> retRows){
         
-        Vector<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
+        ArrayList<Node> nodes = getNeo4jNodesByNeo4jIds(linkIds);
         if(linkIds.size()!= nodes.size()){
             return APIFail;
         }
@@ -2189,12 +2181,12 @@ class DBaccess {
         
         
         
-        Hashtable<Long, String> lnames = new Hashtable<Long,String>();
-        Hashtable<Long, String> fromCls = new Hashtable<Long,String>();
-        Hashtable<Long, CMValue> cmvs = new Hashtable<Long,CMValue>();
+        HashMap<Long, String> lnames = new HashMap<Long,String>();
+        HashMap<Long, String> fromCls = new HashMap<Long,String>();
+        HashMap<Long, CMValue> cmvs = new HashMap<Long,CMValue>();
         
-        Hashtable<Long, Long> ClsRefIds = new Hashtable<Long,Long>();
-        Hashtable<Long, String> ClsTransliterations = new Hashtable<Long,String>();
+        HashMap<Long, Long> ClsRefIds = new HashMap<Long,Long>();
+        HashMap<Long, String> ClsTransliterations = new HashMap<Long,String>();
         
         for (Path path : bothDirectionsTr.traverse(nodes)) {
             Node pathStartNode = path.startNode();
@@ -2285,11 +2277,8 @@ class DBaccess {
             }//else case of if path.length() ==0
             
         }//paths iterator
-        
         //lnames must have taken everything both for individuals and attibutes
-        Enumeration<Long> lnamesEnum =  lnames.keys();
-        while(lnamesEnum.hasMoreElements()){
-            Long id = lnamesEnum.nextElement();
+        lnames.keySet().stream().forEach((id) -> {
             Long refId = -1L;
             
             String lname = lnames.get(id);
@@ -2312,8 +2301,8 @@ class DBaccess {
                 cmvs.get(id).copyToOtherObject(cmval);
             }
             
-            retRows.add(new Return_Link_Row(id, className,lname,cmval,refId,transliterationStr));            
-        }
+            retRows.add(new Return_Link_Row(id, className,lname,cmval,refId,transliterationStr));
+        });
         
         return APISucc;
     }
@@ -2478,7 +2467,7 @@ class DBaccess {
         return APISucc;
     }
     
-    int getIntPropertyOfNodes(Vector<Long> nodeIds, String propertyKey, Hashtable<Long,Integer> retVals){
+    int getIntPropertyOfNodes(ArrayList<Long> nodeIds, String propertyKey, HashMap<Long,Integer> retVals){
         
         int loopIndex = 0;
         int maxIndex = nodeIds.size();
@@ -2489,7 +2478,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY,nodeIds);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY,nodeIds);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -2544,7 +2533,7 @@ class DBaccess {
     
         return APISucc;
     }
-    int getLongPropertyOfNodes(Vector<Long> nodeIds, String propertyKey, Hashtable<Long,Long> retVals){
+    int getLongPropertyOfNodes(ArrayList<Long> nodeIds, String propertyKey, HashMap<Long,Long> retVals){
         
         int loopIndex = 0;
         int maxIndex = nodeIds.size();
@@ -2555,7 +2544,7 @@ class DBaccess {
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, nodeIds);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, nodeIds);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -2938,7 +2927,7 @@ class DBaccess {
         }
     }
     
-    int FOR_DELETE_getTraverseByCategory(PQI_Set startingIds, PQI_Set f_set, PQI_Set b_set, int depth, QClass.Traversal_Isa isa, PQI_Set edge_set, PQI_Set retSysids, Vector<Long> checked_set){
+    int FOR_DELETE_getTraverseByCategory(PQI_Set startingIds, PQI_Set f_set, PQI_Set b_set, int depth, QClass.Traversal_Isa isa, PQI_Set edge_set, PQI_Set retSysids, ArrayList<Long> checked_set){
         //ALMOST NEVER RETURNS API FAIL just in case of exception
         
         // <editor-fold defaultstate="collapsed" desc="C++ code.">
@@ -3082,8 +3071,8 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         //in the api public finction and returns api fail
         //So we should never reach here with empty categories set
         
-        //Get the starting ids as Vector<Long>
-        Vector<Long> startingIdsCopy = startingIds.get_Neo4j_Ids();
+        //Get the starting ids as ArrayList<Long>
+        ArrayList<Long> startingIdsCopy = startingIds.get_Neo4j_Ids();
         
         // filter out "checked_set" contents. "checked_set" keeps the sysids 
         // of the objects that are alredy checked. 
@@ -3096,22 +3085,22 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         
         //if yes then get the corresponding Neo4j nodes so that they 
         //will be used in the neo4j API        
-        Vector<Node> nodes = getNeo4jNodesByNeo4jIds(startingIdsCopy);
+        ArrayList<Node> nodes = getNeo4jNodesByNeo4jIds(startingIdsCopy);
         
         
         //Structures that will be used to detect recursion may be needed for some isa up and down operations
         
-        Vector<Long> newStartingIds = new Vector<Long>();
+        ArrayList<Long> newStartingIds = new ArrayList<Long>();
                 
         // all thefollowing nodes will also be checked
         checked_set.addAll(startingIdsCopy);
         
         // <editor-fold defaultstate="collapsed" desc="Implementation1 Get requested links with traversal framework">
-        Vector<Long> f_longSet = f_set.get_Neo4j_Ids();
-        Vector<Long> b_longSet = b_set.get_Neo4j_Ids();
+        ArrayList<Long> f_longSet = f_set.get_Neo4j_Ids();
+        ArrayList<Long> b_longSet = b_set.get_Neo4j_Ids();
 
-        final Vector<Long> finalForwardInstanceOfIds = new Vector<Long>(f_longSet);
-        final Vector<Long> finalBackWardInstanceOfIds = new Vector<Long>(b_longSet);
+        final ArrayList<Long> finalForwardInstanceOfIds = new ArrayList<Long>(f_longSet);
+        final ArrayList<Long> finalBackWardInstanceOfIds = new ArrayList<Long>(b_longSet);
 
         if(f_set.set_get_card()>0 || b_set.set_get_card()>0){                    
 
@@ -3129,11 +3118,11 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
                             if (path.endNode().hasLabel(Configs.Labels.Type_Attribute)) {
 
-                                Vector<Long> classIds = getNodeClassesNeo4jIds(path.endNode());
+                                ArrayList<Long> classIds = getNodeClassesNeo4jIds(path.endNode());
 
                                 if(finalForwardInstanceOfIds.size()>0 && path.lastRelationship().getEndNode().equals(path.endNode())){
                                      // check if it is included in forward categs
-                                    Vector<Long> forwardCopy = new Vector<Long>(classIds);
+                                    ArrayList<Long> forwardCopy = new ArrayList<Long>(classIds);
                                     forwardCopy.retainAll(finalForwardInstanceOfIds);
 
                                     if(forwardCopy.size()>0){
@@ -3171,7 +3160,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             //all paths end in attributes so we must get their from 
             //and to values in order to catch the to-node that stopped
             //edge_set
-            Vector<Long> pathAttributeEndNodes = new Vector<Long>();
+            ArrayList<Long> pathAttributeEndNodes = new ArrayList<Long>();
 
             for (Path path : bothDirectionsTr.traverse(nodes)) {
 
@@ -3212,7 +3201,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                     if(startNodeIsAttribute){
 
                         if(finalForwardInstanceOfIds.size()>0 ){
-                            Vector<Long> startNodeClassIds = getNodeClassesNeo4jIds(rel.getStartNode());
+                            ArrayList<Long> startNodeClassIds = getNodeClassesNeo4jIds(rel.getStartNode());
                             startNodeClassIds.retainAll(finalForwardInstanceOfIds);
                             if(startNodeClassIds.size()>0){
                                 //vale to end node id sto set pou tha elengthei gia recursion
@@ -3237,7 +3226,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                     if(endNodeIsAttribute){
 
                         if(finalBackWardInstanceOfIds.size()>0){
-                            Vector<Long> endNodeClassIds = getNodeClassesNeo4jIds(rel.getEndNode());
+                            ArrayList<Long> endNodeClassIds = getNodeClassesNeo4jIds(rel.getEndNode());
                             endNodeClassIds.retainAll(finalBackWardInstanceOfIds);
                             if(endNodeClassIds.size()>0){
 
@@ -3265,12 +3254,12 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
             //pathAttributeEndNodes
             if(finalForwardInstanceOfIds.size()>0){
-                Vector<Long> forward = new Vector<Long>();
+                ArrayList<Long> forward = new ArrayList<Long>();
                 forward.addAll(pathAttributeEndNodes);
                 forward.retainAll(finalForwardInstanceOfIds);
                 if(forward.size()>0){
                     //get to values and test if included in newStartingIds
-                    Vector<Long> retVals = new Vector<Long>();
+                    ArrayList<Long> retVals = new ArrayList<Long>();
                     if(DBACCESS_get_From_or_To_For_TraverseByCategory(forward, true,true, retVals)==APIFail){
                         return APIFail;
                     }
@@ -3283,12 +3272,12 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             }
 
             if(finalBackWardInstanceOfIds.size()>0){
-                Vector<Long> backward = new Vector<Long>();
+                ArrayList<Long> backward = new ArrayList<Long>();
                 backward.addAll(pathAttributeEndNodes);
                 backward.retainAll(finalBackWardInstanceOfIds);
                 if(backward.size()>0){
                     //get from values and test if included in newStartingIds
-                    Vector<Long> retVals = new Vector<Long>();
+                    ArrayList<Long> retVals = new ArrayList<Long>();
                     if(DBACCESS_get_From_or_To_For_TraverseByCategory(backward, true,true, retVals)==APIFail){
                         return APIFail;
                     }
@@ -3330,7 +3319,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             
             PQI_Set isaset = new PQI_Set();
             if(isa==QClass.Traversal_Isa.UP_DOWN){
-                Vector<Node> isaStartNodes = getNeo4jNodesByNeo4jIds(startingIdsCopy);
+                ArrayList<Node> isaStartNodes = getNeo4jNodesByNeo4jIds(startingIdsCopy);
                 
                 TraversalDescription updownisaTr = this.graphDb.traversalDescription().
                                     uniqueness(Uniqueness.RELATIONSHIP_GLOBAL).
@@ -3354,7 +3343,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
                 while (startIdsLoopIndex < maxIndex) {
 
-                    Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(startIdsLoopIndex, Configs.MAX_IDS_PER_QUERY, startingIdsCopy);
+                    ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(startIdsLoopIndex, Configs.MAX_IDS_PER_QUERY, startingIdsCopy);
                     startIdsLoopIndex += subSetofIds.size();
                     if(subSetofIds.size()==0){
                         break;
@@ -3440,7 +3429,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
      * NOT IMPLEMENTED 
      * 
      */
-    int getMatchedString(Vector<Long> ids,String ptrn_str, QClass.MatchStringTypes mtch_type, PQI_Set retIds){
+    int getMatchedString(ArrayList<Long> ids,String ptrn_str, QClass.MatchStringTypes mtch_type, PQI_Set retIds){
         /*
         int sis_api::getMatchedString(SET *obj_set, char* prtn_str, int mtch_type, SET *ret_set)
 {
@@ -3554,12 +3543,12 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         */
         return APISucc;
     }
-    int getMatchedOnTransliteration(Vector<Long> ids, String searchVal, PQI_Set retIds){
-        //Vector<Pattern_info> pattrns = new Vector<Pattern_info>();
+    int getMatchedOnTransliteration(ArrayList<Long> ids, String searchVal, boolean exactMatch, PQI_Set retIds){
+        //ArrayList<Pattern_info> pattrns = new ArrayList<Pattern_info>();
         //CHECK_setup_patterns(ptrn_set,pattrns);
         
         //no check if all ids exist??
-        //Hashtable<Long, String> logicalnames = new Hashtable<Long,String>();
+        //HashMap<Long, String> logicalnames = new HashMap<Long,String>();
         
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -3571,27 +3560,37 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         while (loopIndex < maxIndex) {
 
             //-30 added because query contains , n."+ Configs.Neo4j_Key_For_Logicalname +" as lname " 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY-30, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY-30, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
             }
             String query ="";
             
+            String criterion = "";
+            if(exactMatch){
+                criterion = " n."+Configs.Neo4j_Key_For_Transliteration +" = '" + searchVal+"' " ;
+            }
+            else{
+                criterion = " n."+Configs.Neo4j_Key_For_Transliteration +" =~ '.*" + searchVal+".*' " ;
+            }
+            
             if(subSetofIds.size()==1){
-                
+
                 query = " MATCH (n"+getCommonLabelStr()+"{"+ prepareNeo4jIdPropertyFilterForCypher(subSetofIds.get(0))+"}) " + 
-                        " WHERE n."+Configs.Neo4j_Key_For_Transliteration +" =~ '.*" + searchVal+".*' " +
+                        " WHERE "+ criterion +
                         " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id ";//, n."+ Configs.Neo4j_Key_For_Logicalname +" as lname ";
-						
+
             }
             else {
                 query = " MATCH (n"+getCommonLabelStr()+") "+
                         " WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " +subSetofIds.toString() + " AND " +
-                              " n."+Configs.Neo4j_Key_For_Transliteration +" =~ '.*" + searchVal+".*' " +
+                             criterion  +
                         " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id +" as id ";// , n."+ Configs.Neo4j_Key_For_Logicalname +" as lname ";
-						
+
             }
+            
+            
             
             //do the job do not return
             Result res = graphDb.execute(query);
@@ -3624,7 +3623,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
     
         return APISucc;
     }
-    int getMatched(Vector<Long> ids,PQI_Set ptrn_set, PQI_Set retIds){
+    int getMatched(ArrayList<Long> ids,PQI_Set ptrn_set, PQI_Set retIds){
         
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
@@ -3668,11 +3667,11 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         // </editor-fold> 
         
         //int ptrn_set_size = ptrn_set.set_get_card();
-        Vector<Pattern_info> pattrns = new Vector<Pattern_info>();
+        ArrayList<Pattern_info> pattrns = new ArrayList<Pattern_info>();
         CHECK_setup_patterns(ptrn_set,pattrns);
         
         //no check if all ids exist??
-        Hashtable<Long, String> logicalnames = new Hashtable<Long,String>();
+        HashMap<Long, String> logicalnames = new HashMap<Long,String>();
         
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -3684,7 +3683,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         while (loopIndex < maxIndex) {
 
             //-30 added because query contains , n."+ Configs.Neo4j_Key_For_Logicalname +" as lname " 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY-30, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY-30, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -3732,9 +3731,8 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         }
 
         
-        Enumeration<Long> idsEnum = logicalnames.keys();
-        while(idsEnum.hasMoreElements()){
-            long id = idsEnum.nextElement();
+        for(long id : logicalnames.keySet())
+        {
             String lname = logicalnames.get(id);
             //skip unnammed attribute
             if(lname.matches(Configs.regExForUnNamed)){
@@ -3779,7 +3777,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         return APISucc;
     }
     
-    void CHECK_setup_patterns(PQI_Set ptrn_set, Vector<Pattern_info> pattrns){
+    void CHECK_setup_patterns(PQI_Set ptrn_set, ArrayList<Pattern_info> pattrns){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /* creates an array for the patterns 
         pattern_info* sis_api::setup_patterns(SET* ptrn_set,  pattern_info* pattrns,  int *ptrn_set_size)
@@ -3808,7 +3806,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         // </editor-fold> 
         
         pattrns.clear();
-        Vector<Return_Prm_Row> prsVals = new Vector<Return_Prm_Row>();
+        ArrayList<Return_Prm_Row> prsVals = new ArrayList<Return_Prm_Row>();
         ptrn_set.set_bulk_get_prs(prsVals);
         for(Return_Prm_Row row : prsVals){
             CMValue cmv = row.get_v1_cmv();
@@ -3832,7 +3830,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
     //
     // WARNING 2 !!! edge nodes supported but not tested as they are never used in
     // DYAS project - WebTMS
-    int getTraverseByCategoryWithDepthControl(PQI_Set startingIds, PQI_Set f_set, PQI_Set b_set, int depth, QClass.Traversal_Isa isa, PQI_Set edge_set, PQI_Set retSysids, Vector<Long> checked_set){
+    int getTraverseByCategoryWithDepthControl(PQI_Set startingIds, PQI_Set f_set, PQI_Set b_set, int depth, QClass.Traversal_Isa isa, PQI_Set edge_set, PQI_Set retSysids, ArrayList<Long> checked_set){
         //ALMOST NEVER RETURNS API FAIL just in case of exception
         //TO DO: ret set should not be affected in case of api fail
         // <editor-fold defaultstate="collapsed" desc="C++ code.">
@@ -3976,8 +3974,8 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
         //in the api public finction and returns api fail
         //So we should never reach here with empty categories set
         
-        //Get the starting ids as Vector<Long>
-        Vector<Long> startingIdsCopy = startingIds.get_Neo4j_Ids();
+        //Get the starting ids as ArrayList<Long>
+        ArrayList<Long> startingIdsCopy = startingIds.get_Neo4j_Ids();
         //Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "\ngetTraverseByCategoryWithDepthControl called " + startingIdsCopy.size() + " " +startingIdsCopy.toString()+"\n");
         // filter out "checked_set" contents. "checked_set" keeps the sysids 
         // of the objects that are alredy checked. 
@@ -3990,12 +3988,12 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
         
         // if yes then get the corresponding Neo4j nodes 
         // so that they will be used in the neo4j API        
-        Vector<Node> nodes = getNeo4jNodesByNeo4jIds(startingIdsCopy);
+        ArrayList<Node> nodes = getNeo4jNodesByNeo4jIds(startingIdsCopy);
         
         
         //Structure that will be used to detect if recursion is needed
         //according also to the isa selection
-        Vector<Long> newStartingIds = new Vector<Long>();
+        ArrayList<Long> newStartingIds = new ArrayList<Long>();
         
         
         // all the following nodes will also be checked in this call
@@ -4006,11 +4004,11 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
         final int depthVal = 2*depth;
 
         // <editor-fold defaultstate="collapsed" desc="Implementation1 Get requested links with traversal framework">
-        Vector<Long> f_longSet = f_set.get_Neo4j_Ids();
-        Vector<Long> b_longSet = b_set.get_Neo4j_Ids();
+        ArrayList<Long> f_longSet = f_set.get_Neo4j_Ids();
+        ArrayList<Long> b_longSet = b_set.get_Neo4j_Ids();
 
-        final Vector<Long> finalForwardInstanceOfIds = new Vector<Long>(f_longSet);
-        final Vector<Long> finalBackWardInstanceOfIds = new Vector<Long>(b_longSet);
+        final ArrayList<Long> finalForwardInstanceOfIds = new ArrayList<Long>(f_longSet);
+        final ArrayList<Long> finalBackWardInstanceOfIds = new ArrayList<Long>(b_longSet);
 
         if(f_set.set_get_card()>0 || b_set.set_get_card()>0){                
 
@@ -4047,11 +4045,11 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
 
                     if (endNode.hasLabel(Configs.Labels.Type_Attribute)) {
 
-                        Vector<Long> classIds = getNodeClassesNeo4jIds(path.endNode());
+                        ArrayList<Long> classIds = getNodeClassesNeo4jIds(path.endNode());
 
                         if(finalForwardInstanceOfIds.size()>0 && path.lastRelationship().getEndNode().equals(endNode)){
                              // check if it is included in forward categs
-                            Vector<Long> forwardCopy = new Vector<Long>(classIds);
+                            ArrayList<Long> forwardCopy = new ArrayList<Long>(classIds);
                             forwardCopy.retainAll(finalForwardInstanceOfIds);
 
                             if(forwardCopy.size()>0){
@@ -4092,8 +4090,8 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
             //all paths end in attributes so we must get their from 
             //and to values in order to catch the to-node that stopped
             //edge_set
-            //Vector<Long> pathAttributeEndNodes = new Vector<Long>();
-            Hashtable<Long, Vector<Long>> pathAttributeEndNodesAndClasses = new Hashtable<Long, Vector<Long>>();
+            //ArrayList<Long> pathAttributeEndNodes = new ArrayList<Long>();
+            HashMap<Long, ArrayList<Long>> pathAttributeEndNodesAndClasses = new HashMap<Long, ArrayList<Long>>();
 
 
             for (Path path : bothDirectionsTr.traverse(nodes)) {
@@ -4105,7 +4103,7 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
                     long nodeId = getNodeNeo4jId(path.endNode());
 
                     if(pathAttributeEndNodesAndClasses.containsKey(nodeId)==false){
-                        Vector<Long> endNodeClasses = new Vector<Long>();
+                        ArrayList<Long> endNodeClasses = new ArrayList<Long>();
                         Iterator<Relationship> relIter = path.endNode().getRelationships(Direction.OUTGOING, Configs.Rels.INSTANCEOF).iterator();
                         while(relIter.hasNext()){
                             long classNodeId = getNodeNeo4jId(relIter.next().getEndNode());
@@ -4175,7 +4173,7 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
                     if(isForwardRel){
                         if(startNodeIsAttribute){
                             if(finalForwardInstanceOfIds.size()>0 ){
-                                Vector<Long> startNodeClassIds = getNodeClassesNeo4jIds(stNode);
+                                ArrayList<Long> startNodeClassIds = getNodeClassesNeo4jIds(stNode);
                                 startNodeClassIds.retainAll(finalForwardInstanceOfIds);
                                 if(startNodeClassIds.size()>0){
 
@@ -4219,7 +4217,7 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
 
                         if(endNodeIsAttribute){
                             if(finalBackWardInstanceOfIds.size()>0 ){
-                                Vector<Long> endNodeClassIds = getNodeClassesNeo4jIds(endNode);
+                                ArrayList<Long> endNodeClassIds = getNodeClassesNeo4jIds(endNode);
                                 endNodeClassIds.retainAll(finalBackWardInstanceOfIds);
                                 if(endNodeClassIds.size()>0){
 
@@ -4269,23 +4267,25 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
 
             //pathAttributeEndNodes
             if(finalForwardInstanceOfIds.size()>0){
-                Vector<Long> checkForwardVals = new Vector<Long>();
-                Enumeration<Long> endNodesIter = pathAttributeEndNodesAndClasses.keys();
-                while(endNodesIter.hasMoreElements()){
-                    long nodeId = endNodesIter.nextElement();
-                    Vector<Long> nodeClasses = pathAttributeEndNodesAndClasses.get(nodeId);
-                    Vector<Long> forward = new Vector<Long>();
+                ArrayList<Long> checkForwardVals = new ArrayList<>();
+                //Enumeration<Long> endNodesIter = pathAttributeEndNodesAndClasses.keys();
+                //while(endNodesIter.hasMoreElements()){
+                //long nodeId = endNodesIter.nextElement();
+                pathAttributeEndNodesAndClasses.keySet().stream().forEach((nodeId) -> {
+                    
+                    ArrayList<Long> nodeClasses = pathAttributeEndNodesAndClasses.get(nodeId);
+                    ArrayList<Long> forward = new ArrayList<>();
                     forward.addAll(nodeClasses);
                     forward.retainAll(finalForwardInstanceOfIds);
-                    if(forward.size()>0){
+                    if (forward.size()>0) {
                         checkForwardVals.add(nodeId);
                         retSysids.set_putNeo4j_Id(nodeId);
                     }
-                }
+                });
                 
                 if(checkForwardVals.size()>0){
                     //get to values and test if included in newStartingIds
-                    Vector<Long> retVals = new Vector<Long>();
+                    ArrayList<Long> retVals = new ArrayList<Long>();
                     if(DBACCESS_get_From_or_To_For_TraverseByCategory(checkForwardVals, true,true, retVals)==APIFail){
                         return APIFail;
                     }
@@ -4298,32 +4298,31 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
             }
 
             if(finalBackWardInstanceOfIds.size()>0){
-                Vector<Long> checkBackwardVals = new Vector<Long>();
-                Enumeration<Long> endNodesIter = pathAttributeEndNodesAndClasses.keys();
-                while(endNodesIter.hasMoreElements()){
-                    long nodeId = endNodesIter.nextElement();
-                    Vector<Long> nodeClasses = pathAttributeEndNodesAndClasses.get(nodeId);
-                    Vector<Long> backward = new Vector<Long>();
+                ArrayList<Long> checkBackwardVals = new ArrayList<>();
+                //Enumeration<Long> endNodesIter = pathAttributeEndNodesAndClasses.keys();
+                //while(endNodesIter.hasMoreElements()){
+                //long nodeId = endNodesIter.nextElement();
+                pathAttributeEndNodesAndClasses.keySet().stream().forEach((nodeId) -> {
+                    ArrayList<Long> nodeClasses = pathAttributeEndNodesAndClasses.get(nodeId);
+                    ArrayList<Long> backward = new ArrayList<>();
                     backward.addAll(nodeClasses);
                     backward.retainAll(finalBackWardInstanceOfIds);
-                    if(backward.size()>0){
+                    if (backward.size()>0) {
                         checkBackwardVals.add(nodeId);
                         retSysids.set_putNeo4j_Id(nodeId);
                     }
-                }
+                });
                 
                 if(checkBackwardVals.size()>0){
                     //get from values and test if included in newStartingIds
-                    Vector<Long> retVals = new Vector<Long>();
+                    ArrayList<Long> retVals = new ArrayList<>();
                     //shod again get the from value since this was a backwards link
                     if(DBACCESS_get_From_or_To_For_TraverseByCategory(checkBackwardVals, true,true, retVals)==APIFail){
                         return APIFail;
                     }
-                    for(Long fromVal : retVals){
-                        if(fromVal>0 && checked_set.contains(fromVal)==false && newStartingIds.contains(fromVal)==false){
-                            newStartingIds.add(fromVal);   
-                        }
-                    }
+                    retVals.stream().filter((fromVal) -> (fromVal>0 && checked_set.contains(fromVal)==false && newStartingIds.contains(fromVal)==false)).forEach((fromVal) -> {
+                        newStartingIds.add(fromVal);
+                    });
                 }
             }                    
         }
@@ -4334,15 +4333,15 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
         if(newStartingIds.size()>0){
             if(Configs.boolDebugInfo){
                 Collections.sort(newStartingIds);
-                Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Entering recursion for new Starting Ids: "+newStartingIds.size()+" nodes " + newStartingIds.toString());
+                Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Entering recursion for new Starting Ids: {0} nodes {1}", new Object[]{newStartingIds.size(), newStartingIds.toString()});
             }
             PQI_Set newStartingIdsSet = new PQI_Set();
-            for(Long val : newStartingIds){
+            newStartingIds.stream().map((val) -> {
                 newStartingIdsSet.set_putNeo4j_Id(val);//.add(new PQI_SetRecord(val));                
-                if(val<=2){
-                    Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "ATTENTION !!! PRIMITIVE Class was given in traverse by category");
-                }
-            }
+                return val;
+            }).filter((val) -> (val<=2)).forEach((_item) -> {
+                Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "ATTENTION !!! PRIMITIVE Class was given in traverse by category");
+            });
             //getTraverseByCategory(node_id, f_set, b_set, depth-1, isa, edge_set, retSysids, checked_set);
             //getTraverseByCategory(node_id, f_set, b_set, depth-1, isa, edge_set, retSysids, checked_set);
             //no return since we want to update the same structures before reaching the isa part of code
@@ -4356,7 +4355,7 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
             
             PQI_Set isaset = new PQI_Set();
             if(isa==QClass.Traversal_Isa.UP_DOWN){
-                Vector<Node> isaStartNodes = getNeo4jNodesByNeo4jIds(startingIdsCopy);
+                ArrayList<Node> isaStartNodes = getNeo4jNodesByNeo4jIds(startingIdsCopy);
                 
                 TraversalDescription updownisaTr = this.graphDb.traversalDescription().
                                     uniqueness(Uniqueness.RELATIONSHIP_GLOBAL).
@@ -4380,7 +4379,7 @@ int sis_api::getTraverseByCategory(SYSID objSysid, SET *f_set, SET *b_set, int d
 
                 while (startIdsLoopIndex < maxIndex) {
 
-                    Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(startIdsLoopIndex, Configs.MAX_IDS_PER_QUERY, startingIdsCopy);
+                    ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(startIdsLoopIndex, Configs.MAX_IDS_PER_QUERY, startingIdsCopy);
                     startIdsLoopIndex += subSetofIds.size();
                     if(subSetofIds.size()==0){
                         break;
@@ -4624,7 +4623,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 return APIFail;
             }
             
-            Vector<Long> tmpsetLongs = tmpset.get_Neo4j_Ids();
+            ArrayList<Long> tmpsetLongs = tmpset.get_Neo4j_Ids();
             // traverse the set of links 
             for(long tmpid : tmpsetLongs){
                 class_set.set_clear();
@@ -4663,7 +4662,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 //globalError.putMessage(" >getTraverseByCategory_With_SIS_Server_Implementation");
                 return -1;
             }
-            Vector<Long> tmpLong = tmpset.get_Neo4j_Ids();
+            ArrayList<Long> tmpLong = tmpset.get_Neo4j_Ids();
             // traverse the set of links 
             for(long tmpid : tmpLong){
                 class_set.set_clear();
@@ -4768,7 +4767,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
     
     int DBACCESS_getLinkToSET(PQI_Set setIDs, PQI_Set retSysids){
         
-        Vector<Long> ids = new Vector<Long>();
+        ArrayList<Long> ids = new ArrayList<Long>();
         ids = setIDs.get_Neo4j_Ids();
         
         if(DebugInfo == true)
@@ -4778,7 +4777,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         
         String query = "";
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
                 
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -4789,7 +4788,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if(subSetofIds.size()==0){
                 break;
@@ -4913,7 +4912,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                         " RETURN labels ";
                 
 
-        Vector<String> labels = new Vector<String>();
+        ArrayList<String> labels = new ArrayList<String>();
         
         Result res = this.graphDb.execute(query);
         try {
@@ -5143,11 +5142,11 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         //return APIFail;
     }
     
-    long setCurrentNode(Vector<Long> CurrentNode_Ids_Stack, String currentNodeName){
+    long setCurrentNode(ArrayList<Long> CurrentNode_Ids_Stack, String currentNodeName){
         return setCurrentNode(CurrentNode_Ids_Stack,currentNodeName,null);
     }
     
-    long setCurrentNode(Vector<Long> CurrentNode_Ids_Stack, String currentNodeName, CMValue retCMValue){
+    long setCurrentNode(ArrayList<Long> CurrentNode_Ids_Stack, String currentNodeName, CMValue retCMValue){
         String query = "";
         
         boolean skipRetCMValue = true;
@@ -5155,7 +5154,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             skipRetCMValue = false;
         }
 
-        if (CurrentNode_Ids_Stack.size() == 0) {
+        if (CurrentNode_Ids_Stack.isEmpty()) {
 
             query = " MATCH (n" + getCommonLabelStr() + "{"+prepareLogicalNameForCypher(currentNodeName) + "}) "+
                     "WHERE NOT( \"" + Configs.Neo4j_Key_For_Type_AttributeStr+"\"  IN labels(n) ) "+
@@ -5163,7 +5162,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                     (skipRetCMValue?"":", n."+Configs.Neo4j_Key_For_Logicalname +" as lname, n."+Configs.Neo4j_Key_For_Transliteration +" as translit, n." +Configs.Neo4j_Key_For_ThesaurusReferenceId +" as thesRefId" ) ;
         } else {
 
-            long currentNodeId = CurrentNode_Ids_Stack.lastElement();
+            long currentNodeId = CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1);
 
             query = " MATCH (m" + getCommonLabelStr() + "{"+prepareNeo4jIdPropertyFilterForCypher(currentNodeId)+"})"+
                     "-[:RELATION]->"+
@@ -5212,7 +5211,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         }
     }
     
-    long setCurrentNodeById(Vector<Long> CurrentNode_Ids_Stack, long currentNodeId){
+    long setCurrentNodeById(ArrayList<Long> CurrentNode_Ids_Stack, long currentNodeId){
         
         String query = " MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(currentNodeId)+"}),(n:"+Configs.Neo4j_Key_For_Type_IndividualStr+") "+
                         " RETURN n."+Configs.Neo4j_Key_For_Neo4j_Id+" as fromId, n."+Configs.Neo4j_Key_For_Neo4j_Id+" as id" +
@@ -5302,13 +5301,13 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         this.useCommonLabel = value;
     }
     
-    Vector<Long> TEST_get_SysIds_OfNeo4jId_Set(Vector<Long> set){
-        Vector<Long> returnVal = new Vector<Long>();
+    ArrayList<Long> TEST_get_SysIds_OfNeo4jId_Set(ArrayList<Long> set){
+        ArrayList<Long> returnVal = new ArrayList<Long>();
                 
         int loopIndex =0;
         int maxIndex = set.size();
         while(loopIndex<maxIndex){
-            Vector<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, set);
+            ArrayList<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, set);
             loopIndex += subSetIds.size();
 
             if(subSetIds.size()==0){
@@ -5477,7 +5476,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         //depth, isa, &edge_set, writeset, &checked_set);
         /*
         int newSet = QClass.APIFail;
-        Vector<Long> startingIds = new Vector<Long>();
+        ArrayList<Long> startingIds = new ArrayList<Long>();
 
         if (set_id == 0) {
             //startingIds.add(curNode.getId());
@@ -5522,7 +5521,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                     params.put("categname", currentCateg.fcl + "->" + currentCateg.cat);
 
                     String queryForCategories = "";
-                    Vector<String> catNames = new Vector<String>();
+                    ArrayList<String> catNames = new ArrayList<String>();
                     PQI_Set returnVals = new PQI_Set();
 
                     boolean doNotSkipCategoriesQuery = true;
@@ -5558,7 +5557,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                         }
                     }
 
-                    final Vector<String> catLabelNames = new Vector<String>(catNames);
+                    final ArrayList<String> catLabelNames = new ArrayList<String>(catNames);
 
                     TraversalDescription baseTr = this.graphDb.traversalDescription().uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
                             .relationships(QClass.Rels.RELATION, selectedDirection)
@@ -5643,8 +5642,8 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
                     String queryForCategories = "";
 
-                    Vector<Long> incluededInstances = new Vector<Long>();
-                    //Vector<Integer> returnVals = new Vector<Integer>();
+                    ArrayList<Long> incluededInstances = new ArrayList<Long>();
+                    //ArrayList<Integer> returnVals = new ArrayList<Integer>();
                     PQI_Set returnVals = new PQI_Set();
 
                     if (whatMethod == QClass.Traversal_Isa.DOWNWARDS) {
@@ -5676,7 +5675,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                         incluededInstances.add(newCategInstance);
                     }
 
-                    final Vector<Long> longIds = new Vector<Long>(incluededInstances);
+                    final ArrayList<Long> longIds = new ArrayList<Long>(incluededInstances);
 
                     TraversalDescription baseTr = this.graphDb.traversalDescription().uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
                             .relationships(QClass.Rels.RELATION, selectedDirection)
@@ -5756,8 +5755,8 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                     String queryForCategories = "";
                     String queryForInstanceOfIds = "";
 
-                    Vector<String> includedCategoryNames = new Vector<String>();
-                    Vector<Long> includedAttributeIds = new Vector<Long>();
+                    ArrayList<String> includedCategoryNames = new ArrayList<String>();
+                    ArrayList<Long> includedAttributeIds = new ArrayList<Long>();
                     PQI_Set returnVals = new PQI_Set();
                     // 
                         
@@ -5836,8 +5835,8 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                         includedAttributeIds.add(newCategInstanceId);
                     }
 
-                    final Vector<String> categNames = new Vector<String>(includedCategoryNames);
-                    final Vector<Long> attrIds = new Vector<Long>(includedAttributeIds);
+                    final ArrayList<String> categNames = new ArrayList<String>(includedCategoryNames);
+                    final ArrayList<Long> attrIds = new ArrayList<Long>(includedAttributeIds);
                     //categNames.add(RELATION);
 
                     TraversalDescription baseTr = this.graphDb.traversalDescription().uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
@@ -5931,7 +5930,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
                     String queryForCategories = "";
 
-                    Vector<String> includedCategoryNames = new Vector<String>();
+                    ArrayList<String> includedCategoryNames = new ArrayList<String>();
                     PQI_Set returnVals = new PQI_Set();
 
                     if (whatMethod == QClass.Traversal_Isa.DOWNWARDS) {
@@ -5964,12 +5963,12 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                         includedCategoryNames.add(newCategInstance);
                     }
 
-                    final Vector<String> categNames = new Vector<String>(includedCategoryNames);
-                    Vector<Label> categLabels = new Vector<Label>();
+                    final ArrayList<String> categNames = new ArrayList<String>(includedCategoryNames);
+                    ArrayList<Label> categLabels = new ArrayList<Label>();
                     for (String str : categNames) {
                         categLabels.add(DynamicLabel.label(str));
                     }
-                    final Vector<Label> categLabelNames = new Vector<Label>(categLabels);
+                    final ArrayList<Label> categLabelNames = new ArrayList<Label>(categLabels);
                         //categNames.add(RELATION);
 
                     //Implementation4
@@ -6155,8 +6154,9 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             Node newNode;
             Map<String, Object> row = res.next();
             newNode = (Node) row.get("Node");
-            newNode.removeLabel(DynamicLabel.label(OriginalLogicalname));
-            newNode.addLabel(DynamicLabel.label(NewLogicalname));
+            
+            newNode.removeLabel(org.neo4j.graphdb.Label.label(OriginalLogicalname));
+            newNode.addLabel(org.neo4j.graphdb.Label.label(NewLogicalname));
             
             out.println("Logicalname: "+newNode.getLabels().toString());
         }
@@ -6345,7 +6345,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
     int CheckAllExist(PQI_Set set) {
 
-        Vector<Long> vec = set.get_Neo4j_Ids();
+        ArrayList<Long> vec = set.get_Neo4j_Ids();
 
         long found_ids = 0;
         //int check = APIFail;
@@ -6359,7 +6359,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, vec);
+            ArrayList<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, vec);
             loopIndex += subSetIds.size();
             if (subSetIds.size() == 0) {
                 break;
@@ -6410,7 +6410,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         }
     }
     
-    int getFrom_or_To_NodeByCategory(Vector<Long> neo4jIds, StringObject fromcls, StringObject categ, PQI_Set writeset, boolean fromIsteadOfTo){
+    int getFrom_or_To_NodeByCategory(ArrayList<Long> neo4jIds, StringObject fromcls, StringObject categ, PQI_Set writeset, boolean fromIsteadOfTo){
         
         PrimitiveObject_Long categId = new PrimitiveObject_Long();
         categId.setValue(getLinkId(fromcls.getValue(), categ.getValue()));
@@ -6418,7 +6418,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return APIFail;
         }
         
-        Vector<Node> nodes = getNeo4jNodesByNeo4jIds(neo4jIds);
+        ArrayList<Node> nodes = getNeo4jNodesByNeo4jIds(neo4jIds);
         if(nodes.size()!= neo4jIds.size()){
             return APIFail;
         }
@@ -6431,9 +6431,9 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         allSubclasses.set_putNeo4j_Id(categId.getValue());
         //getInstancesSET(allSubclasses, allSubclasses);
 
-        Vector<Long> classesIds = allSubclasses.get_Neo4j_Ids();
+        ArrayList<Long> classesIds = allSubclasses.get_Neo4j_Ids();
 
-        final Vector<Long> finalClassIds = new Vector<Long>(classesIds);
+        final ArrayList<Long> finalClassIds = new ArrayList<Long>(classesIds);
         
         TraversalDescription trDescription = this.graphDb.traversalDescription()
                 .uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
@@ -6486,7 +6486,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             trDescription = trDescription.relationships(Configs.Rels.RELATION, Direction.OUTGOING);
         }
 
-        Vector<Long> retVals = new Vector<Long>();
+        ArrayList<Long> retVals = new ArrayList<Long>();
         
         for(Path path: trDescription.traverse(nodes)){
             if(path.length()<2){
@@ -6503,7 +6503,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         return APISucc;
     }
     
-    int getLink_From_or_To_ByMETACategory(Vector<Long> neo4jIds, StringObject fromcls, StringObject categ, PQI_Set writeset, boolean fromIsteadOfTo){
+    int getLink_From_or_To_ByMETACategory(ArrayList<Long> neo4jIds, StringObject fromcls, StringObject categ, PQI_Set writeset, boolean fromIsteadOfTo){
         /*
         SYSID   categid;
 	LOGINAM tmpfromcls(fromcls);
@@ -6563,7 +6563,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return APIFail;
         }
         
-        Vector<Node> nodes = getNeo4jNodesByNeo4jIds(neo4jIds);
+        ArrayList<Node> nodes = getNeo4jNodesByNeo4jIds(neo4jIds);
         if(nodes.size()!= neo4jIds.size()){
             return APIFail;
         }
@@ -6576,7 +6576,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         //allSubclasses.set_putNeo4j_Id(categId.getValue());
         //getInstancesSET(allSubclasses, allSubclasses);
 
-        //Vector<Long> classesIds = allSubclasses.get_Neo4j_Ids();
+        //ArrayList<Long> classesIds = allSubclasses.get_Neo4j_Ids();
 
         TraversalDescription trDescription = this.graphDb.traversalDescription()
                 .uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
@@ -6607,7 +6607,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             trDescription = trDescription.relationships(Configs.Rels.RELATION, Direction.INCOMING);
         }
 
-        Vector<Long> retVals = new Vector<Long>();
+        ArrayList<Long> retVals = new ArrayList<Long>();
         for(Path path: trDescription.traverse(nodes)){
             Node endNode = path.endNode();
             //Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, path);
@@ -6673,7 +6673,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         return APISucc;
     }
     
-    int getLink_From_or_To_ByCategory(Vector<Long> neo4jIds, StringObject fromcls, StringObject categ, PQI_Set writeset, boolean fromIsteadOfTo){
+    int getLink_From_or_To_ByCategory(ArrayList<Long> neo4jIds, StringObject fromcls, StringObject categ, PQI_Set writeset, boolean fromIsteadOfTo){
         
         PrimitiveObject_Long categId = new PrimitiveObject_Long();
         categId.setValue(getLinkId(fromcls.getValue(), categ.getValue()));
@@ -6681,7 +6681,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return APIFail;
         }
         
-        Vector<Node> nodes = getNeo4jNodesByNeo4jIds(neo4jIds);
+        ArrayList<Node> nodes = getNeo4jNodesByNeo4jIds(neo4jIds);
         if(nodes.size()!= neo4jIds.size()){
             return APIFail;
         }
@@ -6694,7 +6694,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         allSubclasses.set_putNeo4j_Id(categId.getValue());
         //getInstancesSET(allSubclasses, allSubclasses);
 
-        Vector<Long> classesIds = allSubclasses.get_Neo4j_Ids();
+        ArrayList<Long> classesIds = allSubclasses.get_Neo4j_Ids();
 
         TraversalDescription trDescription = this.graphDb.traversalDescription()
                 .uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
@@ -6725,7 +6725,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             trDescription = trDescription.relationships(Configs.Rels.RELATION, Direction.INCOMING);
         }
 
-        Vector<Long> retVals = new Vector<Long>();
+        ArrayList<Long> retVals = new ArrayList<Long>();
         //retVals.add(getNeo4jIdFromObject(res.next().get(Configs.Neo4j_Key_For_Neo4j_Id)));
         for(Path path: trDescription.traverse(nodes)){
             Node endNode = path.endNode();
@@ -6768,13 +6768,13 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return APIFail;
         }
 
-        Vector<Long> ids = setIDs.get_Neo4j_Ids();
+        ArrayList<Long> ids = setIDs.get_Neo4j_Ids();
 
         if (DebugInfo == true) {
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "*** getSuper_or_SubClassesSET getSuperInsteadOfSubclasses: " + getSuperInsteadOfSubclasses + " input IDs: " + ids);
         }
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
 
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -6785,7 +6785,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -6846,13 +6846,13 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return APIFail;
         }
 
-        Vector<Long> ids = setIDs.get_Neo4j_Ids();
+        ArrayList<Long> ids = setIDs.get_Neo4j_Ids();
 
         if (DebugInfo == true) {
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "*** getLinkFrom_Or_ToSET getFromInsteadOfTo: " + getFromInsteadOfTo + " input IDs: " + ids);
         }
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
 
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -6863,7 +6863,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -6926,13 +6926,13 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return APIFail;
         }
 
-        Vector<Long> ids = setIDs.get_Neo4j_Ids();
+        ArrayList<Long> ids = setIDs.get_Neo4j_Ids();
 
         if (DebugInfo == true) {
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "*** getInherLinkFrom_Or_To_SET getFromInsteadOfTo: " + getFromInsteadOfTo + " input IDs: " + ids);
         }
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
 
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -6943,7 +6943,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -7005,12 +7005,12 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return APIFail;
         }
 
-        Vector<Long> ids = setIDs.get_Neo4j_Ids();
+        ArrayList<Long> ids = setIDs.get_Neo4j_Ids();
 
         if (DebugInfo == true) {
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "*** getFrom_Or_To_ValueSET linksFromInsteadOfTo: " + linksFromInsteadOfTo + " input IDs: " + ids);
         }
-        Vector<Long> tempRetIds = new Vector<Long>();
+        ArrayList<Long> tempRetIds = new ArrayList<Long>();
 
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -7020,7 +7020,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         }
 
         while (loopIndex < maxIndex) {
-            Vector<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetIds.size();
 
             if (subSetIds.size() == 0) {
@@ -7083,13 +7083,13 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return APIFail;
         }
 
-        Vector<Long> ids = setIDs.get_Neo4j_Ids();
+        ArrayList<Long> ids = setIDs.get_Neo4j_Ids();
 
         if (DebugInfo == true) {
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "*** getFrom_Or_To_NodeSET getFromInsteadOfTo: " + getFromInsteadOfTo + " input IDs: " + ids);
         }
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
 
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -7100,7 +7100,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -7164,13 +7164,13 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return APIFail;
         }
 
-        Vector<Long> ids = setIDs.get_Neo4j_Ids();
+        ArrayList<Long> ids = setIDs.get_Neo4j_Ids();
 
         if (DebugInfo == true) {
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "*** getAllSuper_or_AllSubClassesSET getSuperInsteadOfSubclasses: " + getSuperInsteadOfSubclasses + " input IDs: " + ids);
         }
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
 
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -7181,7 +7181,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -7238,13 +7238,13 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
     int getAll_Or_Simple_InstancesSET(PQI_Set setIDs, PQI_Set retSysids, boolean getAllInsteadOfSimple) {
 
-        Vector<Long> ids = setIDs.get_Neo4j_Ids();
+        ArrayList<Long> ids = setIDs.get_Neo4j_Ids();
 
         if (DebugInfo == true) {
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "*** getAll_Or_Simple_InstancesSET getAllInsteadOfSimple: " + getAllInsteadOfSimple + " input IDs: " + ids);
         }
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
 
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -7255,7 +7255,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -7315,13 +7315,13 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return APIFail;
         }
 
-        Vector<Long> ids = setIDs.get_Neo4j_Ids();
+        ArrayList<Long> ids = setIDs.get_Neo4j_Ids();
 
         if (DebugInfo == true) {
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "*** getAll_Or_Simple_ClassesSET getAllInsteadOfSimple: " + getAllInsteadOfSimple + " input IDs: " + ids);
         }
 
-        Vector<Long> tmpvec = new Vector<Long>();
+        ArrayList<Long> tmpvec = new ArrayList<Long>();
 
         int loopIndex = 0;
         int maxIndex = ids.size();
@@ -7332,7 +7332,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
 
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY, ids);
             loopIndex += subSetofIds.size();
             if (subSetofIds.size() == 0) {
                 break;
@@ -7545,8 +7545,8 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
     }
     
     
-    Vector<Node> getNeo4jNodesByNeo4jIds(Vector<Long> neo4jIds){
-        Vector<Node> returnVec = new Vector<Node>();
+    ArrayList<Node> getNeo4jNodesByNeo4jIds(ArrayList<Long> neo4jIds){
+        ArrayList<Node> returnVec = new ArrayList<Node>();
         
         int loopIndex = 0;
         int maxIndex = neo4jIds.size();
@@ -7557,9 +7557,9 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         
         while (loopIndex < maxIndex) {
 
-            Vector<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, neo4jIds);
+            ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex,Configs.MAX_IDS_PER_QUERY, neo4jIds);
             loopIndex += subSetofIds.size();
-            if(subSetofIds.size()==0){
+            if(subSetofIds.isEmpty()){
                 break;
             }
             String query = "";
@@ -7668,6 +7668,50 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             }
         }
         return returnVal;
+    }
+
+    long setCurrentNodeByReferenceId(ArrayList<Long> CurrentNode_Ids_Stack, long referenceId, String targetThesaurus) {
+        
+        
+        String returnVal = "";
+        String query = "Match(n:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\"Thesaurus`"+targetThesaurus.toUpperCase()+"\"}) "+ 
+                " <-[:RELATION]-(link:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+targetThesaurus.toUpperCase()+"`of_thesaurus\"})<-[:RELATION]-(m)<-[:ISA*0..]-(k)<-[:INSTANCEOF*0..1]-(p:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_ThesaurusReferenceId+":"+referenceId+"}) "+
+                " return p."+Configs.Neo4j_Key_For_Neo4j_Id+"  as id ";
+        
+                
+           
+        Result res = this.graphDb.execute(query);
+        long newIdVal = APIFail;
+        try {
+            
+            while (res.hasNext()) {
+
+                Map<String, Object> row = res.next(); 
+                
+                newIdVal = getNeo4jIdFromObject(row.get("id"));
+                
+            }
+            
+        } catch (Exception ex) {
+            utils.handleException(ex);
+            return QClass.APIFail;
+        } finally {
+            res.close();
+            res = null;
+        }
+        
+        
+        if(newIdVal>0){
+            
+            CurrentNode_Ids_Stack.clear();
+            
+            CurrentNode_Ids_Stack.add(newIdVal); 
+
+            return newIdVal;
+        }
+        else{
+            return APIFail;
+        }
     }
     
 }

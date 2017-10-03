@@ -34,10 +34,9 @@
 package neo4j_sisapi;
 
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import neo4j_sisapi.tmsapi.TMSAPIClass;
@@ -49,10 +48,6 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.TransactionTerminatedException;
-import org.neo4j.graphdb.schema.ConstraintDefinition;
-import org.neo4j.graphdb.schema.IndexDefinition;
-import org.neo4j.graphdb.schema.Schema;
 
 
 /**
@@ -192,15 +187,15 @@ public class QClass {
     ApiError globalError = new ApiError();
     
     //Node curNode = null;
-    Vector<CategorySet> currentCategories = new Vector<CategorySet>();
+    ArrayList<CategorySet> currentCategories = new ArrayList<CategorySet>();
 
     //SYSID current_node;
-    //Vector<Node> nodeStack = new Vector<Node>();
-    //Vector<Neo4j_Id> propertyContainerStack = new Vector<Neo4j_Id>();
+    //ArrayList<Node> nodeStack = new ArrayList<Node>();
+    //ArrayList<Neo4j_Id> propertyContainerStack = new ArrayList<Neo4j_Id>();
     
     DBaccess db = null;
     Utilities utils = new Utilities();
-    Vector<Long> CurrentNode_Ids_Stack = new Vector<Long>();
+    ArrayList<Long> CurrentNode_Ids_Stack = new ArrayList<Long>();
 
     
     
@@ -211,8 +206,8 @@ public class QClass {
     //SYSID categories[NUMBER_OF_CATEGORIES];
     //int   directions[NUMBER_OF_CATEGORIES];
 
-    Vector<Long> categories = new Vector<Long>();
-    Vector<Traversal_Direction> directions = new Vector<Traversal_Direction> ();
+    ArrayList<Long> categories = new ArrayList<>();
+    ArrayList<Traversal_Direction> directions = new ArrayList<> ();
     //SET   forward_set;   // store forward categs and subclasses
     //SET   backward_set;  // store backward categes and subclasses
     PQI_Set forward_set = new PQI_Set();
@@ -228,7 +223,7 @@ public class QClass {
      */
     public QClass() {
         
-        CurrentNode_Ids_Stack = new Vector<Long>();
+        CurrentNode_Ids_Stack = new ArrayList<>();
         tmp_sets = new Sets_Class();
 
     }
@@ -520,7 +515,7 @@ public class QClass {
      * @param retVals
      * @return 
      */
-    public int bulk_return_prm(int set_id, Vector<Return_Prm_Row> retVals){
+    public int bulk_return_prm(int set_id, ArrayList<Return_Prm_Row> retVals){
         if(!check_files("bulk_return_prm")){
             return APIFail;
         }
@@ -528,7 +523,7 @@ public class QClass {
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         if(setIds.size()==0){
@@ -554,7 +549,7 @@ public class QClass {
      * @param retVals
      * @return 
      */
-    public int bulk_return_full_nodes(int set_id, Vector<Return_Full_Nodes_Row> retVals){
+    public int bulk_return_full_nodes(int set_id, ArrayList<Return_Full_Nodes_Row> retVals){
         if(!check_files("bulk_return_full_nodes")){
             return APIFail;
         }
@@ -562,7 +557,7 @@ public class QClass {
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -781,7 +776,7 @@ public class QClass {
      * @param retVec
      * @return 
      */
-    public int bulk_return_nodes(int set_id, Vector<Return_Nodes_Row> retVals){
+    public int bulk_return_nodes(int set_id, ArrayList<Return_Nodes_Row> retVals){
         if(!check_files("bulk_return_nodes")){
             return APIFail;
         }
@@ -789,7 +784,7 @@ public class QClass {
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -866,7 +861,7 @@ public class QClass {
      * @param retVals
      * @return 
      */
-    public int bulk_return_link_id(int set_id, Vector<Return_Link_Id_Row> retVals){
+    public int bulk_return_link_id(int set_id, ArrayList<Return_Link_Id_Row> retVals){
         if(!check_files("bulk_return_link_id")){
             return APIFail;
         }
@@ -874,7 +869,7 @@ public class QClass {
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -898,7 +893,7 @@ public class QClass {
      * @param retVals
      * @return 
      */
-    public int bulk_return_link(int set_id, Vector<Return_Link_Row> retVals){
+    public int bulk_return_link(int set_id, ArrayList<Return_Link_Row> retVals){
         
         
         if(!check_files("bulk_return_links")){
@@ -908,7 +903,7 @@ public class QClass {
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -1357,7 +1352,7 @@ public class QClass {
             return APIFail;
         }
         
-        return this.tmp_sets.set_put(setId, CurrentNode_Ids_Stack.lastElement());
+        return this.tmp_sets.set_put(setId, CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1));
     }
     
     /**
@@ -1681,7 +1676,7 @@ public class QClass {
         if(no_current_node("set_member_of")){
             return APIFail;
         }
-        return tmp_sets.set_member_of(set_id, this.CurrentNode_Ids_Stack.lastElement());
+        return tmp_sets.set_member_of(set_id, (CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);
     }
     
     /**
@@ -2043,6 +2038,19 @@ public class QClass {
         }
 
         return db.setCurrentNode(CurrentNode_Ids_Stack, str.getValue());        
+    }
+    
+    public long set_current_node_by_referenceId(long referenceId, String targetThesaurus){
+        if (!check_files("set_current_node")) {
+            return QClass.APIFail;
+        }
+
+        //check lengths
+        if (targetThesaurus == null  ||  targetThesaurus.length() == 0 || referenceId<=0) {
+            return QClass.APIFail;
+        }
+
+        return db.setCurrentNodeByReferenceId(CurrentNode_Ids_Stack, referenceId, targetThesaurus);
     }
     
     public long set_current_node_and_retrieve_Cmv(StringObject str,CMValue retVal) {
@@ -2751,42 +2759,52 @@ public class QClass {
         }
     }
     
-    public Vector<Long> TEST_get_SYSIDS_of_set(int set_id) {
+    public ArrayList<Long> TEST_get_SYSIDS_of_set(int set_id) {
         
         PQI_Set readSet =  this.tmp_sets.return_set(set_id);
         if(readSet!=null){
-            Vector<Long>  returnResults = readSet.get_Neo4j_Ids();
+            ArrayList<Long>  returnResults = readSet.get_Neo4j_Ids();
             if(Configs.CastSysIdAsInt){
-                Hashtable<Long, Integer> tmpRes = new Hashtable<Long, Integer>();
+                HashMap<Long, Integer> tmpRes = new HashMap<Long, Integer>();
                 db.getIntPropertyOfNodes(returnResults, db.Neo4j_Key_For_SysId, tmpRes);
                 returnResults.clear();
-                Enumeration<Long> hashEnum = tmpRes.keys();
-                while(hashEnum.hasMoreElements()){
-                    long curId = hashEnum.nextElement();
-                    long newVal = (long) tmpRes.get(curId);
-                    if(returnResults.contains(newVal)==false){
-                        returnResults.add(newVal);
-                    }
+                
+                /*
+                for(long curId :tmpRes.keySet()){
+                long newVal = (long) tmpRes.get(curId);
+                if(returnResults.contains(newVal)==false){
+                returnResults.add(newVal);
                 }
+                }
+                 */
+                tmpRes.keySet().stream().map((curId) -> (long) tmpRes.get(curId)).filter((newVal) -> (returnResults.contains(newVal)==false)).forEach((newVal) -> {
+                    returnResults.add(newVal);
+                });
                 return returnResults;
             }
             else{
-                Hashtable<Long, Long> tmpRes = new Hashtable<Long, Long>();
+                HashMap<Long, Long> tmpRes = new HashMap<Long, Long>();
                 db.getLongPropertyOfNodes(returnResults, db.Neo4j_Key_For_SysId, tmpRes);
                 returnResults.clear();
-                Enumeration<Long> hashEnum = tmpRes.keys();
-                while(hashEnum.hasMoreElements()){
+                //Enumeration<Long> hashEnum = tmpRes.keys();
+                tmpRes.values().stream().forEach( (newVal) -> {
+                    if(returnResults.contains(newVal)==false){
+                        returnResults.add(newVal);
+                    }}
+                );
+                /*
+                for(long curId : tmpRes.keySet())
                     long curId = hashEnum.nextElement();
                     long newVal = tmpRes.get(curId);
                     if(returnResults.contains(newVal)==false){
                         returnResults.add(newVal);
                     }
-                }
+                }*/
                 return returnResults;
             }
         }
         
-        return new Vector<Long>();        
+        return new ArrayList<Long>();        
     }
 
     public long TEST_get_SysId_From_Neo4jId(long neo4jId) {
@@ -2991,7 +3009,7 @@ public class QClass {
         int new_set_id = set_get_new();
         PQI_Set startingIds = new PQI_Set();
         if(set_id==0){
-            startingIds.set_putNeo4j_Id(CurrentNode_Ids_Stack.lastElement());//.add(new PQI_SetRecord(CurrentNode_Ids_Stack.lastElement()));
+            startingIds.set_putNeo4j_Id((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);//.add(new PQI_SetRecord(CurrentNode_Ids_Stack.lastElement()));
         }
         else{
             PQI_Set readSet = this.tmp_sets.return_set(set_id);
@@ -3000,7 +3018,7 @@ public class QClass {
             }            
             readSet.set_copy(startingIds);
         }
-        Vector<Long> checked_set = new Vector<Long>();
+        ArrayList<Long> checked_set = new ArrayList<Long>();
         PQI_Set retSet = tmp_sets.return_set(new_set_id);
         //if(depth>=0){
         ret = db.getTraverseByCategoryWithDepthControl(startingIds,forward_set,backward_set,depth,isa,edge_set,retSet,checked_set);
@@ -3157,7 +3175,8 @@ public class QClass {
             edge_set.set_clear();
             PQI_Set retSet = this.tmp_sets.return_set(new_set_id);
             
-            ret = db.getTraverseByCategory_With_SIS_Server_Implementation(CurrentNode_Ids_Stack.lastElement(),forward_set,backward_set,depth,isa,edge_set,retSet,checked_set);
+            ret = db.getTraverseByCategory_With_SIS_Server_Implementation((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1
+                    ,forward_set,backward_set,depth,isa,edge_set,retSet,checked_set);
         }
         else{
             /*
@@ -3497,7 +3516,7 @@ public class QClass {
                 return APIFail;    // there is no current node set
             }
             
-            setptr.set_putNeo4j_Id(CurrentNode_Ids_Stack.lastElement());
+            setptr.set_putNeo4j_Id((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);
         }
         else{
             setptr.set_copy(tmp_sets.return_set(set_id));
@@ -3614,7 +3633,7 @@ public class QClass {
                 return APIFail;    // there is no current node set
             }
 
-            long objSysid = this.CurrentNode_Ids_Stack.lastElement();
+            long objSysid = (CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1;
             ret = simple_query_on_specific_id(q_id,objSysid,writeset);
             
 
@@ -3626,7 +3645,7 @@ public class QClass {
                 return APIFail;
             }
             
-            //Vector<Long> vals = targetSet.get_Neo4j_Ids();
+            //ArrayList<Long> vals = targetSet.get_Neo4j_Ids();
             
             ret = simple_query_on_SET(q_id,targetSet,writeset);
             if(db.DebugInfo){
@@ -4415,8 +4434,7 @@ Add_Named_Attribute_Exit_Point:
         //added by elias
         if(attribute.getLogicalName()==null || attribute.getLogicalName().length() ==0 || to==null ){
             return APIFail;
-        }
-        
+        }      
         
         
         if(!api_sem_check.newNamedAttributeNameIsOk(attribute.getLogicalName())){
@@ -4485,7 +4503,7 @@ Add_Named_Attribute_Exit_Point:
             }
         }
         Label levelLabel = getCurrentLevelLabelFromInt(iLevel);
-        Vector<Node> categoryNodes = null;
+        ArrayList<Node> categoryNodes = null;
         
         if(catSet>0 && levelLabel!=null){
             //check categories if catSet !=-1 then everything in cat set must be of iLevel i+1 and of type attribute
@@ -4498,7 +4516,7 @@ Add_Named_Attribute_Exit_Point:
             if(categLevel==null){
                 return APIFail;
             }
-            Vector<Long> categories = categSet.get_Neo4j_Ids();
+            ArrayList<Long> categories = categSet.get_Neo4j_Ids();
             categoryNodes = db.getNeo4jNodesByNeo4jIds(categories);
            
             for(Node categNode : categoryNodes){
@@ -4508,7 +4526,7 @@ Add_Named_Attribute_Exit_Point:
             }
         }
         else{
-            categoryNodes = new Vector<Node>();
+            categoryNodes = new ArrayList<Node>();
             if(levelLabel!=null){
                 categoryNodes.add(db.GetTelosObjectAttributeNode());
             }
@@ -4572,8 +4590,7 @@ Add_Named_Attribute_Exit_Point:
             if(categoryNodes.size()>0){
                 for(Node n: categoryNodes){
                     newNode.createRelationshipTo(n, Configs.Rels.INSTANCEOF);
-                }
-                
+                }                
             }
         }
         catch(Exception ex){
@@ -4886,8 +4903,8 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         
         //unnamed atteibutes only in token level
         Label levelLabel = Configs.Labels.Token;
-        Vector<Node> categoryNodes = null;
-        Vector<Long> categories = new Vector<Long>();
+        ArrayList<Node> categoryNodes = null;
+        ArrayList<Long> categories = new ArrayList<Long>();
         if(catSet>0){
             //check categories if catSet !=-1 then everything in cat set must be of iLevel i+1 and of type attribute
             PQI_Set categSet = this.tmp_sets.return_set(catSet);
@@ -4910,7 +4927,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         }
         else{
             // unnameed attribute should all be instaces of s_class THIS DOES not stand here
-            categoryNodes = new Vector<Node>();
+            categoryNodes = new ArrayList<Node>();
             categoryNodes.add(db.GetTelosObjectAttributeNode());
             categories.add(db.getNodeNeo4jId(categoryNodes.get(0)));
         }
@@ -4981,7 +4998,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
             if(attrLoginam.matches(Configs.regExForUnNamed)==false){
                 continue;
             }
-            Vector<Long> attrClasses = getClassesOfNode(attrNode);
+            ArrayList<Long> attrClasses = getClassesOfNode(attrNode);
             if(attrClasses.containsAll(categories) ==false ||  categories.containsAll(attrClasses)==false){
                 continue;
             }
@@ -5091,8 +5108,8 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         return APISucc;                
     }
     
-    Vector<Long> getClassesOfNode(Node n){
-        Vector<Long> retVals = new Vector<Long>();
+    ArrayList<Long> getClassesOfNode(Node n){
+        ArrayList<Long> retVals = new ArrayList<Long>();
         if(n==null || n.hasRelationship(Configs.Rels.INSTANCEOF, Direction.OUTGOING)==false){
             return retVals;
         }
@@ -5959,7 +5976,7 @@ int sis_api::Add_Instance_Set(int from_set, IDENTIFIER * to)
         if(fromSet==null){
             return APIFail;
         }
-        Vector<Long> fromIds = fromSet.get_Neo4j_Ids();
+        ArrayList<Long> fromIds = fromSet.get_Neo4j_Ids();
         
         if(fromIds.size()==0){
             return APISucc;
@@ -6241,7 +6258,7 @@ int    semanticChecker::checkDeletion( SYSID delSid)
             return APIFail;
         }
         
-        Vector<Relationship> relsToDelete = new Vector<Relationship>();
+        ArrayList<Relationship> relsToDelete = new ArrayList<Relationship>();
         try{
             
             Iterator<Relationship> classIter = n.getRelationships(Configs.Rels.INSTANCEOF, Direction.OUTGOING).iterator();
@@ -6278,8 +6295,8 @@ int    semanticChecker::checkDeletion( SYSID delSid)
         if(n==null){
             return ;
         }
-        Vector<String> propsToDelete = new Vector<String>();
-        Vector<Label> labelsToRemove = new Vector<Label>();
+        ArrayList<String> propsToDelete = new ArrayList<String>();
+        ArrayList<Label> labelsToRemove = new ArrayList<Label>();
         Iterator<Label> lblIter =  n.getLabels().iterator();
         while(lblIter.hasNext()){
             labelsToRemove.add(lblIter.next());
@@ -6650,7 +6667,7 @@ int    semanticChecker::deleteObjectWithoutChecking( SYSID delSid)
         
         try{
             //delete relationships and finally delete node
-            Vector<Relationship> relsToDelete  = new Vector<Relationship>();
+            ArrayList<Relationship> relsToDelete  = new ArrayList<Relationship>();
             Iterator<Relationship> allRels = linkNode.getRelationships().iterator();
             while(allRels.hasNext()){
                 Relationship rel = allRels.next();
@@ -6789,7 +6806,7 @@ int sis_api::Delete_Unnamed_Attribute(IDENTIFIER * attribute)
         
         try{
             //delete relationships and finally delete node
-            Vector<Relationship> relsToDelete  = new Vector<Relationship>();
+            ArrayList<Relationship> relsToDelete  = new ArrayList<Relationship>();
             Iterator<Relationship> allRels = linkNode.getRelationships().iterator();
             while(allRels.hasNext()){
                 Relationship rel = allRels.next();
@@ -6911,7 +6928,7 @@ int sis_api::Delete_Instance_Set(int from_set, IDENTIFIER * to)
         if(fromSet==null){
             return APIFail;
         }
-        Vector<Long> fromIds = fromSet.get_Neo4j_Ids();
+        ArrayList<Long> fromIds = fromSet.get_Neo4j_Ids();
         
         if(fromIds.size()==0){
             return APISucc;
@@ -6968,12 +6985,15 @@ int sis_api::Delete_Instance_Set(int from_set, IDENTIFIER * to)
     public int CHECK_Rename_Node(Identifier node, Identifier NewNodeName){
         CMValue nodeCmv = new CMValue();
         CMValue NewNodeNameCmv = new CMValue();
+        
         if(node!=null){
-            nodeCmv.assign_node(node.getLogicalName(), node.getSysid(),"",TMSAPIClass.Do_Not_Assign_ReferenceId);                    
-        }
-        if(NewNodeNameCmv!=null){
-            NewNodeNameCmv.assign_node(NewNodeName.getLogicalName(), NewNodeName.getSysid(),"",TMSAPIClass.Do_Not_Assign_ReferenceId);                    
-        }
+            boolean getIdInsteadOfLoginam = node.getTag() == Identifier.ID_TYPE_SYSID;            
+            nodeCmv.assign_node(getIdInsteadOfLoginam ?  "" : node.getLogicalName(), getIdInsteadOfLoginam ? node.getSysid(): -1,"",TMSAPIClass.Do_Not_Assign_ReferenceId);                    
+        }        
+        
+        boolean getNewNodeIdInsteadOfLoginam = NewNodeName.getTag() == Identifier.ID_TYPE_SYSID;            
+        NewNodeNameCmv.assign_node(getNewNodeIdInsteadOfLoginam? "" : NewNodeName.getLogicalName(), getNewNodeIdInsteadOfLoginam ? NewNodeName.getSysid() : -1,"",TMSAPIClass.Do_Not_Assign_ReferenceId);                    
+        
         
         return CHECK_Rename_NodeCMValue(nodeCmv,NewNodeNameCmv);
     }
@@ -7297,7 +7317,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         }
         insideQuery = true;
         //throw new UnsupportedOperationException();
-        CurrentNode_Ids_Stack = new Vector<Long>();
+        CurrentNode_Ids_Stack = new ArrayList<Long>();
         this.tmp_sets = new Sets_Class();
         return QClass.APISucc;
         /*TEST begin Query code
@@ -7308,7 +7328,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             }
             return QClass.APIFail;
         }
-        CurrentNode_Ids_Stack = new Vector<Long>();
+        CurrentNode_Ids_Stack = new ArrayList<Long>();
         this.tmp_sets = new Sets_Class();
         return QClass.APISucc;
         //public native int begin_query(int sessionID);
@@ -7368,7 +7388,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             bugfix();
             insideTransaction = false;
         }
-        CurrentNode_Ids_Stack = new Vector<Long>();
+        CurrentNode_Ids_Stack = new ArrayList<Long>();
         this.tmp_sets = new Sets_Class();
         return QClass.APISucc;
         /*
@@ -7416,7 +7436,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             tx = db.graphDb.beginTx();
         }
         beganTransaction = java.util.Calendar.getInstance().getTime().toString()+": begin_transaction ";
-        CurrentNode_Ids_Stack = new Vector<Long>();
+        CurrentNode_Ids_Stack = new ArrayList<Long>();
         this.tmp_sets = new Sets_Class();
         return APISucc;
         
@@ -7692,7 +7712,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
      * @param retVals
      * @return 
      */
-    public int bulk_return_full_link(int set_id, Vector<Return_Full_Link_Row> retVals){
+    public int bulk_return_full_link(int set_id, ArrayList<Return_Full_Link_Row> retVals){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         
@@ -7705,7 +7725,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -7725,7 +7745,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
      * @param retVals
      * @return 
      */
-    public int bulk_return_full_link_id(int set_id, Vector<Return_Full_Link_Id_Row> retVals){
+    public int bulk_return_full_link_id(int set_id, ArrayList<Return_Full_Link_Id_Row> retVals){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         
@@ -7738,7 +7758,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -7758,7 +7778,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
      * @param retVals
      * @return 
      */
-    public int bulk_return_isA(int set_id, Vector<Return_Isa_Row> retVals){
+    public int bulk_return_isA(int set_id, ArrayList<Return_Isa_Row> retVals){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         
@@ -7771,7 +7791,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -8014,7 +8034,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
                 return APIFail;    // there is no current node set
             }
             
-            setptr.set_putNeo4j_Id(CurrentNode_Ids_Stack.lastElement());
+            setptr.set_putNeo4j_Id((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);
         }
         else{
             setptr.set_copy(tmp_sets.return_set(set_id));
@@ -8299,7 +8319,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
                 tmp_sets.free_set(new_set_id);
                 return APIFail;       // there is no current node set
             }
-            setptr.set_putNeo4j_Id(CurrentNode_Ids_Stack.lastElement());
+            setptr.set_putNeo4j_Id((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);
         }
         else{
             
@@ -8470,7 +8490,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
     }
     
     //get_matched_ToneAndCaseInsensitive
-    public int get_matched_OnTransliteration(int set_target, String searchVal) {
+    public int get_matched_OnTransliteration(int set_target, String searchVal/*, boolean exactTransliterationMatchInsteadOfContains*/) {
         int  ret;
         PQI_Set setptr = new PQI_Set();
         
@@ -8492,7 +8512,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
                 tmp_sets.free_set(new_set_id);
                 return APIFail;       // there is no current node set
             }
-            setptr.set_putNeo4j_Id(CurrentNode_Ids_Stack.lastElement());
+            setptr.set_putNeo4j_Id((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);
         }
         else{
             
@@ -8506,7 +8526,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         
         //writes directly to writeset since any exception occurs 
         //only before the first writing to writeset
-        ret = db.getMatchedOnTransliteration(setptr.get_Neo4j_Ids(), searchVal, writeset);
+        ret = db.getMatchedOnTransliteration(setptr.get_Neo4j_Ids(), searchVal, false, writeset);
         
         //ON_ERROR_RETURN(ret,new_set_id);  // free new_set_id and return -1
         if ((globalError.flag()==APIFail) || (ret == APIFail))  {
@@ -8541,18 +8561,18 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         /*    
     public int get_matched_ToneAndCaseInsensitive(int sisSessionId, int set_target, String searchVal, boolean SEARCH_MODE_CASE_TONE_INSENSITIVE) {
         UtilitiesString US = new UtilitiesString();
-        Vector<String> InputValuesVector = new Vector();
+        ArrayList<String> InputValuesArrayList = new ArrayList();
         if (SEARCH_MODE_CASE_TONE_INSENSITIVE) {
-            InputValuesVector = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal);
+            InputValuesArrayList = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal);
         }
         else {
-            InputValuesVector.add(searchVal);
+            InputValuesArrayList.add(searchVal);
         }
         int ptrn_set = Q.set_get_new();
-        int InputValuesSize = InputValuesVector.size();
+        int InputValuesSize = InputValuesArrayList.size();
         for (int i = 0; i < InputValuesSize; i++) {
             CMValue prm_val = new CMValue();
-            prm_val.assign_string(InputValuesVector.get(i));
+            prm_val.assign_string(InputValuesArrayList.get(i));
             Q.set_put_prm( ptrn_set, prm_val);            
         }
 
@@ -8566,18 +8586,18 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         */
         
         UtilitiesString US = new UtilitiesString();
-        Vector<String> InputValuesVector = new Vector<String>();
+        ArrayList<String> InputValuesArrayList = new ArrayList<String>();
         if (SEARCH_MODE_CASE_TONE_INSENSITIVE) {
-            InputValuesVector = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal);
+            InputValuesArrayList = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal);
         }
         else {
-            InputValuesVector.add(searchVal);
+            InputValuesArrayList.add(searchVal);
         }
         int ptrn_set = set_get_new();
-        int InputValuesSize = InputValuesVector.size();
+        int InputValuesSize = InputValuesArrayList.size();
         for (int i = 0; i < InputValuesSize; i++) {
             CMValue prm_val = new CMValue();
-            prm_val.assign_string(InputValuesVector.get(i));
+            prm_val.assign_string(InputValuesArrayList.get(i));
             set_put_prm( ptrn_set, prm_val);            
         }
 
