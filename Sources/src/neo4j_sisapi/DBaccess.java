@@ -3562,7 +3562,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
             //-30 added because query contains , n."+ Configs.Neo4j_Key_For_Logicalname +" as lname " 
             ArrayList<Long> subSetofIds = utils.collectSequenctiallyAsubsetOfValues(loopIndex, Configs.MAX_IDS_PER_QUERY-30, ids);
             loopIndex += subSetofIds.size();
-            if(subSetofIds.size()==0){
+            if(subSetofIds.isEmpty()){
                 break;
             }
             String query ="";

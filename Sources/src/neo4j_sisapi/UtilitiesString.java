@@ -91,7 +91,7 @@ class UtilitiesString {
     /*-----------------------------------------------------------------
             GetToneAndCaseInsensitiveComparisonsOfPattern()
     -----------------------------------------------------------------*/    
-        ArrayList<String> GetToneAndCaseInsensitiveComparisonsOfPattern(String pattern) {
+    ArrayList<String> GetToneAndCaseInsensitiveComparisonsOfPattern(String pattern,boolean skipTones) {
         //Logger.getLogger(UtilitiesString.class.getName()).log(Level.INFO, Parameters.LogFilePrefix+"GetToneAndCaseInsensitiveComparisonsOfPattern(" + pattern + ")");
         //Logger.getLogger(UtilitiesString.class.getName()).log(Level.INFO, Parameters.LogFilePrefix+"--------------------------------------------");        
         String patternAllLower = pattern.toLowerCase();
@@ -111,17 +111,23 @@ class UtilitiesString {
         if (patternsArrayList.contains(patternFirstCharacterOfEachWordCapital) == false) {
             patternsArrayList.add(patternFirstCharacterOfEachWordCapital);
         }        
-        // get their tone comparisons
-        ArrayList<String> ToneAndCaseInsensitiveComparisons = new ArrayList<String>();
-        for(int i =0; i< patternsArrayList.size(); i++) {
-            ArrayList<String> patternToneComparisons = new ArrayList<String>();
-            patternToneComparisons = GetToneComparisonsOfPattern(patternsArrayList.get(i));
-            for(int j =0; j< patternToneComparisons.size(); j++) {
-                ToneAndCaseInsensitiveComparisons.add(patternToneComparisons.get(j));
+        
+        ArrayList<String> ToneAndCaseInsensitiveComparisons = new ArrayList<>();
+        // get their tone comparisons                    
+        for(String str : patternsArrayList) {
+            if(skipTones){
+                ToneAndCaseInsensitiveComparisons.add(str);
+            }
+            else{
+                ArrayList<String> patternToneComparisons = GetToneComparisonsOfPattern(str);
+                patternToneComparisons.forEach((val) -> {
+                    ToneAndCaseInsensitiveComparisons.add(val);
+                });
             }
         }  
+        
         // in case of blank pattern
-        if (ToneAndCaseInsensitiveComparisons.size() == 0) {
+        if (ToneAndCaseInsensitiveComparisons.isEmpty()) {
             ToneAndCaseInsensitiveComparisons.add("");
         }
         // test

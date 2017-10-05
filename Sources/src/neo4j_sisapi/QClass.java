@@ -8490,7 +8490,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
     }
     
     //get_matched_ToneAndCaseInsensitive
-    public int get_matched_OnTransliteration(int set_target, String searchVal/*, boolean exactTransliterationMatchInsteadOfContains*/) {
+    public int get_matched_OnTransliteration(int set_target, String searchVal, boolean exactTransliterationMatchInsteadOfContains) {
         int  ret;
         PQI_Set setptr = new PQI_Set();
         
@@ -8526,7 +8526,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         
         //writes directly to writeset since any exception occurs 
         //only before the first writing to writeset
-        ret = db.getMatchedOnTransliteration(setptr.get_Neo4j_Ids(), searchVal, false, writeset);
+        ret = db.getMatchedOnTransliteration(setptr.get_Neo4j_Ids(), searchVal, exactTransliterationMatchInsteadOfContains, writeset);
         
         //ON_ERROR_RETURN(ret,new_set_id);  // free new_set_id and return -1
         if ((globalError.flag()==APIFail) || (ret == APIFail))  {
@@ -8588,7 +8588,34 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         UtilitiesString US = new UtilitiesString();
         ArrayList<String> InputValuesArrayList = new ArrayList<String>();
         if (SEARCH_MODE_CASE_TONE_INSENSITIVE) {
-            InputValuesArrayList = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal);
+            InputValuesArrayList = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal,false);
+        }
+        else {
+            InputValuesArrayList.add(searchVal);
+        }
+        int ptrn_set = set_get_new();
+        int InputValuesSize = InputValuesArrayList.size();
+        for (int i = 0; i < InputValuesSize; i++) {
+            CMValue prm_val = new CMValue();
+            prm_val.assign_string(InputValuesArrayList.get(i));
+            set_put_prm( ptrn_set, prm_val);            
+        }
+
+        reset_set(set_target);
+        reset_set(ptrn_set);
+        int set_results = get_matched(set_target, ptrn_set);
+        free_set(ptrn_set);
+        reset_set(set_results);
+        return set_results;
+    }
+    
+    //get_matched_ToneAndCaseInsensitive
+    public int get_matched_CaseInsensitive(int set_target, String searchVal, boolean SEARCH_MODE_CASE_INSENSITIVE) {
+       
+        UtilitiesString US = new UtilitiesString();
+        ArrayList<String> InputValuesArrayList = new ArrayList<>();
+        if (SEARCH_MODE_CASE_INSENSITIVE) {
+            InputValuesArrayList = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal,true);
         }
         else {
             InputValuesArrayList.add(searchVal);
