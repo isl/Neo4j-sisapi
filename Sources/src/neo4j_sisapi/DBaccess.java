@@ -3666,6 +3666,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         */
         // </editor-fold> 
         
+        
         //int ptrn_set_size = ptrn_set.set_get_card();
         ArrayList<Pattern_info> pattrns = new ArrayList<Pattern_info>();
         CHECK_setup_patterns(ptrn_set,pattrns);
@@ -3751,7 +3752,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
                         break;
                     }
                     case START_SUB_STR:{
-                        if(lname.startsWith(patStr)){
+                        if(utils.removePrefix(lname).startsWith(patStr)){
                             matchFound = true;
                         }
                         break;
