@@ -34,37 +34,34 @@
 package neo4j_sisapi;
 
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import neo4j_sisapi.tmsapi.TMSAPIClass;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.TransactionTerminatedException;
-import org.neo4j.graphdb.schema.ConstraintDefinition;
-import org.neo4j.graphdb.schema.IndexDefinition;
-import org.neo4j.graphdb.schema.Schema;
 
 
 /**
+ * The entry point of the basic sis-api
+ * <br>
+ * <b>NOTE:</b> Instead of return_xxx functions use bulk_return_xxx
+ * <br> 
  * ATTENTION!!!
  * Different behavior than expected for 
  * Telos_Object, Telos_Object->attribute, and Individual
- * 
- * <br/>
- * NOTE: Instead of return_xxx functions use bulk_return_xxx
- * <br/> 
+ *  
  * 
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
  */
-
 public class QClass {
     
     public static final int SIS_API_TOKEN_CLASS = 9;
@@ -190,14 +187,15 @@ public class QClass {
     ApiError globalError = new ApiError();
     
     //Node curNode = null;
-    Vector<CategorySet> currentCategories = new Vector<CategorySet>();
+    ArrayList<CategorySet> currentCategories = new ArrayList<CategorySet>();
 
     //SYSID current_node;
-    //Vector<Node> nodeStack = new Vector<Node>();
-    //Vector<Neo4j_Id> propertyContainerStack = new Vector<Neo4j_Id>();
+    //ArrayList<Node> nodeStack = new ArrayList<Node>();
+    //ArrayList<Neo4j_Id> propertyContainerStack = new ArrayList<Neo4j_Id>();
     
     DBaccess db = null;
-    Vector<Long> CurrentNode_Ids_Stack = new Vector<Long>();
+    Utilities utils = new Utilities();
+    ArrayList<Long> CurrentNode_Ids_Stack = new ArrayList<Long>();
 
     
     
@@ -208,8 +206,8 @@ public class QClass {
     //SYSID categories[NUMBER_OF_CATEGORIES];
     //int   directions[NUMBER_OF_CATEGORIES];
 
-    Vector<Long> categories = new Vector<Long>();
-    Vector<Traversal_Direction> directions = new Vector<Traversal_Direction> ();
+    ArrayList<Long> categories = new ArrayList<>();
+    ArrayList<Traversal_Direction> directions = new ArrayList<> ();
     //SET   forward_set;   // store forward categs and subclasses
     //SET   backward_set;  // store backward categes and subclasses
     PQI_Set forward_set = new PQI_Set();
@@ -225,7 +223,7 @@ public class QClass {
      */
     public QClass() {
         
-        CurrentNode_Ids_Stack = new Vector<Long>();
+        CurrentNode_Ids_Stack = new ArrayList<>();
         tmp_sets = new Sets_Class();
 
     }
@@ -324,7 +322,7 @@ public class QClass {
         return APISucc;
     }
     
-    
+       
     
     /**
      * Given the logical name label of a link object, the function returns the 
@@ -408,11 +406,12 @@ public class QClass {
             return APIFail;
         }
         
-        return db.getStringPropertyOfNode(sysid.getValue(), db.Neo4j_Key_For_Logicalname, lname);
+        return db.getStringPropertyOfNode(sysid.getValue(), Configs.Neo4j_Key_For_Logicalname, lname);
     }
     
     /**
      * Sets message value to the last error message encountered.
+     * 
      * @param message
      * @return 
      */
@@ -443,6 +442,20 @@ public class QClass {
         }
         globalError.getMessage(message);
         return APISucc;
+    }
+    
+    /**
+     * Gets the error code produced - can be used for the hosting 
+     * application to decide what message to display.
+     * 
+     * @return
+     */
+    public String get_error_code(){
+        
+        if(!check_files("get_error_code")){
+            return "";
+        }
+        return globalError.errorCode;
     }
     
     /**
@@ -509,7 +522,7 @@ public class QClass {
      * @param retVals
      * @return 
      */
-    public int bulk_return_prm(int set_id, Vector<Return_Prm_Row> retVals){
+    public int bulk_return_prm(int set_id, ArrayList<Return_Prm_Row> retVals){
         if(!check_files("bulk_return_prm")){
             return APIFail;
         }
@@ -517,10 +530,10 @@ public class QClass {
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
-        if(setIds.size()==0){
+        if(setIds.isEmpty()){
             return APISucc;
         }
         if(db.get_Bulk_Return_Prm_Nodes(setIds, retVals)==QClass.APIFail){
@@ -543,7 +556,7 @@ public class QClass {
      * @param retVals
      * @return 
      */
-    public int bulk_return_full_nodes(int set_id, Vector<Return_Full_Nodes_Row> retVals){
+    public int bulk_return_full_nodes(int set_id, ArrayList<Return_Full_Nodes_Row> retVals){
         if(!check_files("bulk_return_full_nodes")){
             return APIFail;
         }
@@ -551,11 +564,11 @@ public class QClass {
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
-        if(setIds.size()==0){
+        if(setIds.isEmpty()){
             return APISucc;
         }
         
@@ -753,7 +766,7 @@ public class QClass {
         Node n = db.getNeo4jNodeByNeo4jId(idObj.getValue());
         if(n!=null){
             sysid.setValue(idObj.value);
-            node.setValue((String) n.getProperty(db.Neo4j_Key_For_Logicalname));
+            node.setValue((String) n.getProperty(Configs.Neo4j_Key_For_Logicalname));
             Sclass.setValue(db.getNeo4jNodeSystemClass(n));
         }
         
@@ -770,7 +783,7 @@ public class QClass {
      * @param retVec
      * @return 
      */
-    public int bulk_return_nodes(int set_id, Vector<Return_Nodes_Row> retVals){
+    public int bulk_return_nodes(int set_id, ArrayList<Return_Nodes_Row> retVals){
         if(!check_files("bulk_return_nodes")){
             return APIFail;
         }
@@ -778,7 +791,7 @@ public class QClass {
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -855,7 +868,7 @@ public class QClass {
      * @param retVals
      * @return 
      */
-    public int bulk_return_link_id(int set_id, Vector<Return_Link_Id_Row> retVals){
+    public int bulk_return_link_id(int set_id, ArrayList<Return_Link_Id_Row> retVals){
         if(!check_files("bulk_return_link_id")){
             return APIFail;
         }
@@ -863,7 +876,7 @@ public class QClass {
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -887,7 +900,7 @@ public class QClass {
      * @param retVals
      * @return 
      */
-    public int bulk_return_link(int set_id, Vector<Return_Link_Row> retVals){
+    public int bulk_return_link(int set_id, ArrayList<Return_Link_Row> retVals){
         
         
         if(!check_files("bulk_return_links")){
@@ -897,11 +910,11 @@ public class QClass {
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
-        if(setIds.size()==0){
+        if(setIds.isEmpty()){
             return APISucc;
         }
         /*
@@ -925,6 +938,18 @@ public class QClass {
         
         
         return APISucc;
+    }
+    
+    /**
+     * Given the thesaurus of interest "thesaurus" and the Thesaurus reference Id 
+     * "refId" this function returns the logical name of this node.
+     * 
+     * @param thesaurus
+     * @param refId
+     * @return 
+     */
+    public String findLogicalNameByThesaurusReferenceId(String thesaurus, long refId){
+        return db.findLogicalNameByThesaurusReferenceId(thesaurus, refId);
     }
     
     boolean linkTraversedBackwards(long id, PQI_Set local_b_set){
@@ -1273,7 +1298,7 @@ public class QClass {
         }
         */
         // </editor-fold> 
-        if(db.getStringPropertyOfNode(objectSysId,db.Neo4j_Key_For_Logicalname, name)!=APIFail){
+        if(db.getStringPropertyOfNode(objectSysId,Configs.Neo4j_Key_For_Logicalname, name)!=APIFail){
             return APISucc;
         }
         return APIFail;
@@ -1342,7 +1367,7 @@ public class QClass {
             return APIFail;
         }
         
-        return this.tmp_sets.set_put(setId, CurrentNode_Ids_Stack.lastElement());
+        return this.tmp_sets.set_put(setId, CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1));
     }
     
     /**
@@ -1666,7 +1691,7 @@ public class QClass {
         if(no_current_node("set_member_of")){
             return APIFail;
         }
-        return tmp_sets.set_member_of(set_id, this.CurrentNode_Ids_Stack.lastElement());
+        return tmp_sets.set_member_of(set_id, (CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);
     }
     
     /**
@@ -1689,6 +1714,8 @@ public class QClass {
 
     /**
      * This function returns the number of object that exist in set set_id.
+     * @param set_id
+     * @return 
      */
     public int set_get_card(int set_id) {
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
@@ -1706,6 +1733,8 @@ public class QClass {
      * This function free the temporary set set_id so that it can be used later
      * by some other query. Freeing a set is like closing a file descriptor in
      * UNIX.
+     * @param set_id
+     * @return 
      */
     public int free_set(int set_id) {
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
@@ -2031,6 +2060,220 @@ public class QClass {
     }
     
     /**
+     * Set current node the object using it's Thesaurus reference Id property. 
+     * This object is now at the top of the name stack. 
+     * Until now Thesaurus Reference Ids reside only in Indiduals so there is no possibility 
+     * that this referenceId corresponds to a link object (where the name stack should contain all the from values)
+     * 
+     
+     * @param referenceId
+     * @param targetThesaurus
+     * @return The function returns the system id of the current node or
+     * APIFail(-1) on failure.
+     */
+    public long set_current_node_by_referenceId(long referenceId, String targetThesaurus){
+        if (!check_files("set_current_node")) {
+            return QClass.APIFail;
+        }
+
+        //check lengths
+        if (targetThesaurus == null  ||  targetThesaurus.length() == 0 || referenceId<=0) {
+            return QClass.APIFail;
+        }
+
+        return db.setCurrentNodeByReferenceId(CurrentNode_Ids_Stack, referenceId, targetThesaurus);
+    }
+    
+    /**
+     * same as set_current_node function but it also assigns to the CMValue parameter
+     * the full node diacritics (aka. Logicalname, Neo4jId, ThesaurusReferenceId and Transliteration)
+     *
+     * @param str A StringObject that contains the logical name 
+     * of the object that will be set as current node
+     * 
+     * @param retVal A CMValue that will be assigned with the Node's 
+     * Logicalname, Neo4jId, ThesaurusReferenceId and Transliteration
+     * 
+     * @return The function returns the system id of the current node or
+     * APIFail(-1) on failure.
+     */
+    public long set_current_node_and_retrieve_Cmv(StringObject str,CMValue retVal) {
+        //<editor-fold defaultstate="collapsed" desc="C++ References">
+        /*
+         answerer
+        
+         //---------------------------------------   
+         //Set Current Node
+         //---------------------------------------
+         void scn()
+         {
+         int    id;
+         l_name name;
+
+         printf("\n    SET CURRENT NODE  \n");
+         printf("    Enter logical name of node : ");
+         scan_for_loginam(name);
+         //SCANF("%s", name);
+
+         if ((id = set_current_node(name)) != -1) {
+         printf("\n    CURRENT NODE IS NOW: %s (SYSID %d)\n",name, id);;
+         }
+         else {
+         printf("\n    *** ERROR ***  QUERY FAILED \n");;
+         }
+         }
+
+         typedef struct us_sysid {
+         int id;        // sysid itself, integer number of  24 bits.
+         us_sysid()        {id = 0;}
+         us_sysid(int ii)    {id = ii;}
+         } SYSID;
+        
+    
+         SYSID *current_node;
+         SYSID stack[NAME_STACK_SIZE];
+         Translator       *api_translator;
+
+         // Returns the SYSID of the Class having the logical name lname
+         // Returns SYSID 0 if lname Class lname doesn't exist.
+         SYSID sis_api::getSysid(LOGINAM *lname) {
+         return api_translator->getSysid(lname, SYSID());
+         }
+        
+    
+         //  Returns the SYSID of the attribute with LOGINAM attr
+         //  of the class with SYSID cls
+         //  If there is not such an attribute, returns SYSID 0        
+         SYSID sis_api::getSysid(SYSID cls, LOGINAM *attr) {
+         return   api_translator->getSysid(attr, cls);
+         }
+
+
+         // ---------------------------------------------------------------------
+         // getSysid -- returns the sysid that have logical name the first name
+         //	of full name ln and its from-object have sysid sys. If that sysid
+         //	not exist it returns SYSID(0).
+         // ---------------------------------------------------------------------
+         SYSID	getSysid( LOGINAM *ln, SYSID sys) {
+        
+         Loginam	*tmpL;
+         SYSID	retVal;
+         int id;
+        
+         // check added by georgian to support unnamed objects 
+         if ( ln == ( LOGINAM * ) 0 ) {
+         return SYSID(0);
+         }
+        
+         if ( (id = ln->unnamed_id()) ) {
+         // printf("getSysid( LOGINAM *ln, SYSID sys) called on unnamed link 0x%x\n",id);
+         return (SYSID(id));
+         //		} else {
+         }
+        
+         tmpL = inv_convertion(ln);
+         retVal = symbolTable->getSysid( tmpL, sys);
+         delete	tmpL;
+         return( retVal);
+        
+         //}
+         }
+        
+         int push_name(SYSID id) {
+         int retval;
+         current_node++;
+         if (current_node == &(stack[NAME_STACK_SIZE])) {
+         retval = -1;
+         }
+         else {
+         *current_node = id;
+         retval = 0;
+         }
+        
+         return retval;
+         };
+        
+         */
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="set current node C++ Code">
+        /*
+        
+         FILE: "cpp_api\q_class_pblc.cpp"
+        
+        
+         // START OF: set_current_node(l_name node)
+         //
+         //  Set current node the object with logical name str.
+         //  If name scope is the whole SIB str is supposed to be a node
+         //  object. If there is already a current node str is supposed to
+         //  be the lagical name of a link pointing from the current node.
+         //  Returns the sysid of the new current node or -1 if any error
+         //  occured.
+         //
+         int sis_api::set_current_node(l_name node) {
+
+         // Check if the length of the given string to be used as a logical name
+         // is less than LOGINAM_SIZE
+         if(strlen(node) >= 128)
+         {
+         // The given string is longer than a loginam an thus it cannot be a logical name. set_current_node should fail.
+         return -1;
+         }	
+         LOGINAM lname(node);
+         SYSID   id;
+
+         if (current_node->id == 0) {  // Global scope
+         if ((id = getSysid(&lname)).id !=0) {
+         if (push_name(id) != -1) {
+         return id.id;;
+         }
+         else { // push_name() failed
+         return -1;
+         }
+         }
+         else  { // getSysid() failed
+         return -1;
+         }
+         }
+         else  { // See only the attribute labels of the current node
+         if ((id = getSysid(*current_node, &lname)).id != 0) {
+         if (push_name(id) != -1) {
+         return id.id;
+         }  // push_name() failed
+         else {
+         return -1;
+         }
+         }
+         else  {  // getSysid() failed
+         return -1;
+         }
+         }
+         return -1;
+         }   
+
+         END OF: set_current_node(l_name node) 
+        
+         */
+        //</editor-fold>
+        //check if in a query session
+        //check lengths
+        //if no current node is set then just try set it
+        //if current node is set then try find a node relatied to last current node with the logicalname given 
+        //check if in a query session
+        
+        if (!check_files("set_current_node")) {
+            return QClass.APIFail;
+        }
+
+        //check lengths
+        if (str == null || str.getValue() == null || str.getValue().length() == 0) {
+            return QClass.APIFail;
+        }
+
+        return db.setCurrentNode(CurrentNode_Ids_Stack, str.getValue(),retVal);        
+    }
+    /**
      * Set current node the object with system identifier nodeid. This object 
      * is now at the top of the name stack and if it is a link object the name 
      * stack is changed properly (see section 3 where name stack is described).
@@ -2246,7 +2489,7 @@ public class QClass {
      * 
      * If set_id is 0, apply get_from_value() on current node.
      * 
-     * @param If set to 0 then apply function to current node. If set to
+     * @param set_id If set to 0 then apply function to current node. If set to
      * a positive integer then search internally for a set with this identifier
      * and apply this function to every object contained in the set
      * 
@@ -2278,7 +2521,7 @@ public class QClass {
      * The PQI_Set structure must be augmented in order to hold any primitive values
      * right now no primitive values are kept
      * 
-     * @param If set to 0 then apply function to current node. If set to
+     * @param set_id If set to 0 then apply function to current node. If set to
      * a positive integer then search internally for a set with this identifier
      * and apply this function to every object contained in the set
      * 
@@ -2417,7 +2660,7 @@ public class QClass {
      * If set_id is a positive integer, apply get_classes() on each object in temporary
      * set set_id.
      * 
-     If set to 0 then apply function to current node. If set to
+     * @param set_id If set to 0 then apply function to current node. If set to
      * a positive integer then search internally for a set with this identifier
      * and apply this function to every object contained in the set
      *
@@ -2560,42 +2803,52 @@ public class QClass {
         }
     }
     
-    public Vector<Long> TEST_get_SYSIDS_of_set(int set_id) {
+    public ArrayList<Long> TEST_get_SYSIDS_of_set(int set_id) {
         
         PQI_Set readSet =  this.tmp_sets.return_set(set_id);
         if(readSet!=null){
-            Vector<Long>  returnResults = readSet.get_Neo4j_Ids();
+            ArrayList<Long>  returnResults = readSet.get_Neo4j_Ids();
             if(Configs.CastSysIdAsInt){
-                Hashtable<Long, Integer> tmpRes = new Hashtable<Long, Integer>();
+                HashMap<Long, Integer> tmpRes = new HashMap<Long, Integer>();
                 db.getIntPropertyOfNodes(returnResults, db.Neo4j_Key_For_SysId, tmpRes);
                 returnResults.clear();
-                Enumeration<Long> hashEnum = tmpRes.keys();
-                while(hashEnum.hasMoreElements()){
-                    long curId = hashEnum.nextElement();
-                    long newVal = (long) tmpRes.get(curId);
-                    if(returnResults.contains(newVal)==false){
-                        returnResults.add(newVal);
-                    }
+                
+                /*
+                for(long curId :tmpRes.keySet()){
+                long newVal = (long) tmpRes.get(curId);
+                if(returnResults.contains(newVal)==false){
+                returnResults.add(newVal);
                 }
+                }
+                 */
+                tmpRes.keySet().stream().map((curId) -> (long) tmpRes.get(curId)).filter((newVal) -> (returnResults.contains(newVal)==false)).forEach((newVal) -> {
+                    returnResults.add(newVal);
+                });
                 return returnResults;
             }
             else{
-                Hashtable<Long, Long> tmpRes = new Hashtable<Long, Long>();
+                HashMap<Long, Long> tmpRes = new HashMap<Long, Long>();
                 db.getLongPropertyOfNodes(returnResults, db.Neo4j_Key_For_SysId, tmpRes);
                 returnResults.clear();
-                Enumeration<Long> hashEnum = tmpRes.keys();
-                while(hashEnum.hasMoreElements()){
+                //Enumeration<Long> hashEnum = tmpRes.keys();
+                tmpRes.values().stream().forEach( (newVal) -> {
+                    if(returnResults.contains(newVal)==false){
+                        returnResults.add(newVal);
+                    }}
+                );
+                /*
+                for(long curId : tmpRes.keySet())
                     long curId = hashEnum.nextElement();
                     long newVal = tmpRes.get(curId);
                     if(returnResults.contains(newVal)==false){
                         returnResults.add(newVal);
                     }
-                }
+                }*/
                 return returnResults;
             }
         }
         
-        return new Vector<Long>();        
+        return new ArrayList<Long>();        
     }
 
     public long TEST_get_SysId_From_Neo4jId(long neo4jId) {
@@ -2800,7 +3053,7 @@ public class QClass {
         int new_set_id = set_get_new();
         PQI_Set startingIds = new PQI_Set();
         if(set_id==0){
-            startingIds.set_putNeo4j_Id(CurrentNode_Ids_Stack.lastElement());//.add(new PQI_SetRecord(CurrentNode_Ids_Stack.lastElement()));
+            startingIds.set_putNeo4j_Id((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);//.add(new PQI_SetRecord(CurrentNode_Ids_Stack.lastElement()));
         }
         else{
             PQI_Set readSet = this.tmp_sets.return_set(set_id);
@@ -2809,7 +3062,7 @@ public class QClass {
             }            
             readSet.set_copy(startingIds);
         }
-        Vector<Long> checked_set = new Vector<Long>();
+        ArrayList<Long> checked_set = new ArrayList<Long>();
         PQI_Set retSet = tmp_sets.return_set(new_set_id);
         //if(depth>=0){
         ret = db.getTraverseByCategoryWithDepthControl(startingIds,forward_set,backward_set,depth,isa,edge_set,retSet,checked_set);
@@ -2966,7 +3219,8 @@ public class QClass {
             edge_set.set_clear();
             PQI_Set retSet = this.tmp_sets.return_set(new_set_id);
             
-            ret = db.getTraverseByCategory_With_SIS_Server_Implementation(CurrentNode_Ids_Stack.lastElement(),forward_set,backward_set,depth,isa,edge_set,retSet,checked_set);
+            ret = db.getTraverseByCategory_With_SIS_Server_Implementation((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1
+                    ,forward_set,backward_set,depth,isa,edge_set,retSet,checked_set);
         }
         else{
             /*
@@ -3306,7 +3560,7 @@ public class QClass {
                 return APIFail;    // there is no current node set
             }
             
-            setptr.set_putNeo4j_Id(CurrentNode_Ids_Stack.lastElement());
+            setptr.set_putNeo4j_Id((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);
         }
         else{
             setptr.set_copy(tmp_sets.return_set(set_id));
@@ -3423,7 +3677,7 @@ public class QClass {
                 return APIFail;    // there is no current node set
             }
 
-            long objSysid = this.CurrentNode_Ids_Stack.lastElement();
+            long objSysid = (CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1;
             ret = simple_query_on_specific_id(q_id,objSysid,writeset);
             
 
@@ -3435,7 +3689,7 @@ public class QClass {
                 return APIFail;
             }
             
-            //Vector<Long> vals = targetSet.get_Neo4j_Ids();
+            //ArrayList<Long> vals = targetSet.get_Neo4j_Ids();
             
             ret = simple_query_on_SET(q_id,targetSet,writeset);
             if(db.DebugInfo){
@@ -3643,15 +3897,40 @@ public class QClass {
     }
     
     /**
-     * Adds a node with the logical name node_name at instantiation level level 
-     * (SIS_API_TOKEN_CLASS,SIS_API_S_CLASS,SIS_API_M1_CLASS,SIS_API_M2_CLASS,
-     * SIS_API_M3_CLASS,SIS_API_M4_CLASS).
+     *
+     * Adds a node with the logical name node_name at the specified instantiation 
+     * level. If updateIdentifierWithId is set to true then the node_name identifier 
+     * will be updated to use the id part instead of the logical name.
      * 
      * @param node_name
      * @param level
-     * @return 
+     * @param updateIdentifierWithId
+     * @return
      */
     public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId){
+        return CHECK_Add_Node(node_name,level,updateIdentifierWithId,"","",TMSAPIClass.Do_Not_Assign_ReferenceId);
+    }
+    
+    /**
+     * Adds a node with the logical name "node_name" at the specified instantiation
+     * "level" (SIS_API_TOKEN_CLASS,SIS_API_S_CLASS,SIS_API_M1_CLASS,SIS_API_M2_CLASS,
+     * SIS_API_M3_CLASS,SIS_API_M4_CLASS). If updateIdentifierWithId is set to true 
+     * then the node_name identifier will be updated to use the id part instead 
+     * of the logical name. The last 3 parameters will contain the transliteration 
+     * property that will be added to the node and the referenceId "refId" of the 
+     * specified Thesaurus "selectedThesaurus" that will be assigned if "refId &gt; 0".
+     * If refId==0 then no reference Id will be assigned or if refId &lt; 0 then 
+     * a new reference Id will be occupied and assigned to this node.
+     * 
+     * @param node_name
+     * @param level
+     * @param updateIdentifierWithId
+     * @param transliteration
+     * @param selectedThesaurus
+     * @param refId
+     * @return 
+     */
+    public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId, String transliteration,String selectedThesaurus, long refId){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         START OF: sis_api::Add_Node 
@@ -3813,6 +4092,24 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
         }
         
         long newNeo4jId = db.getNextNeo4jId();
+        long newReferenceId = -1;
+        
+        //if refId ==0 do not create at all
+        if(refId<0){
+            newReferenceId = db.getNextThesaurusId(selectedThesaurus.toUpperCase());            
+        }        
+        else if (refId>0){
+            newReferenceId = refId;
+        }
+        
+        if(newReferenceId>0){
+            //check if uri thesaurus reference exists
+            if(db.IsThesaurusReferenceIdAssigned(selectedThesaurus,newReferenceId)){
+                //globalError.putMessage(Messages.ErrorCode_For_ThesaurusReferenceIdAlreadyAssigned);
+                globalError.setMessageWithErrorCodeAndArgs(Messages.ErrorCode_For_ThesaurusReferenceIdAlreadyAssigned, new String[] {""+newReferenceId,selectedThesaurus});
+                return APIFail;
+            }
+        }
         
         try{
             
@@ -3821,14 +4118,21 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
               //  newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, Integer.parseInt(""+newNeo4jId));
             //}
             //else{
-                newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
+                newNode.setProperty(Configs.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
             //}
             
-            newNode.setProperty(db.Neo4j_Key_For_Logicalname, node_name.getLogicalName());
+            newNode.setProperty(Configs.Neo4j_Key_For_Logicalname, node_name.getLogicalName());
+            if(transliteration!=null && transliteration.length()>0){                
+                newNode.setProperty(Configs.Neo4j_Key_For_Transliteration, transliteration);
+            }
+            
+            if(newReferenceId>0){
+                newNode.setProperty(Configs.Neo4j_Key_For_ThesaurusReferenceId, newReferenceId);
+            }
         
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         if(updateIdentifierWithId){
@@ -4194,8 +4498,7 @@ Add_Named_Attribute_Exit_Point:
         //added by elias
         if(attribute.getLogicalName()==null || attribute.getLogicalName().length() ==0 || to==null ){
             return APIFail;
-        }
-        
+        }      
         
         
         if(!api_sem_check.newNamedAttributeNameIsOk(attribute.getLogicalName())){
@@ -4264,7 +4567,7 @@ Add_Named_Attribute_Exit_Point:
             }
         }
         Label levelLabel = getCurrentLevelLabelFromInt(iLevel);
-        Vector<Node> categoryNodes = null;
+        ArrayList<Node> categoryNodes = null;
         
         if(catSet>0 && levelLabel!=null){
             //check categories if catSet !=-1 then everything in cat set must be of iLevel i+1 and of type attribute
@@ -4277,7 +4580,7 @@ Add_Named_Attribute_Exit_Point:
             if(categLevel==null){
                 return APIFail;
             }
-            Vector<Long> categories = categSet.get_Neo4j_Ids();
+            ArrayList<Long> categories = categSet.get_Neo4j_Ids();
             categoryNodes = db.getNeo4jNodesByNeo4jIds(categories);
            
             for(Node categNode : categoryNodes){
@@ -4287,7 +4590,7 @@ Add_Named_Attribute_Exit_Point:
             }
         }
         else{
-            categoryNodes = new Vector<Node>();
+            categoryNodes = new ArrayList<Node>();
             if(levelLabel!=null){
                 categoryNodes.add(db.GetTelosObjectAttributeNode());
             }
@@ -4311,7 +4614,7 @@ Add_Named_Attribute_Exit_Point:
         //check if from -> attribute combination exists   
         Iterator<Relationship> fromNodeRelIter = fromNode.getRelationships(Configs.Rels.RELATION, Direction.OUTGOING).iterator();
         while(fromNodeRelIter.hasNext()){
-            String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(db.Neo4j_Key_For_Logicalname);
+            String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(Configs.Neo4j_Key_For_Logicalname);
             if(attrLoginam.equals(attribute.getLogicalName())){
                 return APIFail;
             }
@@ -4327,9 +4630,9 @@ Add_Named_Attribute_Exit_Point:
               //  newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, Integer.parseInt(""+newNeo4jId));
             //}
             //else{
-                newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
+                newNode.setProperty(Configs.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
             //}
-            newNode.setProperty(db.Neo4j_Key_For_Logicalname, attribute.getLogicalName());
+            newNode.setProperty(Configs.Neo4j_Key_For_Logicalname, attribute.getLogicalName());
 
 
             fromNode.createRelationshipTo(newNode, Configs.Rels.RELATION);
@@ -4351,13 +4654,12 @@ Add_Named_Attribute_Exit_Point:
             if(categoryNodes.size()>0){
                 for(Node n: categoryNodes){
                     newNode.createRelationshipTo(n, Configs.Rels.INSTANCEOF);
-                }
-                
+                }                
             }
         }
         catch(Exception ex){
             Logger.getLogger(QClass.class.getName()).log(Level.INFO, ex.getMessage());
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         if(updateIdentifierWithId){
@@ -4665,8 +4967,8 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         
         //unnamed atteibutes only in token level
         Label levelLabel = Configs.Labels.Token;
-        Vector<Node> categoryNodes = null;
-        Vector<Long> categories = new Vector<Long>();
+        ArrayList<Node> categoryNodes = null;
+        ArrayList<Long> categories = new ArrayList<Long>();
         if(catSet>0){
             //check categories if catSet !=-1 then everything in cat set must be of iLevel i+1 and of type attribute
             PQI_Set categSet = this.tmp_sets.return_set(catSet);
@@ -4689,7 +4991,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         }
         else{
             // unnameed attribute should all be instaces of s_class THIS DOES not stand here
-            categoryNodes = new Vector<Node>();
+            categoryNodes = new ArrayList<Node>();
             categoryNodes.add(db.GetTelosObjectAttributeNode());
             categories.add(db.getNodeNeo4jId(categoryNodes.get(0)));
         }
@@ -4755,12 +5057,12 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         Iterator<Relationship> fromNodeRelIter = fromNode.getRelationships(Configs.Rels.RELATION, Direction.OUTGOING).iterator();
         while(fromNodeRelIter.hasNext()){
             Node attrNode = fromNodeRelIter.next().getEndNode();
-            String attrLoginam = (String)attrNode.getProperty(db.Neo4j_Key_For_Logicalname);
+            String attrLoginam = (String)attrNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
             //only search unnammed attrbitues
             if(attrLoginam.matches(Configs.regExForUnNamed)==false){
                 continue;
             }
-            Vector<Long> attrClasses = getClassesOfNode(attrNode);
+            ArrayList<Long> attrClasses = getClassesOfNode(attrNode);
             if(attrClasses.containsAll(categories) ==false ||  categories.containsAll(attrClasses)==false){
                 continue;
             }
@@ -4827,7 +5129,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
             for(Label lbl : labelArray){
                 newNode.addLabel(lbl);
             }
-            newNode.setProperty(db.Neo4j_Key_For_Logicalname, newLogicalName);
+            newNode.setProperty(Configs.Neo4j_Key_For_Logicalname, newLogicalName);
             //newNode..createNode(labelArray);
             fromNode.createRelationshipTo(newNode, Configs.Rels.RELATION);
             if(toNode!=null){
@@ -4857,21 +5159,21 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
                 //newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, Integer.parseInt(""+newNeo4jId));
             //}
             //else{
-                newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
+                newNode.setProperty(Configs.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
             //}
             
         }
         catch(Exception ex){
             Logger.getLogger(QClass.class.getName()).log(Level.INFO, ex.getMessage());
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         
         return APISucc;                
     }
     
-    Vector<Long> getClassesOfNode(Node n){
-        Vector<Long> retVals = new Vector<Long>();
+    ArrayList<Long> getClassesOfNode(Node n){
+        ArrayList<Long> retVals = new ArrayList<Long>();
         if(n==null || n.hasRelationship(Configs.Rels.INSTANCEOF, Direction.OUTGOING)==false){
             return retVals;
         }
@@ -5556,6 +5858,64 @@ int sis_api::GetSYSID(IDENTIFIER *obj_ID, SYSID *sysid)
         return APISucc;        
     }
     
+    private int GetSYSID(CMValue obj_ID, PrimitiveObject_Long sysid){
+        // <editor-fold defaultstate="collapsed" desc="C++ Code">
+        /*
+        ////////////////////////////////////////////////////////////////////////
+//  GetSYSID :
+//          GetSYSID is used to get a SYSID from the given IDENTIFIER.
+//          Returns APISuccess on Succ, APIFail on Failure.
+//
+int sis_api::GetSYSID(IDENTIFIER *obj_ID, SYSID *sysid)
+{
+	// Check if the obj_ID is valid
+	if(obj_ID->tag != ID_TYPE_LOGINAM && obj_ID->tag != ID_TYPE_SYSID)
+		return APIFail;
+	// If the node name is a loginam get the SYSID
+	if(obj_ID->tag == ID_TYPE_LOGINAM)
+	{
+		// Make a loginam
+		LOGINAM name(obj_ID->loginam);
+		// Get the node SYSID. If the name is not unique or does not exist fail.
+		if(api_translator->getSysid(&name, sysid) != EXIST_ONE)
+			return APIFail;
+	}
+	else
+	{
+		// If the node_name is a sysid setup the SYSID
+		sysid->id = obj_ID->sysid;
+	}
+	return APISucc;
+}
+        */
+        // </editor-fold> 
+        if(obj_ID ==null){
+            return APIFail;
+        }
+        // If the node name is a loginam get the SYSID
+        if(obj_ID.getSysid()>0){
+            sysid.setValue(obj_ID.getSysid());
+        }
+        else if(obj_ID.getString()!=null && obj_ID.getString().length()>0){
+            
+            long tmp = db.getClassId(obj_ID.getString());
+            if(tmp>0){
+                sysid.setValue(tmp);                
+            }
+            else{
+                throw new UnsupportedOperationException();
+                //sysid.setValue(0);
+                //return APIFail;
+            }
+        }
+        else{
+            return APIFail;
+		
+        }
+        
+        return APISucc;        
+    }
+    
     private int GetLogicalName(Identifier obj_ID, StringObject lnam){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
@@ -5680,7 +6040,7 @@ int sis_api::Add_Instance_Set(int from_set, IDENTIFIER * to)
         if(fromSet==null){
             return APIFail;
         }
-        Vector<Long> fromIds = fromSet.get_Neo4j_Ids();
+        ArrayList<Long> fromIds = fromSet.get_Neo4j_Ids();
         
         if(fromIds.size()==0){
             return APISucc;
@@ -5962,7 +6322,7 @@ int    semanticChecker::checkDeletion( SYSID delSid)
             return APIFail;
         }
         
-        Vector<Relationship> relsToDelete = new Vector<Relationship>();
+        ArrayList<Relationship> relsToDelete = new ArrayList<Relationship>();
         try{
             
             Iterator<Relationship> classIter = n.getRelationships(Configs.Rels.INSTANCEOF, Direction.OUTGOING).iterator();
@@ -5989,7 +6349,7 @@ int    semanticChecker::checkDeletion( SYSID delSid)
             n=null;
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         return APISucc;
@@ -5999,14 +6359,14 @@ int    semanticChecker::checkDeletion( SYSID delSid)
         if(n==null){
             return ;
         }
-        Vector<String> propsToDelete = new Vector<String>();
-        Vector<Label> labelsToRemove = new Vector<Label>();
+        ArrayList<String> propsToDelete = new ArrayList<String>();
+        ArrayList<Label> labelsToRemove = new ArrayList<Label>();
         Iterator<Label> lblIter =  n.getLabels().iterator();
         while(lblIter.hasNext()){
             labelsToRemove.add(lblIter.next());
         }
-        if(n.hasProperty(db.Neo4j_Key_For_Neo4j_Id)){
-            propsToDelete.add(db.Neo4j_Key_For_Neo4j_Id);
+        if(n.hasProperty(Configs.Neo4j_Key_For_Neo4j_Id)){
+            propsToDelete.add(Configs.Neo4j_Key_For_Neo4j_Id);
         }
         Iterator<String> propIter = n.getPropertyKeys().iterator();
         while(propIter.hasNext()){
@@ -6371,7 +6731,7 @@ int    semanticChecker::deleteObjectWithoutChecking( SYSID delSid)
         
         try{
             //delete relationships and finally delete node
-            Vector<Relationship> relsToDelete  = new Vector<Relationship>();
+            ArrayList<Relationship> relsToDelete  = new ArrayList<Relationship>();
             Iterator<Relationship> allRels = linkNode.getRelationships().iterator();
             while(allRels.hasNext()){
                 Relationship rel = allRels.next();
@@ -6388,7 +6748,7 @@ int    semanticChecker::deleteObjectWithoutChecking( SYSID delSid)
             linkNode=null;
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         
@@ -6510,7 +6870,7 @@ int sis_api::Delete_Unnamed_Attribute(IDENTIFIER * attribute)
         
         try{
             //delete relationships and finally delete node
-            Vector<Relationship> relsToDelete  = new Vector<Relationship>();
+            ArrayList<Relationship> relsToDelete  = new ArrayList<Relationship>();
             Iterator<Relationship> allRels = linkNode.getRelationships().iterator();
             while(allRels.hasNext()){
                 Relationship rel = allRels.next();
@@ -6527,7 +6887,7 @@ int sis_api::Delete_Unnamed_Attribute(IDENTIFIER * attribute)
             linkNode=null;
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         
@@ -6632,7 +6992,7 @@ int sis_api::Delete_Instance_Set(int from_set, IDENTIFIER * to)
         if(fromSet==null){
             return APIFail;
         }
-        Vector<Long> fromIds = fromSet.get_Neo4j_Ids();
+        ArrayList<Long> fromIds = fromSet.get_Neo4j_Ids();
         
         if(fromIds.size()==0){
             return APISucc;
@@ -6687,6 +7047,35 @@ int sis_api::Delete_Instance_Set(int from_set, IDENTIFIER * to)
      * @return 
      */
     public int CHECK_Rename_Node(Identifier node, Identifier NewNodeName){
+        CMValue nodeCmv = new CMValue();
+        CMValue NewNodeNameCmv = new CMValue();
+        
+        if(node!=null){
+            boolean getIdInsteadOfLoginam = node.getTag() == Identifier.ID_TYPE_SYSID;            
+            nodeCmv.assign_node(getIdInsteadOfLoginam ?  "" : node.getLogicalName(), getIdInsteadOfLoginam ? node.getSysid(): -1,"",TMSAPIClass.Do_Not_Assign_ReferenceId);                    
+        }        
+        
+        boolean getNewNodeIdInsteadOfLoginam = NewNodeName.getTag() == Identifier.ID_TYPE_SYSID;            
+        NewNodeNameCmv.assign_node(getNewNodeIdInsteadOfLoginam? "" : NewNodeName.getLogicalName(), getNewNodeIdInsteadOfLoginam ? NewNodeName.getSysid() : -1,"",TMSAPIClass.Do_Not_Assign_ReferenceId);                    
+        
+        
+        return CHECK_Rename_NodeCMValue(nodeCmv,NewNodeNameCmv);
+    }
+    
+    /**
+     * Change the name of a node along with its transliteration if any contained in the CMValue parameters. 
+     * 
+     * The current node is specified by CMValue "node"
+     * and the new CMValue for the node by "NewNodeName"
+     * (containing new Logical name and/or transliteration). 
+     * 
+     * It fails if a node with the given CMValue node does not exist 
+     * or a node with the given IDENTIFIER NewNodeName already exists.
+     * @param node
+     * @param NewNodeName
+     * @return 
+     */
+    public int CHECK_Rename_NodeCMValue(CMValue node, CMValue NewNodeName){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
 //  Rename_Node :
@@ -6754,11 +7143,12 @@ int sis_api::Rename_Node(IDENTIFIER * node, IDENTIFIER * NewNodeName)
             return APIFail;                    
         }
         
-        if(node==null || NewNodeName == null || NewNodeName.tag!= Identifier.ID_TYPE_LOGINAM){
+        //if(node==null || NewNodeName == null || NewNodeName.tag!= Identifier.ID_TYPE_LOGINAM){
+        if(node==null || NewNodeName == null || NewNodeName.getSysid()>0){
             return APIFail;
         }
         
-        if(NewNodeName.getLogicalName() ==null || NewNodeName.getLogicalName().length()==0){
+        if(NewNodeName.getString()==null || NewNodeName.getString().length()==0){
             return APIFail;
         }
         
@@ -6767,7 +7157,7 @@ int sis_api::Rename_Node(IDENTIFIER * node, IDENTIFIER * NewNodeName)
         //check that New Name does not exist
         
         //check Newname is ok
-        if(api_sem_check.newNodeNameIsOk(NewNodeName.getLogicalName())==false){
+        if(api_sem_check.newNodeNameIsOk(NewNodeName.getString())==false){
             return APIFail;
         }
         
@@ -6779,7 +7169,7 @@ int sis_api::Rename_Node(IDENTIFIER * node, IDENTIFIER * NewNodeName)
         }
         
         //check that New Name does not exist ( GetSYSID still throws an exception if not found by getClassId)
-        long iNewNodeNameL = db.getClassId(NewNodeName.getLogicalName());        
+        long iNewNodeNameL = db.getClassId(NewNodeName.getString());        
         if(iNewNodeNameL>0){
             return APIFail;
         }
@@ -6790,11 +7180,14 @@ int sis_api::Rename_Node(IDENTIFIER * node, IDENTIFIER * NewNodeName)
             if(n==null){
                 return APIFail;
             }
+            n.setProperty(Configs.Neo4j_Key_For_Logicalname, NewNodeName.getString());
+            if(NewNodeName.getTransliterationString()!=null && NewNodeName.getTransliterationString().length()>0){
+                n.setProperty(Configs.Neo4j_Key_For_Transliteration, NewNodeName.getTransliterationString());
+            }
             
-            n.setProperty(db.Neo4j_Key_For_Logicalname, NewNodeName.getLogicalName());
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         return APISucc;
@@ -6956,17 +7349,17 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             //check if from -> attribute combination exists
             Iterator<Relationship> fromNodeRelIter = fromNode.getRelationships(Configs.Rels.RELATION, Direction.OUTGOING).iterator();
             while(fromNodeRelIter.hasNext()){
-                String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(db.Neo4j_Key_For_Logicalname);
+                String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(Configs.Neo4j_Key_For_Logicalname);
                 if(attrLoginam.equals(NewName.getLogicalName())){
                     return APIFail;
                 }
             }
 
         
-            targetLinkNode.setProperty(db.Neo4j_Key_For_Logicalname, NewName.getLogicalName());
+            targetLinkNode.setProperty(Configs.Neo4j_Key_For_Logicalname, NewName.getLogicalName());
         }
         catch(Exception ex){
-            db.handleException(ex);
+            utils.handleException(ex);
             return APIFail;
         }
         return APISucc;
@@ -7001,7 +7394,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         }
         insideQuery = true;
         //throw new UnsupportedOperationException();
-        CurrentNode_Ids_Stack = new Vector<Long>();
+        CurrentNode_Ids_Stack = new ArrayList<Long>();
         this.tmp_sets = new Sets_Class();
         return QClass.APISucc;
         /*TEST begin Query code
@@ -7012,7 +7405,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             }
             return QClass.APIFail;
         }
-        CurrentNode_Ids_Stack = new Vector<Long>();
+        CurrentNode_Ids_Stack = new ArrayList<Long>();
         this.tmp_sets = new Sets_Class();
         return QClass.APISucc;
         //public native int begin_query(int sessionID);
@@ -7072,7 +7465,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             bugfix();
             insideTransaction = false;
         }
-        CurrentNode_Ids_Stack = new Vector<Long>();
+        CurrentNode_Ids_Stack = new ArrayList<Long>();
         this.tmp_sets = new Sets_Class();
         return QClass.APISucc;
         /*
@@ -7120,7 +7513,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             tx = db.graphDb.beginTx();
         }
         beganTransaction = java.util.Calendar.getInstance().getTime().toString()+": begin_transaction ";
-        CurrentNode_Ids_Stack = new Vector<Long>();
+        CurrentNode_Ids_Stack = new ArrayList<Long>();
         this.tmp_sets = new Sets_Class();
         return APISucc;
         
@@ -7396,7 +7789,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
      * @param retVals
      * @return 
      */
-    public int bulk_return_full_link(int set_id, Vector<Return_Full_Link_Row> retVals){
+    public int bulk_return_full_link(int set_id, ArrayList<Return_Full_Link_Row> retVals){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         
@@ -7409,7 +7802,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -7429,7 +7822,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
      * @param retVals
      * @return 
      */
-    public int bulk_return_full_link_id(int set_id, Vector<Return_Full_Link_Id_Row> retVals){
+    public int bulk_return_full_link_id(int set_id, ArrayList<Return_Full_Link_Id_Row> retVals){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         
@@ -7442,7 +7835,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -7462,7 +7855,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
      * @param retVals
      * @return 
      */
-    public int bulk_return_isA(int set_id, Vector<Return_Isa_Row> retVals){
+    public int bulk_return_isA(int set_id, ArrayList<Return_Isa_Row> retVals){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         
@@ -7475,7 +7868,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         if(requestedSet==null){
             return APIFail;
         }
-        Vector<Long> setIds = requestedSet.get_Neo4j_Ids();
+        ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
         
@@ -7718,7 +8111,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
                 return APIFail;    // there is no current node set
             }
             
-            setptr.set_putNeo4j_Id(CurrentNode_Ids_Stack.lastElement());
+            setptr.set_putNeo4j_Id((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);
         }
         else{
             setptr.set_copy(tmp_sets.return_set(set_id));
@@ -8003,7 +8396,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
                 tmp_sets.free_set(new_set_id);
                 return APIFail;       // there is no current node set
             }
-            setptr.set_putNeo4j_Id(CurrentNode_Ids_Stack.lastElement());
+            setptr.set_putNeo4j_Id((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);
         }
         else{
             
@@ -8173,7 +8566,76 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         return APISucc;
     }
     
-    //get_matched_ToneAndCaseInsensitive
+    /**
+     * Finds all nodes that contain a Transliteration property that contains or is 
+     * an exact match of the search val depending on the boolean parameter "exactTransliterationMatchInsteadOfContains".
+     * Unlike Logical name property, Transliteration property is not unique.
+     * 
+     * @param set_target
+     * @param searchVal
+     * @param exactTransliterationMatchInsteadOfContains
+     * @return 
+     */
+    public int get_matched_OnTransliteration(int set_target, String searchVal, boolean exactTransliterationMatchInsteadOfContains) {
+        int  ret;
+        PQI_Set setptr = new PQI_Set();
+        
+        if(!check_files("get_matched_OnTransliteration")){
+            return APIFail;
+        }
+        
+        
+        
+        int new_set_id = this.set_get_new();
+        PQI_Set writeset=tmp_sets.return_set(new_set_id);
+        if(writeset==null){
+            free_set(new_set_id);
+            return APIFail;
+        }
+        
+        if(set_target==0){
+            if (no_current_node("get_matched")) {
+                tmp_sets.free_set(new_set_id);
+                return APIFail;       // there is no current node set
+            }
+            setptr.set_putNeo4j_Id((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);
+        }
+        else{
+            
+            setptr = tmp_sets.return_set(set_target);
+            if(setptr == null){
+                tmp_sets.free_set(new_set_id);
+                return APIFail;
+            }
+
+        }
+        
+        //writes directly to writeset since any exception occurs 
+        //only before the first writing to writeset
+        ret = db.getMatchedOnTransliteration(setptr.get_Neo4j_Ids(), searchVal, exactTransliterationMatchInsteadOfContains, writeset);
+        
+        //ON_ERROR_RETURN(ret,new_set_id);  // free new_set_id and return -1
+        if ((globalError.flag()==APIFail) || (ret == APIFail))  {
+            globalError.reset();
+            tmp_sets.free_set(new_set_id);
+            return APIFail;
+        }
+        
+        return new_set_id;    
+    }
+    
+    /**
+     * Calls the SIS-API get_matched() with a set of ALL Tone and Case insensitive comparisons of searchVal.
+     * The set of different tone variations is currently supporting only modern greek.
+     * get_matched_OnTransliteration function should be used instead wherever possible
+     * (since transliteration property is not defined in every node)
+     * 
+     * 
+     * @param set_target
+     * @param searchVal
+     * @param SEARCH_MODE_CASE_TONE_INSENSITIVE
+     * @return 
+     */
     public int get_matched_ToneAndCaseInsensitive(int set_target, String searchVal, boolean SEARCH_MODE_CASE_TONE_INSENSITIVE) {
         //USED IN WEBTMS API ONLY
         /*
@@ -8196,18 +8658,18 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         /*    
     public int get_matched_ToneAndCaseInsensitive(int sisSessionId, int set_target, String searchVal, boolean SEARCH_MODE_CASE_TONE_INSENSITIVE) {
         UtilitiesString US = new UtilitiesString();
-        Vector<String> InputValuesVector = new Vector();
+        ArrayList<String> InputValuesArrayList = new ArrayList();
         if (SEARCH_MODE_CASE_TONE_INSENSITIVE) {
-            InputValuesVector = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal);
+            InputValuesArrayList = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal);
         }
         else {
-            InputValuesVector.add(searchVal);
+            InputValuesArrayList.add(searchVal);
         }
         int ptrn_set = Q.set_get_new();
-        int InputValuesSize = InputValuesVector.size();
+        int InputValuesSize = InputValuesArrayList.size();
         for (int i = 0; i < InputValuesSize; i++) {
             CMValue prm_val = new CMValue();
-            prm_val.assign_string(InputValuesVector.get(i));
+            prm_val.assign_string(InputValuesArrayList.get(i));
             Q.set_put_prm( ptrn_set, prm_val);            
         }
 
@@ -8221,18 +8683,18 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         */
         
         UtilitiesString US = new UtilitiesString();
-        Vector<String> InputValuesVector = new Vector<String>();
+        ArrayList<String> InputValuesArrayList = new ArrayList<String>();
         if (SEARCH_MODE_CASE_TONE_INSENSITIVE) {
-            InputValuesVector = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal);
+            InputValuesArrayList = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal,false);
         }
         else {
-            InputValuesVector.add(searchVal);
+            InputValuesArrayList.add(searchVal);
         }
         int ptrn_set = set_get_new();
-        int InputValuesSize = InputValuesVector.size();
+        int InputValuesSize = InputValuesArrayList.size();
         for (int i = 0; i < InputValuesSize; i++) {
             CMValue prm_val = new CMValue();
-            prm_val.assign_string(InputValuesVector.get(i));
+            prm_val.assign_string(InputValuesArrayList.get(i));
             set_put_prm( ptrn_set, prm_val);            
         }
 
@@ -8244,6 +8706,47 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         return set_results;
     }
     
+    /**
+     * Calls the SIS-API get_matched() with a set of ALL Case insensitive comparisons of searchVal.
+     * 
+     * @param set_target
+     * @param searchVal
+     * @param SEARCH_MODE_CASE_INSENSITIVE
+     * @return 
+     */
+    public int get_matched_CaseInsensitive(int set_target, String searchVal, boolean SEARCH_MODE_CASE_INSENSITIVE) {
+       
+        UtilitiesString US = new UtilitiesString();
+        ArrayList<String> InputValuesArrayList = new ArrayList<>();
+        if (SEARCH_MODE_CASE_INSENSITIVE) {
+            InputValuesArrayList = US.GetToneAndCaseInsensitiveComparisonsOfPattern(searchVal,true);
+        }
+        else {
+            InputValuesArrayList.add(searchVal);
+        }
+        int ptrn_set = set_get_new();
+        int InputValuesSize = InputValuesArrayList.size();
+        for (int i = 0; i < InputValuesSize; i++) {
+            CMValue prm_val = new CMValue();
+            prm_val.assign_string(InputValuesArrayList.get(i));
+            set_put_prm( ptrn_set, prm_val);            
+        }
+
+        reset_set(set_target);
+        reset_set(ptrn_set);
+        int set_results = get_matched(set_target, ptrn_set);
+        free_set(ptrn_set);
+        reset_set(set_results);
+        return set_results;
+    }
+    
+    /**
+     * Function responding the question if the specified Neo4j Id is occupied by
+     * an unnamed link.
+     * 
+     * @param linkSystemId
+     * @return 
+     */
     public boolean CHECK_isUnNamedLink(long linkSystemId){
         
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
@@ -8293,10 +8796,102 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             return true;
         }
         
-        String lname = (String) n.getProperty(db.Neo4j_Key_For_Logicalname);
+        String lname = (String) n.getProperty(Configs.Neo4j_Key_For_Logicalname);
         if(lname.matches(Configs.regExForUnNamed)){
             return true;
         }
         return false;
+    }
+    
+    public int resetCounter_For_Neo4jId(){
+        
+        return db.resetCounter_For_Neo4jId();
+    }
+    
+    public int resetCounter_For_ThesarusReferenceId(String thesaurusName, long resetToSpecifiedValue){
+        
+        return db.resetCounter_For_ThesaurusReferenceId(thesaurusName,resetToSpecifiedValue);
+    }
+    
+    /**
+     * Included this Function in order to consistently create the expected indexes and constraints.
+     * 
+     * @param graphDb
+     * @return 
+     */
+    public boolean createDatabaseIndexesAndConstraints(GraphDatabaseService graphDb){
+        
+        try(Transaction tx =  graphDb.beginTx()){
+            String query = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_Logicalname+") ";
+        
+            Result res = graphDb.execute(query);
+
+            if (res == null) {
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Indexes Failed.");
+                return false;
+            }
+            res.close();
+            res = null;
+
+
+
+            String query2 = "CREATE CONSTRAINT ON (n:"+Configs.CommonLabelName+") ASSERT n."+Configs.Neo4j_Key_For_Neo4j_Id+" IS UNIQUE ";
+
+            Result res2 = graphDb.execute(query2);
+
+            if (res2 == null) {
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation Constraints Failed.");
+                return false;
+            }
+            res2.close();
+            res2=null;
+
+
+            //String query3 = "CREATE INDEX ON :"+Configs.Neo4j_Key_For_Type_IndividualStr+"("+Configs.Neo4j_Key_For_ThesaurusReferenceId+") ";
+            String query3 = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_ThesaurusReferenceId+") ";
+
+            Result res3 = graphDb.execute(query3);
+
+            if (res3 == null) {
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Index on: "+ Configs.Neo4j_Key_For_ThesaurusReferenceId +" Failed.");
+                return false;
+            }
+            res3.close();
+            res3 = null;
+
+
+
+            //String query4 = "CREATE INDEX ON :"+Configs.Neo4j_Key_For_Type_IndividualStr+"("+Configs.Neo4j_Key_For_Transliteration+") ";
+            String query4 = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_Transliteration+") ";
+
+            Result res4 = graphDb.execute(query4);
+
+            if (res4 == null) {
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Index on: "+ Configs.Neo4j_Key_For_Transliteration +" Failed.");
+                return false;
+            }
+            res4.close();
+            res4 = null;
+
+
+
+            Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "\nFinished Creation of Indexes and Constraints.\n");
+            tx.success();            
+        }
+        return true;
+    }
+    
+    /**
+     * Function used in order to find out if thesaurus reference Id is 
+     * already assigned to the specified thesaurus. 
+     * 
+     * Useful in bulk data import where errors may be included.
+     * 
+     * @param selectedTehsarus
+     * @param referenceId
+     * @return 
+     */
+    public boolean IsThesaurusReferenceIdAssigned(String selectedTehsarus, long referenceId){
+        return db.IsThesaurusReferenceIdAssigned(selectedTehsarus, referenceId);
     }
 }

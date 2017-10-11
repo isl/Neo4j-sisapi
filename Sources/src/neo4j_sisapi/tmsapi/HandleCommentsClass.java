@@ -33,7 +33,7 @@
  */
 package neo4j_sisapi.tmsapi;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import neo4j_sisapi.CMValue;
@@ -78,7 +78,7 @@ class HandleCommentsClass {
      */
     // </editor-fold>
     //QClass Q;
-    Vector<Vector<StringObject>> Comments;
+    ArrayList<ArrayList<StringObject>> Comments;
     IntegerObject[] numOfComments;
     int numOfCommentlinks;
     StringObject comments;  // = new char[TMSAPIClass.MAX_COM_LEN]; //in constructor
@@ -270,6 +270,7 @@ class HandleCommentsClass {
                 for (j = 0  ;  j < numOfComments[i].getValue(); j++) {
                     //Comments[i][j].getValue(); // == comment i part j of Target 
                     String commentPart = Comments.get(i).get(j).getValue();
+                    
                     if (AddComment(comments, commentPart, null)==0) {
                         comments_size = comments.getValue().length() + 1; // is + 1 now necessary??? \0
                         return;
@@ -583,8 +584,11 @@ class HandleCommentsClass {
         CMValue cmv2 = new CMValue();
 
         Q.reset_set(commSet.getValue());
-        Comments = new Vector<Vector<StringObject>>();
-        Comments.setSize(numOfCommentlinks);
+        Comments = new ArrayList<ArrayList<StringObject>>();
+        for(int i=0; i< numOfCommentlinks; i++){
+                Comments.add(new ArrayList<StringObject>());
+            }
+        //Comments.setSize(numOfCommentlinks);
         //Comments = new StringObject[numOfCommentlinks][numOfCommentParts];
         //Comments = (char ***) calloc(numOfCommentlinks, sizeof(char **));
         //if (Comments == (char ***) 0) {
@@ -605,25 +609,28 @@ class HandleCommentsClass {
         }
 
         comLinksIndex = 0;
-        Vector<String> collectNodes = new Vector<String>();
+        ArrayList<String> collectNodes = new ArrayList<String>();
         while (Q.return_link(commSet.getValue(), cls, linkLabel, cmv) != -1) {
             // for each comment link
             collectNodes.add(cmv.getString());
         }
         
-        for(int i = 0; i<collectNodes.size();i++ ){
+        for(String collectNode : collectNodes){
             
             Q.reset_name_scope();
-            long isdL = Q.set_current_node(new StringObject(collectNodes.get(i)));
+            Q.set_current_node(new StringObject(collectNode));
             commParts = Q.get_link_from_by_category(0, new StringObject(HYPERTEXT), new StringObject(PLAINTEXT));
             if ((numOfCommentParts = Q.set_get_card(commParts)) <= 0) {
                 Q.free_set(commParts);
                 continue; // no comment parts for current comment link
             }
 
-            Vector<StringObject> temp = new Vector<StringObject>();
-            temp.setSize(numOfCommentParts);
-            Comments.setElementAt(temp,comLinksIndex);// = new Vector<StringObject>();
+            ArrayList<StringObject> temp = new ArrayList<>();
+            for(int i=0; i< numOfCommentParts; i++){
+                temp.add(new StringObject(""));
+            }
+            //temp.setSize(numOfCommentParts);
+            Comments.set(comLinksIndex, temp);// = new ArrayList<StringObject>();
             //Comments[comLinksIndex] = (char **) calloc(numOfCommentParts, sizeof(char *)); //Both Comment's array dimensions initialized above
             if (Comments.get(comLinksIndex) == null) {
                 //fprintf(stderr, "No space available for creation of comments.\n");
@@ -645,15 +652,15 @@ class HandleCommentsClass {
                 } else {//link has label
                     if ((comPartsIndex = CheckLabel(partLabel.getValue(), numOfCommentParts)) == -1) {
                         //fprintf(stderr, "The link of %s with category plainText, has wrong label: %s.\nIt should be >=1 and <=%d. Take into account \n that labels in comments is a feature not a bug", cmv.value.s, partLabel, numOfCommentParts);
-                        System.err.println("The link of " + collectNodes.get(i)+ " with category plainText, has wrong label: " + partLabel.getValue() + ".\nIt should be >=1 and <=" + numOfCommentParts + ". Take into account \n that labels in comments is a feature not a bug" );
+                        System.err.println("The link of " + collectNode+ " with category plainText, has wrong label: " + partLabel.getValue() + ".\nIt should be >=1 and <=" + numOfCommentParts + ". Take into account \n that labels in comments is a feature not a bug" );
                         //Comments[comLinksIndex] = (char **) 0;
-                        Comments.setElementAt(null, comLinksIndex);
+                        Comments.set(comLinksIndex,null);
                         numOfCommentParts = 0;
                         Q.free_set(commParts);
                         return (-1);
                     }
                 }
-                Comments.get(comLinksIndex).setElementAt(new StringObject(cmv2.getString()), comPartsIndex);
+                Comments.get(comLinksIndex).set(comPartsIndex, new StringObject(cmv2.getString()));
             }
             numOfComments[comLinksIndex] = new IntegerObject(numOfCommentParts);
             Q.free_set(commParts);

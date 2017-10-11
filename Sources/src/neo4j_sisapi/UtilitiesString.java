@@ -33,8 +33,47 @@
  */
 package neo4j_sisapi;
 
-import java.util.Vector;
+import java.util.ArrayList;
+/*
+MATCH(n:Common:Token)-[:INSTANCEOF*1..]->(m:Common{Logicalname:"AATDEMODescriptor"}) 
+return n.Logicalname, replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(lower(n.Logicalname),'ά','α'),'έ','ε'),'ή','η'),'ί','ι'),'ό','ο'),'ύ','υ'),'ώ','ω'),'ϊ','ι'),'ΐ','ι'),'ϋ','υ'),'ΰ','υ') as str 
+order by str 
+SKIP 100 
+LIMIT 500
 
+Get Links to 
+
+MATCH(n:Common:Token)-[:INSTANCEOF*1..]->(m:Common{Logicalname:"ALLMERGEDDescriptor"}) 
+with  n as starting, replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(lower(n.Logicalname),'ά','α'),'έ','ε'),'ή','η'),'ί','ι'),'ό','ο'),'ύ','υ'),'ώ','ω'),'ϊ','ι'),'ΐ','ι'),'ϋ','υ'),'ΰ','υ') as str 
+order by str
+SKIP 1299
+LIMIT 50
+MATCH (starting)<-[r:RELATION]-(m)<-[:RELATION]-(to)
+WITH m as link, starting.Neo4j_Id as startingNeo4jId, starting.Logicalname as startingLogName,CASE has(m.Type) WHEN TRUE THEN null ELSE to.Neo4j_Id END as toId, CASE has(m.Type) WHEN TRUE THEN null ELSE to.Logicalname END as toName, to:Type_Attribute as toIsAttribute,CASE startNode(r) WHEN starting then 'Outgoing' ELSE 'Incoming' END as Direction 
+MATCH (link)-[:INSTANCEOF]->(categ)<-[:RELATION]-(fromCls)
+return startingNeo4jId, startingLogName, 
+       link.Neo4j_Id, link.Logicalname,link.Type ,link.Value, 
+	   fromCls.Neo4j_Id, fromCls.Logicalname, categ.Neo4j_Id, categ.Logicalname, 
+	   toId, toName, toIsAttribute, Direction
+
+
+get Links from
+
+MATCH(n:Common:Token)-[:INSTANCEOF*1..]->(m:Common{Logicalname:"ALLMERGEDDescriptor"}) 
+with  n as starting, replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(lower(n.Logicalname),'ά','α'),'έ','ε'),'ή','η'),'ί','ι'),'ό','ο'),'ύ','υ'),'ώ','ω'),'ϊ','ι'),'ΐ','ι'),'ϋ','υ'),'ΰ','υ') as str 
+order by str
+SKIP 1299
+LIMIT 50
+MATCH (starting)-[r:RELATION]->(m)-[:RELATION*0..1]->to)
+WHERE has(m.Type) OR to.Neo4j_Id <> m.Neo4j_Id
+WITH m as link, starting.Neo4j_Id as startingNeo4jId, starting.Logicalname as startingLogName,CASE has(m.Type) WHEN TRUE THEN null ELSE to.Neo4j_Id END as toId, CASE has(m.Type) WHEN TRUE THEN null ELSE to.Logicalname END as toName, to:Type_Attribute as toIsAttribute,CASE startNode(r) WHEN starting then 'Outgoing' ELSE 'Incoming' END as Direction 
+MATCH (link)-[:INSTANCEOF]->(categ)<-[:RELATION]-(fromCls)
+return startingNeo4jId, startingLogName, 
+       link.Neo4j_Id, link.Logicalname,link.Type ,link.Value, 
+	   fromCls.Neo4j_Id, fromCls.Logicalname, categ.Neo4j_Id, categ.Logicalname, 
+	   toId, toName, toIsAttribute, Direction
+
+*/
 /**
  *
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
@@ -52,37 +91,43 @@ class UtilitiesString {
     /*-----------------------------------------------------------------
             GetToneAndCaseInsensitiveComparisonsOfPattern()
     -----------------------------------------------------------------*/    
-    Vector<String> GetToneAndCaseInsensitiveComparisonsOfPattern(String pattern) {
+    ArrayList<String> GetToneAndCaseInsensitiveComparisonsOfPattern(String pattern,boolean skipTones) {
         //Logger.getLogger(UtilitiesString.class.getName()).log(Level.INFO, Parameters.LogFilePrefix+"GetToneAndCaseInsensitiveComparisonsOfPattern(" + pattern + ")");
         //Logger.getLogger(UtilitiesString.class.getName()).log(Level.INFO, Parameters.LogFilePrefix+"--------------------------------------------");        
         String patternAllLower = pattern.toLowerCase();
         String patternAllCaps = pattern.toUpperCase();
         String patternFirstCharacterOfEachWordCapital = GetPatternWithFirstCharacterOfEachWordCapital(pattern);
     
-        // fill a Vector with: the original pattern, 
+        // fill a ArrayList with: the original pattern, 
         // the pattern with all characters to lowercase and the pattern with all characters to uppercase
-        Vector<String> patternsVector = new Vector<String>();
-        patternsVector.add(pattern);
-        if (patternsVector.contains(patternAllLower) == false) {
-            patternsVector.add(patternAllLower);
+        ArrayList<String> patternsArrayList = new ArrayList<String>();
+        patternsArrayList.add(pattern);
+        if (patternsArrayList.contains(patternAllLower) == false) {
+            patternsArrayList.add(patternAllLower);
         }
-        if (patternsVector.contains(patternAllCaps) == false) {
-            patternsVector.add(patternAllCaps);
+        if (patternsArrayList.contains(patternAllCaps) == false) {
+            patternsArrayList.add(patternAllCaps);
         }
-        if (patternsVector.contains(patternFirstCharacterOfEachWordCapital) == false) {
-            patternsVector.add(patternFirstCharacterOfEachWordCapital);
+        if (patternsArrayList.contains(patternFirstCharacterOfEachWordCapital) == false) {
+            patternsArrayList.add(patternFirstCharacterOfEachWordCapital);
         }        
-        // get their tone comparisons
-        Vector<String> ToneAndCaseInsensitiveComparisons = new Vector<String>();
-        for(int i =0; i< patternsVector.size(); i++) {
-            Vector<String> patternToneComparisons = new Vector<String>();
-            patternToneComparisons = GetToneComparisonsOfPattern(patternsVector.get(i));
-            for(int j =0; j< patternToneComparisons.size(); j++) {
-                ToneAndCaseInsensitiveComparisons.add(patternToneComparisons.get(j));
+        
+        ArrayList<String> ToneAndCaseInsensitiveComparisons = new ArrayList<>();
+        // get their tone comparisons                    
+        for(String str : patternsArrayList) {
+            if(skipTones){
+                ToneAndCaseInsensitiveComparisons.add(str);
+            }
+            else{
+                ArrayList<String> patternToneComparisons = GetToneComparisonsOfPattern(str);
+                patternToneComparisons.forEach((val) -> {
+                    ToneAndCaseInsensitiveComparisons.add(val);
+                });
             }
         }  
+        
         // in case of blank pattern
-        if (ToneAndCaseInsensitiveComparisons.size() == 0) {
+        if (ToneAndCaseInsensitiveComparisons.isEmpty()) {
             ToneAndCaseInsensitiveComparisons.add("");
         }
         // test
@@ -100,26 +145,26 @@ class UtilitiesString {
     String GetPatternWithFirstCharacterOfEachWordCapital(String pattern) {
         // get the words of the pattern
         String[] words = pattern.split(" ");
-        Vector<String> wordsVector = new Vector<String>();
+        ArrayList<String> wordsArrayList = new ArrayList<String>();
         for(int i =0; i< words.length; i++) {
             if (words[i].equals("") == false) {
-                wordsVector.add(words[i]);
+                wordsArrayList.add(words[i]);
             }
         }        
-        for(int i =0; i< wordsVector.size(); i++) {        
-            String word = wordsVector.get(i);
+        for(int i =0; i< wordsArrayList.size(); i++) {        
+            String word = wordsArrayList.get(i);
             String wordFirstCharacterCap = "";
             if (word.length() > 1) {
                 wordFirstCharacterCap = word.substring(0, 1).toUpperCase() + word.substring(1, word.length());
             }  
-            wordsVector.set(i, wordFirstCharacterCap);
+            wordsArrayList.set(i, wordFirstCharacterCap);
         }
         String patternFirstCharacterCap = "";
-        for(int i =0; i< wordsVector.size(); i++) {        
+        for(int i =0; i< wordsArrayList.size(); i++) {        
             if (i > 0) { // initial blank character for all words except the 1st one
                 patternFirstCharacterCap += " ";
             }
-            patternFirstCharacterCap += wordsVector.get(i);
+            patternFirstCharacterCap += wordsArrayList.get(i);
         }
         
         return patternFirstCharacterCap;
@@ -128,24 +173,24 @@ class UtilitiesString {
     /*-----------------------------------------------------------------
                         GetToneComparisonsOfPattern()
     -----------------------------------------------------------------*/    
-    Vector<String> GetToneComparisonsOfPattern(String pattern) {
+    ArrayList<String> GetToneComparisonsOfPattern(String pattern) {
         //Logger.getLogger(UtilitiesString.class.getName()).log(Level.INFO, Parameters.LogFilePrefix+"GetToneComparisonsOfPattern(" + pattern + ")");
         //Logger.getLogger(UtilitiesString.class.getName()).log(Level.INFO, Parameters.LogFilePrefix+"--------------------------------------------");
         
         // get the words of the pattern
         String[] words = pattern.split(" ");
-        Vector<String> wordsVector = new Vector<String>();
+        ArrayList<String> wordsArrayList = new ArrayList<String>();
         for(int i =0; i< words.length; i++) {
             if (words[i].equals("") == false) {
-                wordsVector.add(words[i]);
+                wordsArrayList.add(words[i]);
             }
         }
-        Vector<String> patternToneComparisons = new Vector<String>();
+        ArrayList<String> patternToneComparisons = new ArrayList<String>();
         // for each word of the pattern
-        int wordsVectorSize = wordsVector.size();
-        for(int i =0; i< wordsVectorSize; i++) {
-            String word = wordsVector.get(i);
-            Vector<String> wordToneComparisons = new Vector<String>();
+        int wordsArrayListSize = wordsArrayList.size();
+        for(int i =0; i< wordsArrayListSize; i++) {
+            String word = wordsArrayList.get(i);
+            ArrayList<String> wordToneComparisons = new ArrayList<String>();
             wordToneComparisons = GetToneComparisonsOfWord(word);
             int wordToneComparisonsSize = wordToneComparisons.size();
             if (i == 0) {
@@ -154,7 +199,7 @@ class UtilitiesString {
                 }
             }
             else {
-                Vector<String> newPatternToneComparisons = new Vector<String>();
+                ArrayList<String> newPatternToneComparisons = new ArrayList<String>();
                 for(int k =0; k < patternToneComparisons.size(); k++) {
                     String currentPattern = patternToneComparisons.get(k);
                     for(int j = 0; j < wordToneComparisonsSize; j++) {
@@ -183,7 +228,7 @@ class UtilitiesString {
     /*-----------------------------------------------------------------
                         GetToneComparisonsOfWord()
     -----------------------------------------------------------------*/    
-    private Vector<String> GetToneComparisonsOfWord(String word) {
+    private ArrayList<String> GetToneComparisonsOfWord(String word) {
         //Logger.getLogger(UtilitiesString.class.getName()).log(Level.INFO, Parameters.LogFilePrefix+"GetToneComparisonsOfWord(" + word + ")");
         //Logger.getLogger(UtilitiesString.class.getName()).log(Level.INFO, Parameters.LogFilePrefix+"--------------------------------------------");
         char wordCharArray[] = word.toCharArray();
@@ -204,9 +249,9 @@ class UtilitiesString {
         // mazepse ta fwnhenta ths lekshs, ta indexes toys kai ta antistoixa tonoymena fwnhenta
         wordCharArray = word.toCharArray();
         wordLen = wordCharArray.length;
-        Vector wordFwnhenta = new Vector();
-        Vector wordFwnhentaIndexes = new Vector();
-        Vector wordTonoymenaFwnhenta = new Vector();
+        ArrayList wordFwnhenta = new ArrayList();
+        ArrayList wordFwnhentaIndexes = new ArrayList();
+        ArrayList wordTonoymenaFwnhenta = new ArrayList();
         int FWNHENTALen = FWNHENTA.length;
         for(int i =0; i< wordLen; i++) {
             char wordChar = wordCharArray[i];
@@ -225,7 +270,7 @@ class UtilitiesString {
         }
          */
         // ftiakse toys syndyasmoys twn leksewn
-        Vector<String> wordToneComparisons = new Vector<String>();
+        ArrayList<String> wordToneComparisons = new ArrayList<String>();
         // bale to ATONO word
         wordToneComparisons.add(word);
         // bale toys syndyasmoys toy word me tonoys

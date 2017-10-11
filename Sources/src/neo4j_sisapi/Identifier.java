@@ -39,8 +39,7 @@ package neo4j_sisapi;
  */
 public class Identifier {
     public final static int ID_TYPE_UNDEFINED = 0;
-    public final static int ID_TYPE_SYSID = 1;
-    
+    public final static int ID_TYPE_SYSID = 1;    
     public final static int ID_TYPE_LOGINAM = 2;
     
 
@@ -49,23 +48,22 @@ public class Identifier {
 
     public Identifier()
     {
-      super();
       this.tag = 0;
       this.value = new String("");
     }
 
     public Identifier(long id)
     {
-      super();
+      this();
       this.tag = ID_TYPE_SYSID;
       this.value = new Long(id);
     }
 
     public Identifier(String str)
     {
-      super();
-      this.tag = ID_TYPE_LOGINAM;
-      this.value = new String(str);
+        this();
+        this.tag = ID_TYPE_LOGINAM;
+        this.value = new String(str);
     }
 
     public int getTag() {
@@ -77,7 +75,7 @@ public class Identifier {
     }
 
     public long getSysid() {
-      return ((Long) value).intValue();
+      return ((Long) value);
     }
 
     public void setTag(int t) {

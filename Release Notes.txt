@@ -24,6 +24,27 @@ Authors: Elias Tzortzakakis <tzortzak@ics.forth.gr>
 
 This file is part of the Neo4j-sisapi project.
 
+Neo4j-sis-api 1.2
+=============================================================================
+- Update to Java 8 / Neo4j 3.2.5 / Neo4j-sisapi 1.2 
+
+- 2 new Properties "Transliteration" and "ThesaurusReferenceId" were added to Facets/TopTerms/Terms 
+  Each thesaurus reference Id is unique per thesaurus and is stored and maintened as a property
+  in the node with Logicalname the prefixed name of the Thesaurus (e.g. Thesaurus`THESNAME)
+
+- Changes / additions built in order to support management of these 2 extra properties:
+	- findLogicalNameByThesaurusReferenceId
+	- set_current_node_and_retrieve_Cmv (where cmv has been augmented in order to include the 
+	                                     thesaurus Reference Id and the transliteration)
+	- resetCounter_For_ThesarusReferenceId
+	- Included checking if thesaurus reference id is already assgined to other concept
+	- get_matched_OnTransliteration (exact match or contains)
+	- Included these property in TMSApi functions for creation/rename of term/hierarchy/Facet 
+
+- Other changes include:
+  - Moved to the api the functionality about creating database Indexes and constraints
+  - started mechanism with error codes instead of direct hard coded messages (args is an issue)
+
 
 Neo4j-sis-api
 =============================================================================

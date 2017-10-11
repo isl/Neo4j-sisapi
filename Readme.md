@@ -26,12 +26,12 @@ This file is part of the Neo4j-sisapi project.
 
 ##Neo4j-sis-api
  
-"Neo4j sis api" version 1.0 is a Java Application Program 
+"Neo4j sis api" version 1.2 is a Java Application Program 
 Interface that was built in order to communicate with a 
 [Neo4j open source graph database] (http://neo4j.com/ "Neo4j") 
-(tested with version 2.2.5) configured to store and manage 
-thesauri data following the Telos language representational 
-framework specifications.
+(tested with Community Edition version 3.2.5) configured to 
+store and manage thesauri data following the Telos language 
+representational framework specifications.
 
 ## Build
 Instructions on how to compile the Neo4j-sisapi are included in file How to compile.txt

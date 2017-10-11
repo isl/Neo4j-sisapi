@@ -33,7 +33,8 @@
  */
 package neo4j_sisapi;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 /**
@@ -207,11 +208,15 @@ class SET_DYNAMIC: public SSET {
     
     */
     //</editor-fold>
-    private Vector<Long> nodesSet = new Vector<Long>();
-    //private Vector<Time> timeSet = new Vector<Time>();
-    private Vector<Integer> intSet = new Vector<Integer>();
-    private Vector<String> stringSet = new Vector<String>();
-    //private Vector<Float> floatSet = new Vector<Float>();
+    private ArrayList<Long> nodesSet = new ArrayList<>();
+    //nodesHashSet (HashSet) contains the same data as nodeSet (ArrayList)    
+    //HashSet nodesHashSet is used in contains operations O(1) vs O(n) 
+    //ArrayList nodeSet is still necessary for function get_val_by_pos(int reqestedPos) 
+    private HashSet<Long> nodesHashSet = new HashSet<>();
+    //private ArrayList<Time> timeSet = new ArrayList<Time>();
+    private ArrayList<Integer> intSet = new ArrayList<>();
+    private ArrayList<String> stringSet = new ArrayList<>();
+    //private ArrayList<Float> floatSet = new ArrayList<Float>();
     private int card_id;       // number of node ids in the set
     
     private int card_s;       // number of strings in set 
@@ -232,11 +237,11 @@ class SET_DYNAMIC: public SSET {
     
     PQI_Set(){
         
-        nodesSet = new Vector<Long>();
-        intSet = new Vector<Integer>();
-        stringSet = new Vector<String>();
-        this.set_clear();
-        
+        nodesSet = new ArrayList<>();
+        nodesHashSet = new HashSet<>();
+        intSet = new ArrayList<>();
+        stringSet = new ArrayList<>();
+        this.set_clear();        
     }
     
     //in general set_get's return 0 if empty or exhausted
@@ -308,20 +313,20 @@ class SET_DYNAMIC: public SSET {
     }
    
     //perhaps a collections.sort may be applied here
-    int set_bulk_get_prs(Vector<Return_Prm_Row> retRows){
+    int set_bulk_get_prs(ArrayList<Return_Prm_Row> retRows){
         //do not clear retRows it contains data retrieved for nodes
-        for(String str : this.stringSet){
+        this.stringSet.stream().forEach((str) -> {
             retRows.add(new Return_Prm_Row(str));
-        }
-        for(int intVal : this.intSet){
+        });
+        this.intSet.stream().forEach((intVal) -> {
             retRows.add(new Return_Prm_Row(intVal));
-        }
+        });
     
         return QClass.APISucc;
     }
     
     //clear contents of PQI_Set Structure
-    void set_clear(){
+    final void set_clear(){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
 	/*
 	void SET::set_clear()    // clear set without deallocating 
@@ -370,18 +375,15 @@ class SET_DYNAMIC: public SSET {
         //this.card_ln = 0;
         this.card_n = 0;        
         this.card_s = 0;        
-        this.nodesSet.clear();  
+        this.nodesSet.clear(); 
+        this.nodesHashSet.clear();
         this.stringSet.clear();
         this.intSet.clear();
         this.point_tg =0;
     }
     
-    Vector<Long> get_Neo4j_Ids(){
-        Vector<Long> neo4jIdList = new Vector<Long>();
-        for(Long rec : this.nodesSet){            
-            neo4jIdList.add(rec);
-        }
-        return neo4jIdList;
+    ArrayList<Long> get_Neo4j_Ids(){
+        return new ArrayList<>(nodesHashSet);
     }
     
     int set_member_of(long id){
@@ -416,7 +418,8 @@ class SET_DYNAMIC: public SSET {
      */
     boolean set_disjoint(PQI_Set set){
         
-        for(long rec: set.nodesSet){
+        /*
+        for(long rec: set.nodesHashSet){
             if(this.containsNeo4jId(rec)){
                 return false;
             }
@@ -431,7 +434,14 @@ class SET_DYNAMIC: public SSET {
                 return false;
             }
         }
-        return true;
+        */
+        if (!set.nodesHashSet.stream().noneMatch((rec) -> (this.containsNeo4jId(rec)))) {
+            return false;
+        }
+        if (!set.intSet.stream().noneMatch((rec) -> (this.containsPrimitiveInt(rec)))) {
+            return false;
+        }
+        return set.stringSet.stream().noneMatch((rec) -> (this.containsPrimitiveString(rec)));
     }
     
     boolean set_equal(PQI_Set set){
@@ -441,23 +451,30 @@ class SET_DYNAMIC: public SSET {
         }
         
         //check if set contains the same as current set
-        for(long rec: this.nodesSet){
-            if(set.containsNeo4jId(rec)==false){
-                return false;
-            }
+        /*
+        for(long rec: this.nodesHashSet){
+        if(set.containsNeo4jId(rec)==false){
+        return false;
+        }
         }
         for(int rec: this.intSet){
-            if(set.containsPrimitiveInt(rec)==false){
-                return false;
-            }
+        if(set.containsPrimitiveInt(rec)==false){
+        return false;
+        }
         }
         for(String rec: this.stringSet){
-            if(set.containsPrimitiveString(rec)==false){
-                return false;
-            }
+        if(set.containsPrimitiveString(rec)==false){
+        return false;
         }
-        
-        return true;        
+        }
+         */
+        if (!this.nodesHashSet.stream().noneMatch((rec) -> (set.containsNeo4jId(rec)==false))) {
+            return false;
+        }
+        if (!this.intSet.stream().noneMatch((rec) -> (set.containsPrimitiveInt(rec)==false))) {
+            return false;
+        }
+        return this.stringSet.stream().noneMatch((rec) -> (set.containsPrimitiveString(rec)==false));        
     }
     
     //After this operation the first set is the intersection
@@ -465,23 +482,33 @@ class SET_DYNAMIC: public SSET {
     int set_intersect(PQI_Set set){
         
         PQI_Set newSet = new PQI_Set();
-        
-        for(Long rec : set.nodesSet){
-            if(this.containsNeo4jId(rec)){
-                newSet.set_putNeo4j_Id(rec);
-            }
+        /*
+        for(Long rec : set.nodesHashSet){
+        if(this.containsNeo4jId(rec)){
+        newSet.set_putNeo4j_Id(rec);
+        }
         }
         for(int rec : set.intSet){
-            if(this.containsPrimitiveInt(rec)){
-                newSet.set_putPrimitiveInteger(rec);
-            }
+        if(this.containsPrimitiveInt(rec)){
+        newSet.set_putPrimitiveInteger(rec);
         }
-        
+        }        
         for(String rec : set.stringSet){
-            if(this.containsPrimitiveString(rec)){
-                newSet.set_putPrimitiveString(rec);
-            }
+        if(this.containsPrimitiveString(rec)){
+        newSet.set_putPrimitiveString(rec);
         }
+        }
+         */
+        set.nodesHashSet.stream().filter((rec) -> (this.containsNeo4jId(rec))).forEach((rec) -> {
+            newSet.set_putNeo4j_Id(rec);
+        });
+        set.intSet.stream().filter((rec) -> (this.containsPrimitiveInt(rec))).forEach((rec) -> {
+            newSet.set_putPrimitiveInteger(rec);
+        });
+        
+        set.stringSet.stream().filter((rec) -> (this.containsPrimitiveString(rec))).forEach((rec) -> {
+            newSet.set_putPrimitiveString(rec);
+        });
         
         this.set_clear();
         this.set_union(newSet);
@@ -658,6 +685,7 @@ int SYSID_SET::set_put(SYSID id)
         // </editor-fold>
         if(this.containsNeo4jId(id)==false){
             this.nodesSet.add(id);
+            this.nodesHashSet.add(id);
             card_id++;
             
             return QClass.APISucc;
@@ -691,45 +719,56 @@ int SYSID_SET::set_put(SYSID id)
     }
     
     int set_get_card(){
-        return (this.nodesSet.size()+this.intSet.size()+this.stringSet.size());
+        return (this.nodesHashSet.size()+this.intSet.size()+this.stringSet.size());
     }
     
     int set_union(PQI_Set set){
         if(set==null){
             return QClass.APISucc;
         }
-        for(long rec: set.nodesSet){
-            this.set_putNeo4j_Id(rec);
+        /*
+        for(long rec: set.nodesHashSet){
+        this.set_putNeo4j_Id(rec);
         }
         for(int rec: set.intSet){
-            this.set_putPrimitiveInteger(rec);
+        this.set_putPrimitiveInteger(rec);
         }
         for(String rec: set.stringSet){
-            this.set_putPrimitiveString(rec);
+        this.set_putPrimitiveString(rec);
         }
+         */
+        set.nodesHashSet.stream().forEach((rec) -> {
+            this.set_putNeo4j_Id(rec);
+        });
+        set.intSet.stream().forEach((rec) -> {
+            this.set_putPrimitiveInteger(rec);
+        });
+        set.stringSet.stream().forEach((rec) -> {
+            this.set_putPrimitiveString(rec);
+        });
         return QClass.APISucc;
     }
     
     int set_difference(PQI_Set set){
         
         PQI_Set newSet = new PQI_Set();
+        /*
+        for(Long rec : this.nodesHashSet){
+        if(set.containsNeo4jId(rec)==false){
+        newSet.set_putNeo4j_Id(rec);
+        }
+        }
+         */
+        this.nodesHashSet.stream().filter((rec) -> (set.containsNeo4jId(rec)==false)).forEach((rec) -> {
+            newSet.set_putNeo4j_Id(rec);
+        });
+        this.intSet.stream().filter((rec) -> (set.containsPrimitiveInt(rec))).forEach((rec) -> {
+            newSet.set_putPrimitiveInteger(rec);
+        });
         
-        for(Long rec : this.nodesSet){
-            if(set.containsNeo4jId(rec)==false){
-                newSet.set_putNeo4j_Id(rec);
-            }
-        }
-        for(int rec : this.intSet){
-            if(set.containsPrimitiveInt(rec)){
-                newSet.set_putPrimitiveInteger(rec);
-            }
-        }
-        
-        for(String rec : this.stringSet){
-            if(set.containsPrimitiveString(rec)){
-                newSet.set_putPrimitiveString(rec);
-            }
-        }
+        this.stringSet.stream().filter((rec) -> (set.containsPrimitiveString(rec))).forEach((rec) -> {
+            newSet.set_putPrimitiveString(rec);
+        });
         
         this.set_clear();
         this.set_union(newSet);
@@ -839,32 +878,33 @@ int SYSID_SET::set_put(SYSID id)
         
         return this.nodesSet.get(requestedPos);
     }
-
     
     boolean containsNeo4jId(long linkId){
-        for(Long id : this.nodesSet ){
-            if(id==linkId){
-                return true;
-            }
-        }        
-        return false;
+        return this.nodesHashSet.contains(linkId);
     }
     
     boolean containsPrimitiveInt(int prmInt){
+        /*
         for(int id : this.intSet ){
-            if(id==prmInt){
-                return true;
-            }
-        }        
-        return false;
+        if(id==prmInt){
+        return true;
+        }
+        }
+         */ 
+
+        return this.intSet.stream().anyMatch((id) -> (id==prmInt));
     }
     
     boolean containsPrimitiveString(String prmStr){
+        /*
         for(String s : this.stringSet ){
-            if(s.equals(prmStr)){
-                return true;
-            }
+        if(s.equals(prmStr)){
+        return true;
+        }
         }        
         return false;
+         */ 
+        return this.stringSet.stream().anyMatch((s) -> (s.equals(prmStr)));
+        
     }
 }
