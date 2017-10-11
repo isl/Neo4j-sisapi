@@ -23,6 +23,7 @@ class Utilities {
     }
     
     ArrayList<Long> collectSequenctiallyAsubsetOfValues(int startindex,int howmanyToGet, ArrayList<Long> targetVals){
+        //return new ArrayList(targetVals.subList(startindex, startindex+howmanyToGet));
         ArrayList<Long> returnVals = new ArrayList<Long>();
         if(howmanyToGet<=0){
             throw new UnsupportedOperationException("collectSequenctiallyAsubsetOfValues was called with howmanyToGet: " +howmanyToGet);

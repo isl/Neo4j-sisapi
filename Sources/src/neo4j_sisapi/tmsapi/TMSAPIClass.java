@@ -33,13 +33,14 @@
  */
 package neo4j_sisapi.tmsapi;
 
-import java.util.ArrayList;
 import neo4j_sisapi.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 /**
- *
+ * The entry point of the Thesaurus Specific tms-api
+ * that is built using sis-api.
+ * 
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
  */
 public class TMSAPIClass {

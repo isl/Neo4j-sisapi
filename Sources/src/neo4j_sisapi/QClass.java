@@ -51,17 +51,17 @@ import org.neo4j.graphdb.Transaction;
 
 
 /**
+ * The entry point of the basic sis-api
+ * <br>
+ * <b>NOTE:</b> Instead of return_xxx functions use bulk_return_xxx
+ * <br> 
  * ATTENTION!!!
  * Different behavior than expected for 
  * Telos_Object, Telos_Object->attribute, and Individual
- * 
- * <br/>
- * NOTE: Instead of return_xxx functions use bulk_return_xxx
- * <br/> 
+ *  
  * 
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
  */
-
 public class QClass {
     
     public static final int SIS_API_TOKEN_CLASS = 9;
@@ -411,6 +411,7 @@ public class QClass {
     
     /**
      * Sets message value to the last error message encountered.
+     * 
      * @param message
      * @return 
      */
@@ -443,6 +444,12 @@ public class QClass {
         return APISucc;
     }
     
+    /**
+     * Gets the error code produced - can be used for the hosting 
+     * application to decide what message to display.
+     * 
+     * @return
+     */
     public String get_error_code(){
         
         if(!check_files("get_error_code")){
@@ -526,7 +533,7 @@ public class QClass {
         ArrayList<Long> setIds = requestedSet.get_Neo4j_Ids();
         
         retVals.clear();
-        if(setIds.size()==0){
+        if(setIds.isEmpty()){
             return APISucc;
         }
         if(db.get_Bulk_Return_Prm_Nodes(setIds, retVals)==QClass.APIFail){
@@ -561,7 +568,7 @@ public class QClass {
         
         retVals.clear();
         
-        if(setIds.size()==0){
+        if(setIds.isEmpty()){
             return APISucc;
         }
         
@@ -907,7 +914,7 @@ public class QClass {
         
         retVals.clear();
         
-        if(setIds.size()==0){
+        if(setIds.isEmpty()){
             return APISucc;
         }
         /*
@@ -933,6 +940,14 @@ public class QClass {
         return APISucc;
     }
     
+    /**
+     * Given the thesaurus of interest "thesaurus" and the Thesaurus reference Id 
+     * "refId" this function returns the logical name of this node.
+     * 
+     * @param thesaurus
+     * @param refId
+     * @return 
+     */
     public String findLogicalNameByThesaurusReferenceId(String thesaurus, long refId){
         return db.findLogicalNameByThesaurusReferenceId(thesaurus, refId);
     }
@@ -1699,6 +1714,8 @@ public class QClass {
 
     /**
      * This function returns the number of object that exist in set set_id.
+     * @param set_id
+     * @return 
      */
     public int set_get_card(int set_id) {
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
@@ -1716,6 +1733,8 @@ public class QClass {
      * This function free the temporary set set_id so that it can be used later
      * by some other query. Freeing a set is like closing a file descriptor in
      * UNIX.
+     * @param set_id
+     * @return 
      */
     public int free_set(int set_id) {
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
@@ -2040,6 +2059,18 @@ public class QClass {
         return db.setCurrentNode(CurrentNode_Ids_Stack, str.getValue());        
     }
     
+    /**
+     * Set current node the object using it's Thesaurus reference Id property. 
+     * This object is now at the top of the name stack. 
+     * Until now Thesaurus Reference Ids reside only in Indiduals so there is no possibility 
+     * that this referenceId corresponds to a link object (where the name stack should contain all the from values)
+     * 
+     
+     * @param referenceId
+     * @param targetThesaurus
+     * @return The function returns the system id of the current node or
+     * APIFail(-1) on failure.
+     */
     public long set_current_node_by_referenceId(long referenceId, String targetThesaurus){
         if (!check_files("set_current_node")) {
             return QClass.APIFail;
@@ -2053,6 +2084,19 @@ public class QClass {
         return db.setCurrentNodeByReferenceId(CurrentNode_Ids_Stack, referenceId, targetThesaurus);
     }
     
+    /**
+     * same as set_current_node function but it also assigns to the CMValue parameter
+     * the full node diacritics (aka. Logicalname, Neo4jId, ThesaurusReferenceId and Transliteration)
+     *
+     * @param str A StringObject that contains the logical name 
+     * of the object that will be set as current node
+     * 
+     * @param retVal A CMValue that will be assigned with the Node's 
+     * Logicalname, Neo4jId, ThesaurusReferenceId and Transliteration
+     * 
+     * @return The function returns the system id of the current node or
+     * APIFail(-1) on failure.
+     */
     public long set_current_node_and_retrieve_Cmv(StringObject str,CMValue retVal) {
         //<editor-fold defaultstate="collapsed" desc="C++ References">
         /*
@@ -2445,7 +2489,7 @@ public class QClass {
      * 
      * If set_id is 0, apply get_from_value() on current node.
      * 
-     * @param If set to 0 then apply function to current node. If set to
+     * @param set_id If set to 0 then apply function to current node. If set to
      * a positive integer then search internally for a set with this identifier
      * and apply this function to every object contained in the set
      * 
@@ -2477,7 +2521,7 @@ public class QClass {
      * The PQI_Set structure must be augmented in order to hold any primitive values
      * right now no primitive values are kept
      * 
-     * @param If set to 0 then apply function to current node. If set to
+     * @param set_id If set to 0 then apply function to current node. If set to
      * a positive integer then search internally for a set with this identifier
      * and apply this function to every object contained in the set
      * 
@@ -2616,7 +2660,7 @@ public class QClass {
      * If set_id is a positive integer, apply get_classes() on each object in temporary
      * set set_id.
      * 
-     If set to 0 then apply function to current node. If set to
+     * @param set_id If set to 0 then apply function to current node. If set to
      * a positive integer then search internally for a set with this identifier
      * and apply this function to every object contained in the set
      *
@@ -3852,18 +3896,38 @@ public class QClass {
         db.ChangeNodeLabelNeo4j_Id(OriginalLogicalname, NewLogicalname);
     }
     
-    
+    /**
+     *
+     * Adds a node with the logical name node_name at the specified instantiation 
+     * level. If updateIdentifierWithId is set to true then the node_name identifier 
+     * will be updated to use the id part instead of the logical name.
+     * 
+     * @param node_name
+     * @param level
+     * @param updateIdentifierWithId
+     * @return
+     */
     public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId){
         return CHECK_Add_Node(node_name,level,updateIdentifierWithId,"","",TMSAPIClass.Do_Not_Assign_ReferenceId);
     }
     
     /**
-     * Adds a node with the logical name node_name at instantiation level level 
-     * (SIS_API_TOKEN_CLASS,SIS_API_S_CLASS,SIS_API_M1_CLASS,SIS_API_M2_CLASS,
-     * SIS_API_M3_CLASS,SIS_API_M4_CLASS).
+     * Adds a node with the logical name "node_name" at the specified instantiation
+     * "level" (SIS_API_TOKEN_CLASS,SIS_API_S_CLASS,SIS_API_M1_CLASS,SIS_API_M2_CLASS,
+     * SIS_API_M3_CLASS,SIS_API_M4_CLASS). If updateIdentifierWithId is set to true 
+     * then the node_name identifier will be updated to use the id part instead 
+     * of the logical name. The last 3 parameters will contain the transliteration 
+     * property that will be added to the node and the referenceId "refId" of the 
+     * specified Thesaurus "selectedThesaurus" that will be assigned if "refId &gt; 0".
+     * If refId==0 then no reference Id will be assigned or if refId &lt; 0 then 
+     * a new reference Id will be occupied and assigned to this node.
      * 
      * @param node_name
      * @param level
+     * @param updateIdentifierWithId
+     * @param transliteration
+     * @param selectedThesaurus
+     * @param refId
      * @return 
      */
     public int CHECK_Add_Node(Identifier node_name, int level, boolean updateIdentifierWithId, String transliteration,String selectedThesaurus, long refId){
@@ -6998,6 +7062,19 @@ int sis_api::Delete_Instance_Set(int from_set, IDENTIFIER * to)
         return CHECK_Rename_NodeCMValue(nodeCmv,NewNodeNameCmv);
     }
     
+    /**
+     * Change the name of a node along with its transliteration if any contained in the CMValue parameters. 
+     * 
+     * The current node is specified by CMValue "node"
+     * and the new CMValue for the node by "NewNodeName"
+     * (containing new Logical name and/or transliteration). 
+     * 
+     * It fails if a node with the given CMValue node does not exist 
+     * or a node with the given IDENTIFIER NewNodeName already exists.
+     * @param node
+     * @param NewNodeName
+     * @return 
+     */
     public int CHECK_Rename_NodeCMValue(CMValue node, CMValue NewNodeName){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
@@ -8489,7 +8566,16 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         return APISucc;
     }
     
-    //get_matched_ToneAndCaseInsensitive
+    /**
+     * Finds all nodes that contain a Transliteration property that contains or is 
+     * an exact match of the search val depending on the boolean parameter "exactTransliterationMatchInsteadOfContains".
+     * Unlike Logical name property, Transliteration property is not unique.
+     * 
+     * @param set_target
+     * @param searchVal
+     * @param exactTransliterationMatchInsteadOfContains
+     * @return 
+     */
     public int get_matched_OnTransliteration(int set_target, String searchVal, boolean exactTransliterationMatchInsteadOfContains) {
         int  ret;
         PQI_Set setptr = new PQI_Set();
@@ -8538,7 +8624,18 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         return new_set_id;    
     }
     
-    //get_matched_ToneAndCaseInsensitive
+    /**
+     * Calls the SIS-API get_matched() with a set of ALL Tone and Case insensitive comparisons of searchVal.
+     * The set of different tone variations is currently supporting only modern greek.
+     * get_matched_OnTransliteration function should be used instead wherever possible
+     * (since transliteration property is not defined in every node)
+     * 
+     * 
+     * @param set_target
+     * @param searchVal
+     * @param SEARCH_MODE_CASE_TONE_INSENSITIVE
+     * @return 
+     */
     public int get_matched_ToneAndCaseInsensitive(int set_target, String searchVal, boolean SEARCH_MODE_CASE_TONE_INSENSITIVE) {
         //USED IN WEBTMS API ONLY
         /*
@@ -8609,7 +8706,14 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         return set_results;
     }
     
-    //get_matched_ToneAndCaseInsensitive
+    /**
+     * Calls the SIS-API get_matched() with a set of ALL Case insensitive comparisons of searchVal.
+     * 
+     * @param set_target
+     * @param searchVal
+     * @param SEARCH_MODE_CASE_INSENSITIVE
+     * @return 
+     */
     public int get_matched_CaseInsensitive(int set_target, String searchVal, boolean SEARCH_MODE_CASE_INSENSITIVE) {
        
         UtilitiesString US = new UtilitiesString();
@@ -8636,6 +8740,13 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         return set_results;
     }
     
+    /**
+     * Function responding the question if the specified Neo4j Id is occupied by
+     * an unnamed link.
+     * 
+     * @param linkSystemId
+     * @return 
+     */
     public boolean CHECK_isUnNamedLink(long linkSystemId){
         
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
@@ -8702,6 +8813,12 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         return db.resetCounter_For_ThesaurusReferenceId(thesaurusName,resetToSpecifiedValue);
     }
     
+    /**
+     * Included this Function in order to consistently create the expected indexes and constraints.
+     * 
+     * @param graphDb
+     * @return 
+     */
     public boolean createDatabaseIndexesAndConstraints(GraphDatabaseService graphDb){
         
         try(Transaction tx =  graphDb.beginTx()){

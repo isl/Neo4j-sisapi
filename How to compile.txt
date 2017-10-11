@@ -26,19 +26,15 @@ This file is part of the Neo4j-sisapi project.
 
 How to compile
 -----------------------------------------------------------------------------
-
 Create a new java library project.
-Until now we have used java jdk1.7.0_51 64 bit
 
-- use the sources included in the /Sources/ folder 
+Until now we have used java jdk1.8.0_131 64 bit
+
+- use the sources included in the /Sources/src folder 
   of this repository
   
-- Download the neo4j jar files included in Neo4j-sis-api-Dependencies-LicensesUsed.txt
-  (obtain Neo4j Community edition version 2.2.5 or perhaps 
-  later and get the jar files from it's lib folder)
-
-- create project references to these libraries
-
+- Neo4j v 3.2.5 Community Edition should automatically be downloaded by a maven supporting IDE
+  
 - Apply jvm option -Dfile.encoding=UTF8 (Perhaps not needed step)
 
 You must now be able to compile

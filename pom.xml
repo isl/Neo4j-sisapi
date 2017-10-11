@@ -3,8 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gr.forth.ics.isl</groupId>
     <artifactId>Neo4j-sisapi</artifactId>
-    <version>1.2-SNAPSHOT</version>
-    <packaging>jar</packaging>     
+    <version>1.2</version>
+    <packaging>jar</packaging>   
+      
     <licenses>
         <license>
             <name>EUPL v.1.1</name>
@@ -27,10 +28,73 @@
                 <version>2.3.2</version>
                 <configuration>
                     <showDeprecation>true</showDeprecation>
+                    
                 </configuration>
             </plugin>
+            <plugin>
+                <!-- procude jar in dist folder --> 
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <outputDirectory>${basedir}/dist</outputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- procude sources jar in dist folder --> 
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <excludeResources>true</excludeResources>
+                    <outputDirectory>${basedir}/dist</outputDirectory>                    
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <!-- clean dist directory contents -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <directory>${basedir}/dist</directory>                    
+                </configuration>
+            </plugin>
+    
+            <plugin>
+                <!-- procude javadoc jar in dist folder --> 
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <jarOutputDirectory>${basedir}/dist</jarOutputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>            
+
         </plugins>
         <sourceDirectory>Sources/src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>Sources/resources</directory>
+            </resource>
+        </resources>
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
