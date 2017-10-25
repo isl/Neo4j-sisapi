@@ -8887,11 +8887,30 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
      * 
      * Useful in bulk data import where errors may be included.
      * 
-     * @param selectedTehsarus
+     * @param selectedThesarus
      * @param referenceId
      * @return 
      */
-    public boolean IsThesaurusReferenceIdAssigned(String selectedTehsarus, long referenceId){
-        return db.IsThesaurusReferenceIdAssigned(selectedTehsarus, referenceId);
+    public boolean IsThesaurusReferenceIdAssigned(String selectedThesarus, long referenceId){
+        return db.IsThesaurusReferenceIdAssigned(selectedThesarus, referenceId);
+    }
+    
+    /**
+     * Function implemented in order to delete the remaining Thesaurus Nodes 
+     * after a delete thesaurus operation.
+     * 
+     * Terms/Hierarchies/Facets/Node labels- Guide Terms and Translation Categories 
+     * should have been removed prior to this call.
+     * 
+     * The remaining nodes refer to nodes created by the specific Thesaurus TSV 
+     * parsing.
+     * 
+     * @param selectedThesaurus
+     * @param excludeList list of identifiers that should not be deleted e.g. 
+     * the identifier of the primary language word
+     * @return 
+     */
+    public boolean DeleteEmptyThesaurusModel(String selectedThesaurus, ArrayList<Long> excludeList,StringObject errorMsg){
+        return db.DeleteEmptyThesaurusModel(selectedThesaurus, excludeList,errorMsg);
     }
 }

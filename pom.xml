@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gr.forth.ics.isl</groupId>
     <artifactId>Neo4j-sisapi</artifactId>
-    <version>1.2</version>
+    <version>1.2.1-SNAPSHOT</version>
     <packaging>jar</packaging>   
       
     <licenses>
@@ -100,5 +100,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd_HH_mm_ss</maven.build.timestamp.format>
     </properties>    
 </project>

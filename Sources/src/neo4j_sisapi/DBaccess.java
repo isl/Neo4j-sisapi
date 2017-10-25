@@ -39,9 +39,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import static neo4j_sisapi.QClass.APIFail;
 import static neo4j_sisapi.QClass.APISucc;
 import org.neo4j.graphdb.Direction;
@@ -50,6 +52,7 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.QueryExecutionException;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.traversal.Evaluation;
@@ -93,6 +96,12 @@ class DBaccess {
     private String prepareNeo4jIdPropertyFilterForCypher(long val){
         return Configs.Neo4j_Key_For_Neo4j_Id+":"+val;
     }
+    
+    /**
+     * sets the correct key and escapes potential invalid characters
+     * @param str
+     * @return 
+     */
     private String prepareLogicalNameForCypher(String str){
         /*if(str.contains("'")){
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Contains ' ");
@@ -6327,23 +6336,6 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         return val;
     }
     
-    long FindNodeNeo4j_Id(String Logicalname)
-    {
-        String query ="MATCH(n{Logicalname:'"+Logicalname+"'}) RETURN n.Neo4j_Id AS Neo4j_Id";
-        
-        Result res = this.graphDb.execute(query);
-        long val = -1;
-   
-         
-        while (res.hasNext()) {
-            Map<String, Object> row = res.next();
-            val = (Long) row.get("Neo4j_Id");  
-            Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Neo4j_Id: "+val);
-        }
-     
-        return val;
-    }
-
     int CheckAllExist(PQI_Set set) {
 
         ArrayList<Long> vec = set.get_Neo4j_Ids();
@@ -7671,6 +7663,205 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         return returnVal;
     }
 
+    boolean DeleteEmptyThesaurusModel(String selectedThesaurus, ArrayList<Long> excludeList,StringObject errorMsg){
+        String thesNametoUpper = selectedThesaurus.toUpperCase();        
+        String thesNametoLower = selectedThesaurus.toLowerCase();
+        String thesNametoCamel = thesNametoUpper.charAt(0)+thesNametoLower.substring(1);
+        
+        int maxDepth = 10;
+        //MATCH p= (n:Common{Logicalname:\"%GROUPNAME%\"})-[*0.."+maxDepth+"]-(m)  
+        //WHERE ALL(c IN nodes(p) WHERE not c:Generic) 
+        //return  DISTINCT m.Neo4j_Id, m.Logicalname order by m.Neo4j_Id "
+        String baseRetrievalQuery ="MATCH p= (n:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\"%GROUPNAME%\"})-[*0.."+maxDepth+"]-(m) "+
+                " WHERE ALL(c IN nodes(p) WHERE not c:"+Configs.GenericLabelName+") "+
+                " RETURN DISTINCT m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+ " , m."+Configs.Neo4j_Key_For_Logicalname+
+                " ORDER BY "+Configs.Neo4j_Key_For_Neo4j_Id;
+                
+        ArrayList<String> groupNames = new ArrayList<>();
+        groupNames.add("%THES%".replace("%THES%", thesNametoUpper));
+        groupNames.add("ListNonTransl%THES%".replace("%THES%", thesNametoUpper));
+        groupNames.add("All%THES%Fac".replace("%THES%", thesNametoUpper));
+        groupNames.add("All%Thes%Hier".replace("%Thes%", thesNametoCamel));
+        groupNames.add("BT_according_to_%thes%".replace("%thes%", thesNametoLower));
+        groupNames.add("NT_according_to_%thes%".replace("%thes%", thesNametoLower));
+        groupNames.add("ListNonDescrby%THES%".replace("%THES%", thesNametoUpper));
+        groupNames.add("%THES%_SimpleUser".replace("%THES%", thesNametoUpper));
+        groupNames.add("%THES%_ExpertUser".replace("%THES%", thesNametoUpper));
+        groupNames.add("%THES%-1-SUTMSEFArgQuery".replace("%THES%", thesNametoUpper));
+        groupNames.add("Thesaurus`%THES%".replace("%THES%", thesNametoUpper));
+        groupNames.add("%THES%_EUTMSEFArgDescription".replace("%THES%", thesNametoUpper));
+        
+        
+       
+        
+        //detach all created by links and modified by links
+        String removeThesCreatedByLinkInstances = "%thes%_created_by".replace("%thes%", thesNametoLower);
+        String removeThesCreatedOnLinkInstances = "%thes%_created".replace("%thes%", thesNametoLower);
+        
+        String removeThesModyfiedByLinkInstances = "%thes%_modified_by".replace("%thes%", thesNametoLower);
+        String removeThesModyfiedOnLinkInstances = "%thes%_modified".replace("%thes%", thesNametoLower);
+        
+        
+        String getLinkInstancesQuery = "MATCH(n"+getCommonLabelStr()+") <-[:"+Configs.Rels.INSTANCEOF.name()+"]-(m) WHERE n."+Configs.Neo4j_Key_For_Logicalname +" in [ \"" + 
+                removeThesCreatedByLinkInstances+"\",\""+
+                removeThesCreatedOnLinkInstances+"\",\""+
+                removeThesModyfiedByLinkInstances+"\",\""+
+                removeThesModyfiedOnLinkInstances+"\"] "+
+                " DETACH DELETE m ";   
+        try {
+            this.graphDb.execute(getLinkInstancesQuery);
+            
+        } catch (Exception ex) {
+            errorMsg.setValue("Error_WHEN_TRYING_TODETACH_CREATED_AND_MODIFIED_LINKS");
+            utils.handleException(ex);
+            return false;
+        } 
+        
+        
+        String ThesaurusEditor = "%THES%Editor".replace("%THES%", thesNametoUpper);
+        
+        String detachNonReferecedThesaurusEditorInstances = "MATCH(n"+getCommonLabelStr() +"{"+ prepareLogicalNameForCypher(ThesaurusEditor)+"}) "+
+                "<-[:"+Configs.Rels.INSTANCEOF.name()+"]-(m) "+
+                " WHERE NOT (m)<-[:"+Configs.Rels.RELATION.name()+"]-() "+
+                " DETACH DELETE m";
+        
+        
+        try {
+            this.graphDb.execute(detachNonReferecedThesaurusEditorInstances);
+            
+        } catch (Exception ex) {
+            errorMsg.setValue("Error_WHEN_TRYING_TODETACH_NOREFERENCED_INSTANCES_OF_"+ThesaurusEditor);
+            utils.handleException(ex);
+            return false;
+        } 
+        
+        
+        String detachSameNode = "MATCH (n"+getCommonLabelStr() +"{"+ prepareLogicalNameForCypher(ThesaurusEditor)+"}) DETACH DELETE n";
+        try {
+            this.graphDb.execute(detachSameNode);
+            
+        } catch (Exception ex) {
+            errorMsg.setValue("Error_WHEN_TRYING_TODETACH_"+ThesaurusEditor);
+            utils.handleException(ex);
+            return false;
+        } 
+        
+        String detachNonReferecedDateInstances = "MATCH(n"+getCommonLabelStr() +"{"+ prepareLogicalNameForCypher("Date")+"}) "+
+                "<-[:"+Configs.Rels.INSTANCEOF.name()+"]-(m) "+
+                " WHERE NOT (m)<-[:"+Configs.Rels.RELATION.name()+"]-() "+
+                " DETACH DELETE m";
+        try {
+            this.graphDb.execute(detachNonReferecedDateInstances);
+            
+        } catch (Exception ex) {
+            errorMsg.setValue("Error_WHEN_TRYING_TODETACH_NOREFERENCED_INSTANCES_OF_"+"Date");
+            utils.handleException(ex);
+            return false;
+        } 
+        //detach delete all attributes that connect to date and editor
+        /*<-[:"+Configs.Rels.INSTANCEOF.name()+"*0..1]- (m) ";
+        getInstancesQuery += " Return m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+Configs.Neo4j_Key_For_Neo4j_Id+ ", m."+Configs.Neo4j_Key_For_Logicalname +" as "+Configs.Neo4j_Key_For_Logicalname;
+        
+        
+        ArrayList<Long> instances = new ArrayList<>();
+        Identifier from = new Identifier();
+        
+        Result instanceRels = null;    
+        try {
+            
+            instanceRels = this.graphDb.execute(getInstancesQuery);
+            while (instanceRels.hasNext()) {
+
+                Map<String, Object> row = instanceRels.next(); 
+
+                long tempval = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
+                String lname = (String)row.get(Configs.Neo4j_Key_For_Logicalname);
+                if (tempval >= 0 ) { 
+                    if(lname.equals(removeThes1EditorInstances)){
+                        from.setValue(tempval);
+                    }
+                    else{
+                        instances.add(tempval);
+                    }
+
+                } else {
+                    errorMsg.setValue("NEGATIVE_ID_VALUE_RETURNED_ATDELETEEDITOR_INSTANCES_"+removeThes1EditorInstances);
+                    return false;
+                }
+            }
+        } catch (Exception ex) {
+            errorMsg.setValue("Exception caught while retrieving editor instances of "+removeThes1EditorInstances);
+            utils.handleException(ex);
+            return false;
+        } finally {
+            instanceRels.close();
+            instanceRels = null;
+        }
+        
+        if(from.getSysid()<=0){
+            errorMsg.setValue("Could not retreve id of "+removeThes1EditorInstances);
+            return false;
+        }
+        for(Long l : instances){
+            Identifier to = new Identifier(l);
+            if(Q.Modify(QClass.ModifyRelation.SIS_API_INSTOF, QClass.ModifyOperation.SIS_API_REMOVE, from, to,null)==QClass.APIFail){
+                errorMsg.setValue("ERROR_AT_DELETE_INSTANCEOF_EDITOR_RELATIONSHIP "+removeThes1EditorInstances);
+                return false;
+            }
+        }*/
+        
+        ArrayList<Long> detachNodes = new ArrayList<>();
+        
+        for(String group : groupNames){
+            String targetQuery = baseRetrievalQuery.replace("%GROUPNAME%", group);
+            
+            Result res = null;
+            
+            try {
+                res = this.graphDb.execute(targetQuery);
+                while (res.hasNext()) {
+
+                    Map<String, Object> row = res.next(); 
+
+                    long tempval = getNeo4jIdFromObject(row.get(Configs.Neo4j_Key_For_Neo4j_Id));
+
+                    if (tempval >= 0 ) {  
+                        detachNodes.add(tempval);
+                    } else {
+                        errorMsg.setValue("NEGATIVE_ID_VALUE_RETURNED_FOR_GROUP_"+group);
+                        return false;
+                    }
+                }
+            } catch (Exception ex) {
+                errorMsg.setValue("Exception caught while retrieving relevant nodes of "+group);
+                utils.handleException(ex);
+                return false;
+            } finally {
+                res.close();
+                res = null;
+            }
+            
+        }
+        
+        List<Long> detachNodesList = detachNodes.stream().distinct().filter(e -> !excludeList.contains(e)).collect(Collectors.toList());
+        
+        String detachQuery = "MATCH (n:"+Configs.CommonLabelName+") WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " + detachNodesList.toString() +" DETACH DELETE n";
+        Result res = null;
+        try {
+            res = this.graphDb.execute(detachQuery);
+        } catch (QueryExecutionException ex) {
+            errorMsg.setValue("Exception caught while detaching thesaurus specific nodes with query:\n"+detachQuery);
+            utils.handleException(ex);
+            return false;
+        } finally {
+            if(res!=null){
+                res.close();
+                res = null;
+            }
+        }
+        return true;        
+    }
+    
     long setCurrentNodeByReferenceId(ArrayList<Long> CurrentNode_Ids_Stack, long referenceId, String targetThesaurus) {
         
         

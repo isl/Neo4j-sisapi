@@ -24,6 +24,11 @@ Authors: Elias Tzortzakakis <tzortzak@ics.forth.gr>
 
 This file is part of the Neo4j-sisapi project.
 
+Neo4j-sis-api 1.2.1
+=============================================================================
+Added function that removes the model of an empty thesaurus in order to support the delete
+operatrion.
+
 Neo4j-sis-api 1.2
 =============================================================================
 - Update to Java 8 / Neo4j 3.2.5 / Neo4j-sisapi 1.2 

@@ -10033,8 +10033,7 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
         throw new UnsupportedOperationException();
     }
     
-    
-    
+        
     // various functions quring the database
     int TermPrefixfThesaurus(String thesaurus, StringObject prefix_term, StringObject message){
         // get the links pointing to the given thesaurus
@@ -10101,5 +10100,8 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
         return TMS_APISucc;
         
     }
+    
+    
+    
     
 }
