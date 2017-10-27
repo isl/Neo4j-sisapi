@@ -26,8 +26,12 @@ This file is part of the Neo4j-sisapi project.
 
 Neo4j-sis-api 1.2.1
 =============================================================================
-Added function that removes the model of an empty thesaurus in order to support the delete
-operatrion.
+- Added function that removes the model of an empty thesaurus in order to 
+  support the delete thesaurus operatrion.
+- Added UniqueInDB label in specific TSV files in order to denote both that 
+  this node should not be created once per thesaurus and that while searching the model 
+  you should check before you delete these nodes, if they have other references 
+  in the database from other thesauri.
 
 Neo4j-sis-api 1.2
 =============================================================================

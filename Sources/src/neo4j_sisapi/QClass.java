@@ -8905,12 +8905,10 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
      * The remaining nodes refer to nodes created by the specific Thesaurus TSV 
      * parsing.
      * 
-     * @param selectedThesaurus
-     * @param excludeList list of identifiers that should not be deleted e.g. 
-     * the identifier of the primary language word
+     * @param selectedThesaurus     
      * @return 
      */
-    public boolean DeleteEmptyThesaurusModel(String selectedThesaurus, ArrayList<Long> excludeList,StringObject errorMsg){
-        return db.DeleteEmptyThesaurusModel(selectedThesaurus, excludeList,errorMsg);
+    public boolean DeleteEmptyThesaurusModel(String selectedThesaurus,StringObject errorMsg){
+        return db.DeleteEmptyThesaurusModel(selectedThesaurus,errorMsg);
     }
 }

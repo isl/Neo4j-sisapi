@@ -80,6 +80,7 @@ public class Configs {
     static final int MAX_IDS_PER_QUERY = 500;
     
     public static final String GenericLabelName = "Generic";
+    public static final String UniqueInDBLabelName = "UniqueInDB";
     public static final String CommonLabelName = "Common";
     
     static final String Neo4j_Level_Token = "Token";

@@ -7663,7 +7663,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         return returnVal;
     }
 
-    boolean DeleteEmptyThesaurusModel(String selectedThesaurus, ArrayList<Long> excludeList,StringObject errorMsg){
+    boolean DeleteEmptyThesaurusModel(String selectedThesaurus,StringObject errorMsg){
         String thesNametoUpper = selectedThesaurus.toUpperCase();        
         String thesNametoLower = selectedThesaurus.toLowerCase();
         String thesNametoCamel = thesNametoUpper.charAt(0)+thesNametoLower.substring(1);
@@ -7673,7 +7673,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         //WHERE ALL(c IN nodes(p) WHERE not c:Generic) 
         //return  DISTINCT m.Neo4j_Id, m.Logicalname order by m.Neo4j_Id "
         String baseRetrievalQuery ="MATCH p= (n:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\"%GROUPNAME%\"})-[*0.."+maxDepth+"]-(m) "+
-                " WHERE ALL(c IN nodes(p) WHERE not c:"+Configs.GenericLabelName+") "+
+                " WHERE ALL(c IN nodes(p) WHERE not c:"+Configs.GenericLabelName+" and not c:"+Configs.UniqueInDBLabelName +" ) "+
                 " RETURN DISTINCT m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+ " , m."+Configs.Neo4j_Key_For_Logicalname+
                 " ORDER BY "+Configs.Neo4j_Key_For_Neo4j_Id;
                 
@@ -7758,6 +7758,8 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             utils.handleException(ex);
             return false;
         } 
+        
+        
         //detach delete all attributes that connect to date and editor
         /*<-[:"+Configs.Rels.INSTANCEOF.name()+"*0..1]- (m) ";
         getInstancesQuery += " Return m."+Configs.Neo4j_Key_For_Neo4j_Id +" as "+Configs.Neo4j_Key_For_Neo4j_Id+ ", m."+Configs.Neo4j_Key_For_Logicalname +" as "+Configs.Neo4j_Key_For_Logicalname;
@@ -7842,8 +7844,8 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             }
             
         }
-        
-        List<Long> detachNodesList = detachNodes.stream().distinct().filter(e -> !excludeList.contains(e)).collect(Collectors.toList());
+        /*.filter(e -> !excludeList.contains(e))*/
+        List<Long> detachNodesList = detachNodes.stream().distinct().collect(Collectors.toList());
         
         String detachQuery = "MATCH (n:"+Configs.CommonLabelName+") WHERE n."+Configs.Neo4j_Key_For_Neo4j_Id +" IN " + detachNodesList.toString() +" DETACH DELETE n";
         Result res = null;
@@ -7859,6 +7861,19 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                 res = null;
             }
         }
+        
+        
+        String detachNonReferecedUniqueInDBInstances = "MATCH(n:"+Configs.UniqueInDBLabelName+") "+
+                " WHERE NOT (n)-[:"+Configs.Rels.RELATION.name()+"]-() "+
+                " DETACH DELETE n";
+        try {
+            this.graphDb.execute(detachNonReferecedUniqueInDBInstances);
+            
+        } catch (Exception ex) {
+            errorMsg.setValue("Error_WHEN_TRYING_TODETACH_NOREFERENCED_UniqueInDBNodes");
+            utils.handleException(ex);
+            return false;
+        } 
         return true;        
     }
     
