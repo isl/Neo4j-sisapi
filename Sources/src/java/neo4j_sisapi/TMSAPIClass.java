@@ -31,15 +31,21 @@
  * 
  * This file is part of the Neo4j-sisapi api.
  */
-package neo4j_sisapi.tmsapi;
+package neo4j_sisapi;
 
+import neo4j_sisapi.TMS_PairInfo;
+import neo4j_sisapi.TMS_HandleCommentsClass;
 import neo4j_sisapi.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static neo4j_sisapi.QClass.APIFail;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Result;
+import org.neo4j.graphdb.Transaction;
 /**
  * The entry point of the Thesaurus Specific tms-api
- * that is built using sis-api.
+ * that is mostly built using sis-api.
  * 
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
  */
@@ -361,7 +367,9 @@ public class TMSAPIClass {
             SetThesaurusName(selectedThesaurus);
         }
         else{
-            SetThesaurusName(ThesaurusNames.get(0));
+            if(ThesaurusNames!=null && !ThesaurusNames.isEmpty()){
+                SetThesaurusName(ThesaurusNames.get(0));
+            }
         }
         //strcpy(userOperation, ThesaurusNames[0]);
 
@@ -9593,12 +9601,12 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
                 }
                 return TMS_APIFail;
             }
-            PairInfo categ;
+            TMS_PairInfo categ;
             strcpy(categ.name, fromCommentCategory); // MERIMEEThesaurusConcept
             strcpy(categ.label, commentCategory); //merimee_scope_note
 
-            // create a new HandleCommentsClass
-            HandleCommentsClass * commentsClass = new HandleCommentsClass(QC, CC, descriptorName, &  categ);
+            // create a new TMS_HandleCommentsClass
+            TMS_HandleCommentsClass * commentsClass = new TMS_HandleCommentsClass(QC, CC, descriptorName, &  categ);
 
             switch (option) {
                 case GET_DESCRIPTOR_COMMENT_SIZE:
@@ -9766,10 +9774,10 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
             return TMS_APIFail;
         }
 
-        PairInfo categ = new PairInfo(fromCommentCategory, commentCategory);
+        TMS_PairInfo categ = new TMS_PairInfo(fromCommentCategory, commentCategory);
 
-        //create a new HandleCommentsClass
-        HandleCommentsClass commentsClass = new HandleCommentsClass(descriptorName, categ);
+        //create a new TMS_HandleCommentsClass
+        TMS_HandleCommentsClass commentsClass = new TMS_HandleCommentsClass(descriptorName, categ);
 
         switch (option) {
             case GET_DESCRIPTOR_COMMENT_SIZE:
@@ -10101,7 +10109,180 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
         
     }
     
+    /**
+     * Function implemented in order to delete the remaining Thesaurus Nodes 
+     * after a delete thesaurus operation.
+     * 
+     * Terms/Hierarchies/Facets/Node labels- Guide Terms and Translation Categories 
+     * should have been removed prior to this call.
+     * 
+     * The remaining nodes refer to nodes created by the specific Thesaurus TSV 
+     * parsing.
+     * 
+     * @param selectedThesaurus     
+     * @return 
+     */
+    public boolean DeleteEmptyThesaurusModel(String selectedThesaurus,StringObject errorMsg){
+        return QC.db.DeleteEmptyThesaurusModel(selectedThesaurus, errorMsg);
+    }
+    
+    /**
+     * Function used in order to find out if thesaurus reference Id is 
+     * already assigned to the specified thesaurus. 
+     * 
+     * Useful in bulk data import where errors may be included.
+     * 
+     * @param selectedThesarus
+     * @param referenceId
+     * @return 
+     */
+    public boolean IsThesaurusReferenceIdAssigned(String selectedThesarus, long referenceId){
+        return QC.db.IsThesaurusReferenceIdAssigned(selectedThesarus, referenceId);
+    }
     
     
+    /**
+     * This function corrects the Max Thesaurus Reference Id value either manually 
+     * using the "resetToSpecifiedValue" parameter or automatically by searching 
+     * all thesaurus reference ids that have been declared in thesaurus with name 
+     * "thesaurusName" and selecting the maximum value.
+     * 
+     * @param thesaurusName
+     * @param resetToSpecifiedValue
+     * @return 
+     */
+    public int resetCounter_For_ThesarusReferenceId(String thesaurusName, long resetToSpecifiedValue){
+        
+        return QC.db.resetCounter_For_ThesaurusReferenceId(thesaurusName,resetToSpecifiedValue);
+    }
+ 
+    /**
+     * Included this Function in order to consistently create the expected indexes and constraints.
+     * Note: no need to open a connection first
+     * @param graphDb
+     * @return 
+     */
+    public boolean createThesaurusDatabaseIndexesAndConstraints(GraphDatabaseService graphDb){
+        
+        //creating basic database indexes and constraints
+        QC.createDatabaseIndexesAndConstraints(graphDb);
+        
+        //creating thesaurus specific database indexes and constraints
+        try(Transaction tx =  graphDb.beginTx()){
+            //String query3 = "CREATE INDEX ON :"+Configs.Neo4j_Key_For_Type_IndividualStr+"("+Configs.Neo4j_Key_For_ThesaurusReferenceId+") ";
+            String query3 = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_ThesaurusReferenceId+") ";
+
+            Result res3 = graphDb.execute(query3);
+
+            if (res3 == null) {
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Index on: "+ Configs.Neo4j_Key_For_ThesaurusReferenceId +" Failed.");
+                return false;
+            }
+            res3.close();
+            res3 = null;
+
+
+            //String query4 = "CREATE INDEX ON :"+Configs.Neo4j_Key_For_Type_IndividualStr+"("+Configs.Neo4j_Key_For_Transliteration+") ";
+            String query4 = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_Transliteration+") ";
+
+            Result res4 = graphDb.execute(query4);
+
+            if (res4 == null) {
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Index on: "+ Configs.Neo4j_Key_For_Transliteration +" Failed.");
+                return false;
+            }
+            res4.close();
+            res4 = null;
+
+
+
+            Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "\nFinished Creation of Indexes and Constraints.\n");
+            tx.success();            
+        }
+        return true;
+    }
     
+    /**
+     * Finds all nodes that contain a Transliteration property that contains or is 
+     * an exact match of the search val depending on the boolean parameter 
+     * "exactTransliterationMatchInsteadOfContains".
+     * Unlike Logical name property, Transliteration property is not unique.
+     * 
+     * @param set_target
+     * @param searchVal
+     * @param exactTransliterationMatchInsteadOfContains
+     * @return 
+     */
+    public int get_matched_OnTransliteration(int set_target, String searchVal, boolean exactTransliterationMatchInsteadOfContains) {
+        int  ret;
+        PQI_Set setptr = new PQI_Set();
+        
+        if(!QC.check_files("get_matched_OnTransliteration")){
+            return APIFail;
+        }
+        
+        
+        
+        int new_set_id = QC.set_get_new();
+        PQI_Set writeset=QC.tmp_sets.return_set(new_set_id);
+        if(writeset==null){
+            QC.free_set(new_set_id);
+            return APIFail;
+        }
+        
+        if(set_target==0){
+            if (QC.no_current_node("get_matched")) {
+                QC.tmp_sets.free_set(new_set_id);
+                return APIFail;       // there is no current node set
+            }
+            setptr.set_putNeo4j_Id((QC.CurrentNode_Ids_Stack!=null && !QC.CurrentNode_Ids_Stack.isEmpty())? QC.CurrentNode_Ids_Stack.get(QC.CurrentNode_Ids_Stack.size()-1) :-1);
+        }
+        else{
+            
+            setptr = QC.tmp_sets.return_set(set_target);
+            if(setptr == null){
+                QC.tmp_sets.free_set(new_set_id);
+                return APIFail;
+            }
+
+        }
+        
+        //writes directly to writeset since any exception occurs 
+        //only before the first writing to writeset
+        ret = QC.db.getMatchedOnTransliteration(setptr.get_Neo4j_Ids(), searchVal, exactTransliterationMatchInsteadOfContains, writeset);
+        
+        //ON_ERROR_RETURN(ret,new_set_id);  // free new_set_id and return -1
+        if ((QC.globalError.flag()==APIFail) || (ret == APIFail))  {
+            QC.globalError.reset();
+            QC.tmp_sets.free_set(new_set_id);
+            return APIFail;
+        }
+        
+        return new_set_id;    
+    }
+    
+    /**
+     * Set current node the object using it's Thesaurus reference Id property. 
+     * This object is now at the top of the name stack. 
+     * Until now Thesaurus Reference Ids reside only in Indiduals so there is no possibility 
+     * that this referenceId corresponds to a link object (where the name stack should contain all the from values)
+     * 
+     
+     * @param referenceId
+     * @param targetThesaurus
+     * @return The function returns the system id of the current node or
+     * APIFail(-1) on failure.
+     */
+    public long set_current_node_by_referenceId(long referenceId, String targetThesaurus){
+        if (!QC.check_files("set_current_node")) {
+            return QClass.APIFail;
+        }
+
+        //check lengths
+        if (targetThesaurus == null  ||  targetThesaurus.length() == 0 || referenceId<=0) {
+            return QClass.APIFail;
+        }
+
+        return QC.db.setCurrentNodeByReferenceId(QC.CurrentNode_Ids_Stack, referenceId, targetThesaurus);
+    }
 }

@@ -3,9 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gr.forth.ics.isl</groupId>
     <artifactId>Neo4j-sisapi</artifactId>
-    <version>1.2.1-SNAPSHOT</version>
-    <packaging>jar</packaging>   
-      
+    <version>1.2.1</version>
+    <packaging>jar</packaging>         
     <licenses>
         <license>
             <name>EUPL v.1.1</name>
@@ -89,12 +88,23 @@
             </plugin>            
 
         </plugins>
-        <sourceDirectory>Sources/src</sourceDirectory>
+        <sourceDirectory>Sources/src/java</sourceDirectory>
+        <scriptSourceDirectory>Sources/src/main/scripts</scriptSourceDirectory>
+        <testSourceDirectory>Sources/test/java</testSourceDirectory>    
         <resources>
             <resource>
-                <directory>Sources/resources</directory>
+                <directory>Sources/src/resources</directory>
+                <includes>
+                    <include>Neo4j_sisapi_build_version.txt</include>
+                </includes>
+                <filtering>true</filtering>
             </resource>
         </resources>
+        <testResources>
+        <testResource>
+          <directory>Sources/test/resources</directory>
+        </testResource>
+      </testResources>
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

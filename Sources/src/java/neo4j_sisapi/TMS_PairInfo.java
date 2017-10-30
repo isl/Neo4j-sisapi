@@ -31,29 +31,29 @@
  * 
  * This file is part of the Neo4j-sisapi api.
  */
-package neo4j_sisapi.tmsapi;
+package neo4j_sisapi;
 
 import neo4j_sisapi.StringObject;
 /**
  *
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
  */
-class PairInfo {
+class TMS_PairInfo {
     StringObject label;
     StringObject name;
     
-    PairInfo(){
+    TMS_PairInfo(){
         label = new StringObject();
         name = new StringObject();
     }
     
-    PairInfo(String nameStr,String labelStr){
+    TMS_PairInfo(String nameStr,String labelStr){
         
         name  = new StringObject(nameStr);
         label = new StringObject(labelStr);
     }
     
-    PairInfo(StringObject nameObj,StringObject labelObj){
+    TMS_PairInfo(StringObject nameObj,StringObject labelObj){
         name  = new StringObject(nameObj.getValue());
         label = new StringObject(labelObj.getValue());
     }

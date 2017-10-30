@@ -31,7 +31,7 @@
  * 
  * This file is part of the Neo4j-sisapi api.
  */
-package neo4j_sisapi.tmsapi;
+package neo4j_sisapi;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -48,7 +48,7 @@ import neo4j_sisapi.StringObject;
  *
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
  */
-class HandleCommentsClass {
+class TMS_HandleCommentsClass {
 
     // <editor-fold defaultstate="collapsed" desc="C++ code...">
     /* file handle_comments.h
@@ -71,7 +71,7 @@ class HandleCommentsClass {
 	int numOfCommentlinks;
 	char comments[MAX_COM_LEN];
         int comments_size;
-	PairInfo Category;
+	TMS_PairInfo Category;
 	char TargetNode[LOGINAM_SIZE];
 	int is_changed;
 	int commSet;
@@ -83,28 +83,28 @@ class HandleCommentsClass {
     int numOfCommentlinks;
     StringObject comments;  // = new char[TMSAPIClass.MAX_COM_LEN]; //in constructor
     int comments_size;
-    PairInfo Category;
+    TMS_PairInfo Category;
     String TargetNode;
     int is_changed;
     IntegerObject commSet;
     
-    HandleCommentsClass(StringObject target_name, PairInfo categ){
+    TMS_HandleCommentsClass(StringObject target_name, TMS_PairInfo categ){
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
         /*--------------------------------------------------------------
-        HandleCommentsClass::HandleCommentsClass()
+        TMS_HandleCommentsClass::TMS_HandleCommentsClass()
         ----------------------------------------------------------------
         INPUT:  - target_name : the name the current object to work with
                 - categ : one of the allowed categories for the creation
                   of a descriptor comment
         OUTPUT: -
-        FUNCTION: constructor of class HandleCommentsClass.
+        FUNCTION: constructor of class TMS_HandleCommentsClass.
                   initialization of TargetNode, Category, comments,
                   Comments and is_changed members
         ----------------------------------------------------------------*/
         // </editor-fold> 
         // <editor-fold defaultstate="collapsed" desc="C++ code...">
         /*
-        HandleCommentsClass::HandleCommentsClass(sis_api *qc, SIS_Connection *cc, char* target_name, PairInfo *categ)
+        TMS_HandleCommentsClass::TMS_HandleCommentsClass(sis_api *qc, SIS_Connection *cc, char* target_name, TMS_PairInfo *categ)
         {
                 QC = qc;
                 CC = cc;
@@ -130,10 +130,10 @@ class HandleCommentsClass {
         comments    = new  StringObject();//new char[TMSAPIClass.MAX_COM_LEN];
         TargetNode  = target_name.getValue();
         if(categ != null){
-            Category = new PairInfo(categ.name,categ.label);
+            Category = new TMS_PairInfo(categ.name,categ.label);
         }
         else{
-            Category = new PairInfo();
+            Category = new TMS_PairInfo();
         }
         comments_size = 0;
         Comments = null;
@@ -146,12 +146,12 @@ class HandleCommentsClass {
     int  AddComment(StringObject endp, String txt, StringObject end_com){
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
         /*-----------------------------------------------------------------
-        HandleCommentsClass::AddComment()
+        TMS_HandleCommentsClass::AddComment()
         cats the next plainText to comments char array. If this array
         is to be overflowed, it is filled by a message.
         -----------------------------------------------------------------*/
         /*--------------------------------------------------------------
-        HandleCommentsClass::AddComment()
+        TMS_HandleCommentsClass::AddComment()
         ----------------------------------------------------------------
         INPUT:  - endp : a pointer to the next free space of comments char array
                 - txt  : the next plainText to be catted to comments char array
@@ -164,7 +164,7 @@ class HandleCommentsClass {
         // </editor-fold> 
         // <editor-fold defaultstate="collapsed" desc="C++ code...">
         /*
-        int HandleCommentsClass::AddComment(char **endp, char *txt, char *end_com)
+        int TMS_HandleCommentsClass::AddComment(char **endp, char *txt, char *end_com)
         {   
             int len = strlen(txt);
 
@@ -205,7 +205,7 @@ class HandleCommentsClass {
     void CatComments(){
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
         /*--------------------------------------------------------------
-        HandleCommentsClass::CatComments()
+        TMS_HandleCommentsClass::CatComments()
         ----------------------------------------------------------------
         INPUT: -
         OUTPUT: -
@@ -215,7 +215,7 @@ class HandleCommentsClass {
         // </editor-fold> 
         // <editor-fold defaultstate="collapsed" desc="C++ code...">
         /*
-        void HandleCommentsClass::CatComments()
+        void TMS_HandleCommentsClass::CatComments()
         {
                 char ***ptr1;
                 char **ptr2;
@@ -279,7 +279,7 @@ class HandleCommentsClass {
             }
             else{
                 
-                Logger.getLogger(HandleCommentsClass.class.getName()).log(Level.INFO, "Warning: in CatComments null pointer occured for node " + TargetNode);
+                Logger.getLogger(TMS_HandleCommentsClass.class.getName()).log(Level.INFO, "Warning: in CatComments null pointer occured for node " + TargetNode);
             }
         }
         comments_size = comments.getValue().length()+1;// is + 1 now necessary??? \0
@@ -324,7 +324,7 @@ class HandleCommentsClass {
     int  CommitComment(QClass Q, StringObject targetNode,StringObject newComment){
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
          /*--------------------------------------------------------------
-        HandleCommentsClass::CommitComment()
+        TMS_HandleCommentsClass::CommitComment()
         ----------------------------------------------------------------
         INPUT: - targetNode : the name of an object
         - newComment : a new comment value
@@ -337,7 +337,7 @@ class HandleCommentsClass {
         // </editor-fold> 
         // <editor-fold defaultstate="collapsed" desc="C++ code...">
         /*
-        int HandleCommentsClass::CommitComment(char *targetNode, char *newComment)
+        int TMS_HandleCommentsClass::CommitComment(char *targetNode, char *newComment)
         {
                 if (removeComment() == TMS_APIFail) {
                     return TMS_APIFail;
@@ -383,7 +383,7 @@ class HandleCommentsClass {
     int  editComment(QClass Q){
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
         /*--------------------------------------------------------------
-        HandleCommentsClass::editComment()
+        TMS_HandleCommentsClass::editComment()
         ----------------------------------------------------------------
         INPUT: -
         OUTPUT: - TMS_APISucc the specified comments of current
@@ -394,7 +394,7 @@ class HandleCommentsClass {
         // </editor-fold> 
         // <editor-fold defaultstate="collapsed" desc="C++ code...">
         /*in file handle_comm.cpp
-        int HandleCommentsClass::editComment()
+        int TMS_HandleCommentsClass::editComment()
         {
                 //char command[MAX_STR_LENGTH];
                 //char tmp_file1[FILENAME_LENGTH];
@@ -404,7 +404,7 @@ class HandleCommentsClass {
                 QC->end_query();
 
                 if (QC ->  begin_query() == APIFail) {
-                    fprintf(stderr, "HandleCommentsClass::editComment(): failed to begin_query()\n");
+                    fprintf(stderr, "TMS_HandleCommentsClass::editComment(): failed to begin_query()\n");
                     return TMS_APIFail;
                 }
 
@@ -420,7 +420,7 @@ class HandleCommentsClass {
 
                 // Finish the query server session
                 if (CC ->  end_query() == APIFail) {
-                    fprintf(stderr, "HandleCommentsClass::editComment(): failed to end_query()\n");
+                    fprintf(stderr, "TMS_HandleCommentsClass::editComment(): failed to end_query()\n");
                     return TMS_APIFail;
                 }
                 return TMS_APISucc;
@@ -438,8 +438,8 @@ class HandleCommentsClass {
         Q.end_query(); //WHY???
 
         if (Q.begin_query() == QClass.APIFail) {
-            //fprintf(stderr, "HandleCommentsClass::editComment(): failed to begin_query()\n");
-            System.err.println("HandleCommentsClass::editComment(): failed to begin_query()\n");
+            //fprintf(stderr, "TMS_HandleCommentsClass::editComment(): failed to begin_query()\n");
+            System.err.println("TMS_HandleCommentsClass::editComment(): failed to begin_query()\n");
             return TMSAPIClass.TMS_APIFail;
         }
         */
@@ -458,8 +458,8 @@ class HandleCommentsClass {
        /* BUG FIX NO NEED TO END AND START  QUERY EARLIER
         // Finish the query server session
         if (Q.end_query() == QClass.APIFail) {
-            //fprintf(stderr, "HandleCommentsClass::editComment(): failed to end_query()\n");
-            System.err.println("HandleCommentsClass::editComment(): failed to end_query()\n");
+            //fprintf(stderr, "TMS_HandleCommentsClass::editComment(): failed to end_query()\n");
+            System.err.println("TMS_HandleCommentsClass::editComment(): failed to end_query()\n");
             return TMSAPIClass.TMS_APIFail;
         }
         */
@@ -478,7 +478,7 @@ class HandleCommentsClass {
     int  GetComments(QClass Q){
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
         /*--------------------------------------------------------------
-        HandleCommentsClass::GetComments()
+        TMS_HandleCommentsClass::GetComments()
         ----------------------------------------------------------------
         INPUT: -
         OUTPUT: - 0 in case the comment links of current node are get succesfully
@@ -499,7 +499,7 @@ class HandleCommentsClass {
         // </editor-fold> 
         // <editor-fold defaultstate="collapsed" desc="C++ code...">
         /*
-        int HandleCommentsClass::GetComments()
+        int TMS_HandleCommentsClass::GetComments()
         {
                 int commParts, numOfCommentParts, comLinksIndex, comPartsIndex;
                 l_name cls, linkLabel, partLabel;
@@ -510,14 +510,14 @@ class HandleCommentsClass {
                 Comments = (char ***) calloc(numOfCommentlinks, sizeof(char **));
                 if (Comments == (char ***) 0) {
                     fprintf(stderr, "No space available for creation of comments.\n");
-                    fprintf(stderr, "In HandleCommentsClass::GetComments().\n");
+                    fprintf(stderr, "In TMS_HandleCommentsClass::GetComments().\n");
                     numOfCommentlinks = 0;
                     exit(1);
                 }
                 numOfComments = (int *) calloc(numOfCommentlinks, sizeof(int));
                 if (numOfComments == (int *) 0) {
                     fprintf(stderr, "No space available for creation of comments.\n");
-                    fprintf(stderr, "In HandleCommentsClass::GetComments().\n");
+                    fprintf(stderr, "In TMS_HandleCommentsClass::GetComments().\n");
                     exit(1);
                 }
 
@@ -536,7 +536,7 @@ class HandleCommentsClass {
                     Comments[comLinksIndex] = (char **) calloc(numOfCommentParts, sizeof(char *));
                     if (Comments[comLinksIndex] == (char **) 0) {
                         fprintf(stderr, "No space available for creation of comments.\n");
-                        fprintf(stderr, "In HandleCommentsClass::GetComments().\n");
+                        fprintf(stderr, "In TMS_HandleCommentsClass::GetComments().\n");
                         numOfCommentParts = 0;
                         exit(1);
                     }
@@ -594,7 +594,7 @@ class HandleCommentsClass {
         //if (Comments == (char ***) 0) {
         if(Comments == null){
             //fprintf(stderr, "No space available for creation of comments.\n");
-            //fprintf(stderr, "In HandleCommentsClass::GetComments().\n");
+            //fprintf(stderr, "In TMS_HandleCommentsClass::GetComments().\n");
             System.err.println("No space available for creation of comments.\nIn HandleCommentsClass::GetComments().\n");
             numOfCommentlinks = 0;
             System.exit(1);
@@ -603,7 +603,7 @@ class HandleCommentsClass {
         //(int *) calloc(numOfCommentlinks, sizeof(int));
         if (numOfComments == null) {
             //fprintf(stderr, "No space available for creation of comments.\n");
-            //fprintf(stderr, "In HandleCommentsClass::GetComments().\n");
+            //fprintf(stderr, "In TMS_HandleCommentsClass::GetComments().\n");
             System.err.println("No space available for creation of comments.\nIn HandleCommentsClass::GetComments().\n");
             System.exit(1);
         }
@@ -634,7 +634,7 @@ class HandleCommentsClass {
             //Comments[comLinksIndex] = (char **) calloc(numOfCommentParts, sizeof(char *)); //Both Comment's array dimensions initialized above
             if (Comments.get(comLinksIndex) == null) {
                 //fprintf(stderr, "No space available for creation of comments.\n");
-                //fprintf(stderr, "In HandleCommentsClass::GetComments().\n");
+                //fprintf(stderr, "In TMS_HandleCommentsClass::GetComments().\n");
                 System.err.println("No space available for creation of comments.\nIn HandleCommentsClass::GetComments().\n");
                 numOfCommentParts = 0;
                 Q.free_set(commParts);
@@ -701,7 +701,7 @@ class HandleCommentsClass {
     int  HasComments(QClass Q){
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
         /*--------------------------------------------------------------
-        HandleCommentsClass::HasComments()
+        TMS_HandleCommentsClass::HasComments()
         ----------------------------------------------------------------
         INPUT: -
         OUTPUT: - 1 in case current object TargetNode has at least one link
@@ -714,7 +714,7 @@ class HandleCommentsClass {
         // </editor-fold> 
         // <editor-fold defaultstate="collapsed" desc="C++ code...">
         /*in file handle_comm.cpp
-        int HandleCommentsClass::HasComments()
+        int TMS_HandleCommentsClass::HasComments()
         {
             QC->reset_name_scope();
             QC->set_current_node(TargetNode);
@@ -1246,7 +1246,7 @@ class HandleCommentsClass {
     int  removeComment(QClass Q){
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
         /*--------------------------------------------------------------
-        HandleCommentsClass::removeComment()
+        TMS_HandleCommentsClass::removeComment()
         ----------------------------------------------------------------
         INPUT: -
         OUTPUT: - TMS_APISucc in case the specified comments of current
@@ -1257,7 +1257,7 @@ class HandleCommentsClass {
         // </editor-fold> 
         // <editor-fold defaultstate="collapsed" desc="C++ code...">
         /*
-        int HandleCommentsClass::removeComment()
+        int TMS_HandleCommentsClass::removeComment()
         {
                 int link_to_be_deleted;
                 int commentSet, nodeSet;
@@ -1267,7 +1267,7 @@ class HandleCommentsClass {
                 if (QC ->  set_current_node(TargetNode) < 0) {
         //      if (SetNewCurrentNode(TargetNode) == ERROR) {
                     #ifdef DEBUG_FLAG
-                            fprintf(stderr, "HandleCommentsClass -- removeComment : Failed to SetNewCurrentNode() \n");
+                            fprintf(stderr, "TMS_HandleCommentsClass -- removeComment : Failed to SetNewCurrentNode() \n");
                     #endif
 
                     return TMS_APIFail;
@@ -1306,7 +1306,7 @@ class HandleCommentsClass {
                 link_to_be_deleted = QC ->  get_link_from_by_category(nodeSet, HYPERTEXT, PLAINTEXT);
                 if (link_to_be_deleted == -1) {
                     #ifdef DEBUG_FLAG
-                        fprintf(stderr, "HandleCommentsClass -- removeComment : Failed to get_link_from_by_category() \n");
+                        fprintf(stderr, "TMS_HandleCommentsClass -- removeComment : Failed to get_link_from_by_category() \n");
                     #endif 
                     QC->free_set(commentSet);
                     QC->free_set(nodeSet);
@@ -1317,8 +1317,8 @@ class HandleCommentsClass {
                 QC->free_set(commentSet);
                 if (DeleteLinksInSet(QC, CC, link_to_be_deleted) == TMS_APIFail) {
                     #ifdef DEBUG_FLAG
-                        fprintf(stderr, "HandleCommentsClass -- removeComment : Failed to DeleteLinksInSet() \n");
-                        fprintf(stderr, "HandleCommentsClass -- removeComment() : failed to remove links of '%s' category\n",(Category.label[0] == EOS) ? _COMMENT : Category.label);
+                        fprintf(stderr, "TMS_HandleCommentsClass -- removeComment : Failed to DeleteLinksInSet() \n");
+                        fprintf(stderr, "TMS_HandleCommentsClass -- removeComment() : failed to remove links of '%s' category\n",(Category.label[0] == EOS) ? _COMMENT : Category.label);
                     #endif 
                     QC->free_set(nodeSet);
                     QC->free_set(link_to_be_deleted);
@@ -1327,8 +1327,8 @@ class HandleCommentsClass {
                 QC->free_set(link_to_be_deleted);
                 if (DeleteNodesInSet(QC, CC, nodeSet) == TMS_APIFail) {
                     #ifdef DEBUG_FLAG
-                        fprintf(stderr, "HandleCommentsClass -- removeComment : Failed to DeleteNodesInSet() \n");
-                        fprintf(stderr, "HandleCommentsClass -- removeComment() : failed to remove links of '%s' category\n",(Category.label[0] == EOS) ? _COMMENT : Category.label);
+                        fprintf(stderr, "TMS_HandleCommentsClass -- removeComment : Failed to DeleteNodesInSet() \n");
+                        fprintf(stderr, "TMS_HandleCommentsClass -- removeComment() : failed to remove links of '%s' category\n",(Category.label[0] == EOS) ? _COMMENT : Category.label);
                     #endif 
 
                     QC->free_set(nodeSet);
@@ -1347,7 +1347,7 @@ class HandleCommentsClass {
         if (Q.set_current_node(new StringObject(TargetNode)) < 0) {
 //      if (SetNewCurrentNode(TargetNode) == ERROR) {
             /*#ifdef DEBUG_FLAG
-                    fprintf(stderr, "HandleCommentsClass -- removeComment : Failed to SetNewCurrentNode() \n");
+                    fprintf(stderr, "TMS_HandleCommentsClass -- removeComment : Failed to SetNewCurrentNode() \n");
             #endif
             */
             return TMSAPIClass.TMS_APIFail;
@@ -1388,7 +1388,7 @@ class HandleCommentsClass {
         if (link_to_be_deleted == -1) {
             /*
             #ifdef DEBUG_FLAG
-                fprintf(stderr, "HandleCommentsClass -- removeComment : Failed to get_link_from_by_category() \n");
+                fprintf(stderr, "TMS_HandleCommentsClass -- removeComment : Failed to get_link_from_by_category() \n");
             #endif 
             */ 
             Q.free_set(commentSet);
@@ -1401,8 +1401,8 @@ class HandleCommentsClass {
         if (DeleteLinksInSet(Q,link_to_be_deleted) == TMSAPIClass.TMS_APIFail) {
             /*
             #ifdef DEBUG_FLAG
-                fprintf(stderr, "HandleCommentsClass -- removeComment : Failed to DeleteLinksInSet() \n");
-                fprintf(stderr, "HandleCommentsClass -- removeComment() : failed to remove links of '%s' category\n",(Category.label[0] == EOS) ? _COMMENT : Category.label);
+                fprintf(stderr, "TMS_HandleCommentsClass -- removeComment : Failed to DeleteLinksInSet() \n");
+                fprintf(stderr, "TMS_HandleCommentsClass -- removeComment() : failed to remove links of '%s' category\n",(Category.label[0] == EOS) ? _COMMENT : Category.label);
             #endif */
             Q.free_set(nodeSet);
             Q.free_set(link_to_be_deleted);
@@ -1412,8 +1412,8 @@ class HandleCommentsClass {
         if (DeleteNodesInSet(Q, nodeSet) == TMSAPIClass.TMS_APIFail) {
             /*
             #ifdef DEBUG_FLAG
-                fprintf(stderr, "HandleCommentsClass -- removeComment : Failed to DeleteNodesInSet() \n");
-                fprintf(stderr, "HandleCommentsClass -- removeComment() : failed to remove links of '%s' category\n",(Category.label[0] == EOS) ? _COMMENT : Category.label);
+                fprintf(stderr, "TMS_HandleCommentsClass -- removeComment : Failed to DeleteNodesInSet() \n");
+                fprintf(stderr, "TMS_HandleCommentsClass -- removeComment() : failed to remove links of '%s' category\n",(Category.label[0] == EOS) ? _COMMENT : Category.label);
             #endif 
             */ 
             
@@ -1468,7 +1468,7 @@ class HandleCommentsClass {
                 //SYSID 	id(sysid) ;
                 //if (sem_check->checkAndDeleteObject(id) == ERROR) {
                 //#ifdef DEBUG_FLAG
-                //  fprintf(stderr, "HandleCommentsClass -- removeComment : Failed to checkAndDeleteObject\n") ;
+                //  fprintf(stderr, "TMS_HandleCommentsClass -- removeComment : Failed to checkAndDeleteObject\n") ;
                 //#endif
                 //  return ERROR ;
                 //}
@@ -1511,7 +1511,7 @@ class HandleCommentsClass {
         //SYSID 	id(sysid) ;
         //if (sem_check->checkAndDeleteObject(id) == ERROR) {
         //#ifdef DEBUG_FLAG
-        //  fprintf(stderr, "HandleCommentsClass -- removeComment : Failed to checkAndDeleteObject\n") ;
+        //  fprintf(stderr, "TMS_HandleCommentsClass -- removeComment : Failed to checkAndDeleteObject\n") ;
         //#endif
         //  return ERROR ;
         //}

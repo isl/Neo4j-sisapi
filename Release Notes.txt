@@ -24,15 +24,27 @@ Authors: Elias Tzortzakakis <tzortzak@ics.forth.gr>
 
 This file is part of the Neo4j-sisapi project.
 
+
+=============================================================================
 Neo4j-sis-api 1.2.1
 =============================================================================
-- Added function that removes the model of an empty thesaurus in order to 
+- Added function DeleteEmptyThesaurusModel function
+  that removes the model of an empty thesaurus in order to 
   support the delete thesaurus operatrion.
 - Added UniqueInDB label in specific TSV files in order to denote both that 
   this node should not be created once per thesaurus and that while searching the model 
   you should check before you delete these nodes, if they have other references 
   in the database from other thesauri.
-
+- Sub pakages re-structuring
+    Merged packages "neo4j_sisapi" and "neo4j_sisapi.tmsapi" into "neo4j_sisapi"
+    in order to be able to apply better separation of sisapi functions (QClass) 
+    and thesaurus specific functions (TMSApiClass) such as DeleteEmptyThesaurus, 
+    find by thesaurus referenceId etc. 
+    (perhaps a further re-structuring process should follow as thesaurus specific
+    properties like thesaurus reference id and transliteration are also propageted in
+    QClass functions e.g. AddNode and more)  
+	
+=============================================================================
 Neo4j-sis-api 1.2
 =============================================================================
 - Update to Java 8 / Neo4j 3.2.5 / Neo4j-sisapi 1.2 
@@ -54,7 +66,7 @@ Neo4j-sis-api 1.2
   - Moved to the api the functionality about creating database Indexes and constraints
   - started mechanism with error codes instead of direct hard coded messages (args is an issue)
 
-
+=============================================================================
 Neo4j-sis-api
 =============================================================================
 

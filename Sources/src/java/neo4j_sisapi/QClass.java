@@ -39,7 +39,6 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import neo4j_sisapi.tmsapi.TMSAPIClass;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
@@ -182,7 +181,7 @@ public class QClass {
         NOISA, UPWARDS, DOWNWARDS, UP_DOWN
     };
 
-    private Sets_Class tmp_sets = null;//sets_class       tmp_sets;
+    Sets_Class tmp_sets = null;//sets_class       tmp_sets;
     
     ApiError globalError = new ApiError();
     
@@ -2059,30 +2058,7 @@ public class QClass {
         return db.setCurrentNode(CurrentNode_Ids_Stack, str.getValue());        
     }
     
-    /**
-     * Set current node the object using it's Thesaurus reference Id property. 
-     * This object is now at the top of the name stack. 
-     * Until now Thesaurus Reference Ids reside only in Indiduals so there is no possibility 
-     * that this referenceId corresponds to a link object (where the name stack should contain all the from values)
-     * 
-     
-     * @param referenceId
-     * @param targetThesaurus
-     * @return The function returns the system id of the current node or
-     * APIFail(-1) on failure.
-     */
-    public long set_current_node_by_referenceId(long referenceId, String targetThesaurus){
-        if (!check_files("set_current_node")) {
-            return QClass.APIFail;
-        }
-
-        //check lengths
-        if (targetThesaurus == null  ||  targetThesaurus.length() == 0 || referenceId<=0) {
-            return QClass.APIFail;
-        }
-
-        return db.setCurrentNodeByReferenceId(CurrentNode_Ids_Stack, referenceId, targetThesaurus);
-    }
+    
     
     /**
      * same as set_current_node function but it also assigns to the CMValue parameter
@@ -3304,7 +3280,7 @@ public class QClass {
     }
         
 	
-    private boolean check_files(String function) {
+     boolean check_files(String function) {
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         #ifdef CLIENT_SERVER
@@ -3366,7 +3342,7 @@ public class QClass {
         return true;
     }
 
-    private boolean no_current_node(String function) {
+    boolean no_current_node(String function) {
         if (CurrentNode_Ids_Stack != null && CurrentNode_Ids_Stack.size() > 0) {
             return false;
         } else {
@@ -8566,63 +8542,6 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         return APISucc;
     }
     
-    /**
-     * Finds all nodes that contain a Transliteration property that contains or is 
-     * an exact match of the search val depending on the boolean parameter "exactTransliterationMatchInsteadOfContains".
-     * Unlike Logical name property, Transliteration property is not unique.
-     * 
-     * @param set_target
-     * @param searchVal
-     * @param exactTransliterationMatchInsteadOfContains
-     * @return 
-     */
-    public int get_matched_OnTransliteration(int set_target, String searchVal, boolean exactTransliterationMatchInsteadOfContains) {
-        int  ret;
-        PQI_Set setptr = new PQI_Set();
-        
-        if(!check_files("get_matched_OnTransliteration")){
-            return APIFail;
-        }
-        
-        
-        
-        int new_set_id = this.set_get_new();
-        PQI_Set writeset=tmp_sets.return_set(new_set_id);
-        if(writeset==null){
-            free_set(new_set_id);
-            return APIFail;
-        }
-        
-        if(set_target==0){
-            if (no_current_node("get_matched")) {
-                tmp_sets.free_set(new_set_id);
-                return APIFail;       // there is no current node set
-            }
-            setptr.set_putNeo4j_Id((CurrentNode_Ids_Stack!=null && !CurrentNode_Ids_Stack.isEmpty())? CurrentNode_Ids_Stack.get(CurrentNode_Ids_Stack.size()-1) :-1);
-        }
-        else{
-            
-            setptr = tmp_sets.return_set(set_target);
-            if(setptr == null){
-                tmp_sets.free_set(new_set_id);
-                return APIFail;
-            }
-
-        }
-        
-        //writes directly to writeset since any exception occurs 
-        //only before the first writing to writeset
-        ret = db.getMatchedOnTransliteration(setptr.get_Neo4j_Ids(), searchVal, exactTransliterationMatchInsteadOfContains, writeset);
-        
-        //ON_ERROR_RETURN(ret,new_set_id);  // free new_set_id and return -1
-        if ((globalError.flag()==APIFail) || (ret == APIFail))  {
-            globalError.reset();
-            tmp_sets.free_set(new_set_id);
-            return APIFail;
-        }
-        
-        return new_set_id;    
-    }
     
     /**
      * Calls the SIS-API get_matched() with a set of ALL Tone and Case insensitive comparisons of searchVal.
@@ -8808,10 +8727,6 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         return db.resetCounter_For_Neo4jId();
     }
     
-    public int resetCounter_For_ThesarusReferenceId(String thesaurusName, long resetToSpecifiedValue){
-        
-        return db.resetCounter_For_ThesaurusReferenceId(thesaurusName,resetToSpecifiedValue);
-    }
     
     /**
      * Included this Function in order to consistently create the expected indexes and constraints.
@@ -8819,7 +8734,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
      * @param graphDb
      * @return 
      */
-    public boolean createDatabaseIndexesAndConstraints(GraphDatabaseService graphDb){
+    boolean createDatabaseIndexesAndConstraints(GraphDatabaseService graphDb){
         
         try(Transaction tx =  graphDb.beginTx()){
             String query = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_Logicalname+") ";
@@ -8847,6 +8762,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             res2=null;
 
 
+            /*
             //String query3 = "CREATE INDEX ON :"+Configs.Neo4j_Key_For_Type_IndividualStr+"("+Configs.Neo4j_Key_For_ThesaurusReferenceId+") ";
             String query3 = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_ThesaurusReferenceId+") ";
 
@@ -8872,43 +8788,12 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             }
             res4.close();
             res4 = null;
-
+            */
 
 
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "\nFinished Creation of Indexes and Constraints.\n");
             tx.success();            
         }
         return true;
-    }
-    
-    /**
-     * Function used in order to find out if thesaurus reference Id is 
-     * already assigned to the specified thesaurus. 
-     * 
-     * Useful in bulk data import where errors may be included.
-     * 
-     * @param selectedThesarus
-     * @param referenceId
-     * @return 
-     */
-    public boolean IsThesaurusReferenceIdAssigned(String selectedThesarus, long referenceId){
-        return db.IsThesaurusReferenceIdAssigned(selectedThesarus, referenceId);
-    }
-    
-    /**
-     * Function implemented in order to delete the remaining Thesaurus Nodes 
-     * after a delete thesaurus operation.
-     * 
-     * Terms/Hierarchies/Facets/Node labels- Guide Terms and Translation Categories 
-     * should have been removed prior to this call.
-     * 
-     * The remaining nodes refer to nodes created by the specific Thesaurus TSV 
-     * parsing.
-     * 
-     * @param selectedThesaurus     
-     * @return 
-     */
-    public boolean DeleteEmptyThesaurusModel(String selectedThesaurus,StringObject errorMsg){
-        return db.DeleteEmptyThesaurusModel(selectedThesaurus,errorMsg);
     }
 }
