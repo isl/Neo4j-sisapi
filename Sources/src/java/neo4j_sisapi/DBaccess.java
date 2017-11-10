@@ -1585,10 +1585,11 @@ class DBaccess {
     int resetCounter_For_Neo4jId(){
         
         //update MaxNeo4j_Id property in Telos_Object node
-            String query = "MATCH(n:"+Configs.CommonLabelName+") with max (n."+Configs.Neo4j_Key_For_Neo4j_Id+") as newVal " +
-                    "MATCH(t:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+Configs.Neo4j_Node_LogicalName_For_MaxNeo4jId+"\"}) " +
-                    "SET t."+Configs.Neo4j_Key_For_MaxNeo4jId+" = newVal " +
-                    "return t."+Configs.Neo4j_Key_For_MaxNeo4jId+" as "+ Configs.Neo4j_Key_For_MaxNeo4jId;
+            String query = " MATCH(n:"+Configs.CommonLabelName+") with max (n."+Configs.Neo4j_Key_For_Neo4j_Id+") as newVal " +
+                    " MATCH(t:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+Configs.Neo4j_Node_LogicalName_For_MaxNeo4jId+"\"}) " +
+                    " SET t."+Configs.Neo4j_Key_For_MaxNeo4jId+" = newVal " +
+                    " return t."+Configs.Neo4j_Key_For_MaxNeo4jId+" as "+ Configs.Neo4j_Key_For_MaxNeo4jId ;
+            
             Result res = null;
             try{
                 res = graphDb.execute(query);
@@ -1612,8 +1613,11 @@ class DBaccess {
         //another policy might be to count Facets, Hierarchies, Terms and assign the sum of them. But this is more flexible
                 
         //update MaxNeo4j_Id property in Thesarus node
-        /* e.g. 
-        Match(n:Common{Logicalname:"Thesaurus`ANCIENT"})<-[:RELATION]-(link:Common{Logicalname:"ANCIENT`of_thesaurus"})<-[:RELATION]-(m)<-[:ISA*0..]-(k)<-[:INSTANCEOF*0..1]-(p) with max(p.ThesaurusReferenceId) as newVal return newVal
+        /* 
+        e.g. 
+        Match(n:Common{Logicalname:"Thesaurus`ANCIENT"})<-[:RELATION]-(link:Common{Logicalname:"ANCIENT`of_thesaurus"})
+        <-[:RELATION]-(m)<-[:ISA*0..]-(k)<-[:INSTANCEOF*0..1]-(p) 
+        with max(p.ThesaurusReferenceId) as newVal return newVal
         */
         String query = "";
         if(resetToSpecifiedValue>0){
@@ -1623,7 +1627,9 @@ class DBaccess {
         }
         else{
             query = " Match(n:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\"Thesaurus`"+thesaurusName.toUpperCase()+"\"}) "+ 
-                    " <-[:RELATION]-(link:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+thesaurusName.toUpperCase()+"`of_thesaurus\"})<-[:RELATION]-(m)<-[:ISA*0..]-(k)<-[:INSTANCEOF*0..1]-(p) with max(p."+Configs.Neo4j_Key_For_ThesaurusReferenceId+") as newVal " +
+                    " <-[:RELATION]-(link:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+thesaurusName.toUpperCase()+"`of_thesaurus\"}) "+ 
+                    " <-[:RELATION]-(m)<-[:ISA*0..]-(k)<-[:INSTANCEOF*0..1]-(p) "+
+                    " with CASE max(p."+Configs.Neo4j_Key_For_ThesaurusReferenceId+") WHEN null then n."+Configs.Neo4j_Key_For_ThesaurusReferenceId+" ELSE max(p."+Configs.Neo4j_Key_For_ThesaurusReferenceId+") END as newVal " +
                     " MATCH(t:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\""+Configs.Neo4j_Node_LogicalName_For_MaxThesaurusReferenceId.replace("%THES%", thesaurusName.toUpperCase())+"\"}) " +
                     " SET t."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+" = newVal " +
                     " return t."+Configs.Neo4j_Key_For_MaxThesaurusReferenceId+" as "+ Configs.Neo4j_Key_For_MaxThesaurusReferenceId;
