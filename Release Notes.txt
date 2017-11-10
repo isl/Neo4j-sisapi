@@ -26,6 +26,16 @@ This file is part of the Neo4j-sisapi project.
 
 
 =============================================================================
+Neo4j-sis-api 2.0
+=============================================================================
+- Reduced TMSApi Scope note complexity
+- Abandoned TMSApi helper classes (HandleCommentsClass, PairInfo)
+
+- TODO: Full transliteration and reference id support (including translations, used for terms etc.)
+- TODO: Facet Class (scope note, note, referenceId, discrete Logical name) and Facet Top Term (just like Hierarchy top terms)
+
+
+=============================================================================
 Neo4j-sis-api 1.2.1
 =============================================================================
 - Added function DeleteEmptyThesaurusModel function

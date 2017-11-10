@@ -33,8 +33,8 @@
  */
 package neo4j_sisapi;
 
-import neo4j_sisapi.TMS_PairInfo;
-import neo4j_sisapi.TMS_HandleCommentsClass;
+//import neo4j_sisapi.TMS_PairInfo;
+//import neo4j_sisapi.TMS_HandleCommentsClass;
 import neo4j_sisapi.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -4695,6 +4695,7 @@ int tms_api::DeleteFacet(char *facet)
 	commit_delete(facet, errorMessage); 
         return TMS_APISucc;
     }
+    
     public int  CHECK_DeleteHierarchy(StringObject hierarchy){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
@@ -9505,7 +9506,10 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
     }
     
     int  Get_SetDescriptorComment(StringObject descriptorName, StringObject comment, 
-            IntegerObject comment_size, StringObject fromCommentCategory, StringObject commentCategory , CommentActions option){
+            IntegerObject comment_size, 
+            StringObject fromCommentCategory, 
+            StringObject commentCategory , 
+            CommentActions option){
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
         /*--------------------------------------------------------------
         tms_api::Get_SetDescriptorComment()
@@ -9774,7 +9778,107 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
             return TMS_APIFail;
         }
 
-        TMS_PairInfo categ = new TMS_PairInfo(fromCommentCategory, commentCategory);
+        //TMS_PairInfo categ = new TMS_PairInfo(fromCommentCategory, commentCategory);
+
+        //create a new TMS_HandleCommentsClass
+        //TMS_HandleCommentsClass commentsClass = new TMS_HandleCommentsClass(descriptorName, categ);
+
+        QC.reset_name_scope();
+        QC.set_current_node_id(descriptorSysidL);
+
+        int set_links  = QC.get_link_from_by_category(0, fromCommentCategory, commentCategory);
+        ArrayList<Return_Link_Id_Row> retVals = new ArrayList<>();
+        QC.bulk_return_link_id(set_links, retVals);
+
+        Return_Link_Id_Row linkRow = null;
+        if(retVals.size()==1){
+            linkRow = retVals.get(0);
+        }
+        switch (option) {
+            case GET_DESCRIPTOR_COMMENT_SIZE:
+            case GET_DESCRIPTOR_COMMENT: {
+                
+                
+                String commentStr = "";
+                
+                if(linkRow!=null && linkRow.cmv!=null && linkRow.cmv.getString()!=null){
+                    commentStr = linkRow.cmv.getString();
+                }
+                
+                /*
+                if (commentsClass.editComment(QC) == TMS_APIFail) {
+                    if (option == CommentActions.GET_DESCRIPTOR_COMMENT_SIZE) {
+                        abort_get_comment_size(descriptorName, errorMessage);
+                    } else {
+                        abort_get_comment(descriptorName, errorMessage);
+                    }
+                    return TMS_APIFail;
+                }
+                */
+                if (option == CommentActions.GET_DESCRIPTOR_COMMENT_SIZE) {
+                    // just get the size of the comment
+                    //comment_size.setValue(commentsClass.GetCommentSize());
+                    comment_size.setValue(commentStr.length());
+                    commit_get_comment_size(descriptorName, errorMessage);
+                    break;
+                }
+                //commentsClass.fillStringWithComment(comment);
+                comment.setValue(commentStr);
+                commit_get_comment(descriptorName, errorMessage);
+                break;
+            }
+            case SET_DESCRIPTOR_COMMENT: {
+                if (comment == null || IsEmptyString(comment) == QClass.TRUEval) {
+                    //sprintf(errorMessage, translate("NULL or empty comment cannot be set to descriptor %s"), descriptorName);
+                    errorMessage.setValue("NULL or empty comment cannot be set to descriptor " + descriptorName.getValue());//NULL or empty comment cannot be set to descriptor %s"), descriptorName);
+                    return TMS_APIFail;
+                }
+               
+                if(linkRow!=null && linkRow.get_Neo4j_NodeId()>0){
+                    Identifier linkIdentifier = new Identifier(linkRow.get_Neo4j_NodeId());
+                    
+                    QC.CHECK_Delete_Unnamed_Attribute(linkIdentifier);
+                }
+                CMValue toCMValue = new CMValue();
+                toCMValue.assign_string(comment.getValue());
+                toCMValue.type = CMValue.TYPE_STRING;
+                
+                int catSet = QC.set_get_new();
+                QC.reset_name_scope();
+                QC.set_current_node(fromCommentCategory);
+                QC.set_current_node(commentCategory);
+                QC.set_put(catSet);
+
+                Identifier descIdentifier = new Identifier(descriptorSysidL);
+                QC.CHECK_Add_Unnamed_Attribute(descIdentifier, toCMValue, catSet);
+                /*if (commentsClass.CommitComment(QC, descriptorName, comment) == TMS_APIFail) {
+                    abort_set_comment(descriptorName, errorMessage);
+                    return TMS_APIFail;
+                }*/
+                commit_set_comment(descriptorName, errorMessage);
+                break;
+            }
+            //delete like all other attributes
+            
+            case DEL_DESCRIPTOR_COMMENT: {
+                
+                if(linkRow!=null && linkRow.get_Neo4j_NodeId()>0){
+                    Identifier linkIdentifier = new Identifier(linkRow.get_Neo4j_NodeId());
+                    ret = QC.CHECK_Delete_Unnamed_Attribute(linkIdentifier);
+                    if (ret == TMSAPIClass.TMS_APIFail) {
+
+                       //delete commentsClass;
+                        abort_del_comment(descriptorName, errorMessage);
+                        return TMS_APIFail;
+                    }
+                }
+                commit_del_comment(descriptorName, errorMessage);
+                break;
+            }
+        }
+		
+		/*
+		TMS_PairInfo categ = new TMS_PairInfo(fromCommentCategory, commentCategory);
 
         //create a new TMS_HandleCommentsClass
         TMS_HandleCommentsClass commentsClass = new TMS_HandleCommentsClass(descriptorName, categ);
@@ -9823,6 +9927,7 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
                 break;
             }
         }
+		*/
 
         return TMS_APISucc;
 
