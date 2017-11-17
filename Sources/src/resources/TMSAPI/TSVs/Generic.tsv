@@ -1,4 +1,4 @@
-#
+# 
 # Copyright 2015 Institute of Computer Science,
 #                Foundation for Research and Technology - Hellas.
 #
@@ -2876,7 +2876,7 @@
 324	LABEL	Generic
 324	LABEL	S_Class
 324	LABEL	Type_Attribute
-324	INSTANCEOF	262		<!-- scope_note	INSTANCEOF	text_type -->
+324	INSTANCEOF	219		<!-- scope_note	INSTANCEOF	attribute -->
 324	RELATION	3		<!-- scope_note	RELATION	Telos_String-->
 325	Neo4j_Id	325
 325	Logicalname	translations_scope_note
@@ -2884,7 +2884,7 @@
 325	LABEL	Generic
 325	LABEL	S_Class
 325	LABEL	Type_Attribute
-325	INSTANCEOF	262		<!-- translations_scope_note	INSTANCEOF	text_type -->
+325	INSTANCEOF	219		<!-- translations_scope_note	INSTANCEOF	attribute -->
 325	RELATION	3		<!-- translations_scope_note	RELATION	Telos_String -->
 326	Neo4j_Id	326
 326	Logicalname	comment
@@ -2892,7 +2892,7 @@
 326	LABEL	Generic
 326	LABEL	S_Class
 326	LABEL	Type_Attribute
-326	INSTANCEOF	262		<!-- comment	INSTANCEOF	text_type -->
+326	INSTANCEOF	219		<!-- comment	INSTANCEOF	attribute -->
 326	RELATION	3		<!-- comment	RELATION	Telos_String -->
 327	Neo4j_Id	327
 327	Logicalname	historical_note
@@ -2900,7 +2900,7 @@
 327	LABEL	Generic
 327	LABEL	S_Class
 327	LABEL	Type_Attribute
-327	INSTANCEOF	262		<!-- historical_note	INSTANCEOF	text_type -->
+327	INSTANCEOF	219		<!-- historical_note	INSTANCEOF	attribute -->
 327	RELATION	3		<!-- historical_note	RELATION	Telos_String -->
 328	Neo4j_Id	328
 328	Logicalname	Queries
@@ -5672,3 +5672,39 @@
 649	LABEL	Token
 649	LABEL	Type_Attribute
 649	INSTANCEOF	238		<!-- Label8000cd	INSTANCEOF	outputHeader -->
+650	Neo4j_Id	650				
+650	Logicalname	belongs_to_facet				
+650	LABEL	Common				
+650	LABEL	Generic				
+650	LABEL	S_Class				
+650	LABEL	Type_Attribute				
+650	INSTANCEOF	259		<!-- belongs_to_facet	INSTANCEOF	system_controlled -->
+650	RELATION	47		<!-- belongs_to_facet	RELATION	Facet -->
+42	RELATION	650		<!-- TopTerm	RELATION	belongs_to_facet -->
+651	Neo4j_Id	651				
+651	Logicalname	note				
+651	LABEL	Common				
+651	LABEL	Generic				
+651	LABEL	S_Class				
+651	LABEL	Type_Attribute				
+651	INSTANCEOF	219		<!-- note	INSTANCEOF	attribute -->
+651	RELATION	3		<!-- note	RELATION	Telos_String-->
+45	RELATION	651		<!-- ThesaurusConcept	RELATION	note -->
+47	RELATION	652		<!-- Facet	RELATION	class_scope_note -->
+652	Neo4j_Id	652
+652	Logicalname	class_scope_note				
+652	LABEL	Common				
+652	LABEL	Generic				
+652	LABEL	S_Class				
+652	LABEL	Type_Attribute				
+652	INSTANCEOF	219		<!-- class_scope_note	INSTANCEOF	attribute -->
+652	RELATION	3		<!-- class_scope_note	RELATION	Telos_String-->
+47	RELATION	653		<!-- Facet	RELATION	class_note -->
+653	Neo4j_Id	653
+653	Logicalname	class_note				
+653	LABEL	Common				
+653	LABEL	Generic				
+653	LABEL	S_Class				
+653	LABEL	Type_Attribute				
+653	INSTANCEOF	219		<!-- class_note	INSTANCEOF	attribute -->
+653	RELATION	3		<!-- class_note	RELATION	Telos_String-->

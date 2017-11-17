@@ -35,7 +35,6 @@ package neo4j_sisapi;
 
 //import neo4j_sisapi.TMS_PairInfo;
 //import neo4j_sisapi.TMS_HandleCommentsClass;
-import neo4j_sisapi.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -598,6 +597,14 @@ int tms_api::ClassifyHierarchyInFacet(char *hierarchyName, char *facetName)
         // for Facets (#1)
         String[] category = {"Facet","letter_code"};
         FacetCategories.add(category);
+        category[0] = "Facet"; category[1]="class_scope_note";
+        FacetCategories.add(category);
+        category[0] = "Facet"; category[1]="class_note";
+        FacetCategories.add(category);
+        
+        //belongs_to_facet is not added as belongs_to_hierarchy is also not added
+        //if needs to be added then this should not be a FacetCategory but a 
+        //TopTerm category 
         
         // for Hierarchies (#1)
         category[0] = "Facet"; category[1]="letter_code";
@@ -696,6 +703,9 @@ int tms_api::ClassifyHierarchyInFacet(char *hierarchyName, char *facetName)
         }
         int instSet1 = QC.get_all_instances(0);
 
+        /*
+        comment categories are not longer instanciated under text_type
+                
         QC.reset_name_scope();
         if (QC.set_current_node(new StringObject(INDIVIDUAL) ) < 0) {            
             //sprintf(errorMessage, "Failed to QC->set_current_node(%s)\n", "Individual");
@@ -714,6 +724,7 @@ int tms_api::ClassifyHierarchyInFacet(char *hierarchyName, char *facetName)
         int instSet2 = QC.get_all_instances(0);
         QC.set_intersect(instSet1, instSet2);
         QC.free_set(instSet2);
+        */
         QC.reset_set(instSet1);
         
         //StringObject cls = new StringObject();
@@ -727,7 +738,8 @@ int tms_api::ClassifyHierarchyInFacet(char *hierarchyName, char *facetName)
                 CommentCategories.add(commentCateg);
                 //counter++;
             }
-        }        
+        }
+        
 
         // get the intersection of the two above sets
 
@@ -9671,6 +9683,7 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
             errorMessage.setValue(String.format("%s does not exist in data base", descriptorName.getValue()));
             return TMS_APIFail;
         }
+        
         // looking for MERIMEEDescriptor
         IntegerObject card = new IntegerObject(0);
         StringObject thes_descriptor = new StringObject();
