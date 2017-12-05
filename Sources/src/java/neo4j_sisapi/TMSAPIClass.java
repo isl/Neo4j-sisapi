@@ -2715,6 +2715,7 @@ int tms_api::IsLinkPointingFromTarget(int linkSysid, char *fromName)
     }
     
     int DeleteAttribute(long linkSysidL,StringObject objectName, int IsGarbageCollected){
+        // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         // check if link to be deleted is garbage collected
    int toValueSysid;
@@ -2749,6 +2750,7 @@ int tms_api::IsLinkPointingFromTarget(int linkSysid, char *fromName)
    if(ret == APIFail) return TMS_APIFail;
 	return TMS_APISucc;
         */
+        // </editor-fold>
         
         // check if link to be deleted is garbage collected
         PrimitiveObject_Long toValueSysid = new PrimitiveObject_Long();
@@ -2811,7 +2813,16 @@ int tms_api::IsLinkPointingFromTarget(int linkSysid, char *fromName)
 	return TMS_APISucc;
     }
     
+    /**
+     * gets the the sort name of the given thesaurus
+     * e.g. for "thesaurus" --> Thesaurus`MERIMEE "thesaurusSortName" --> MERIMEE
+     * @param thesaurus
+     * @param thesaurusSortName
+     * @param message
+     * @return 
+     */
     int ThesaurusName(StringObject thesaurus, StringObject thesaurusSortName, StringObject message){
+        // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
         
        			tms_api::ThesaurusName()
@@ -2841,6 +2852,7 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
   return TMS_APISucc;
 }
         */
+        // </editor-fold>
         
         if(thesaurus.getValue().contains("`")==false){
             //sprintf(message,IN_THESNAME); return TMS_APIFail;
@@ -2855,7 +2867,14 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         return TMS_APISucc;
     }
         
-    public int  CHECK_CreateAlternativeTerm(StringObject term){
+    /**
+     * Creates an alternative term returns Api Success or Api Fail
+     * 
+     * @param term
+     * @return 
+     */
+    public int  CreateAlternativeTerm(StringObject term){
+        
         int ret = CreateNode(term, CREATE_ALTERNATIVE_TERM);
         return ret;
     }
@@ -3509,18 +3528,42 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         return retnum;
     }
     
-    public int  CHECK_CreateEditor(StringObject editor){
+    /**
+     * Creates a node classified as Editor node returns Api Success or Api Fail
+     * 
+     * @param editor
+     * @return 
+     */
+    public int  CreateEditor(StringObject editor){
         int ret = CreateNode(editor, CREATE_EDITOR);
         return ret;
     }
-        
-    public int  CHECK_CreateFacet(StringObject facet){
+    
+    /**
+     * Creates a Node classified as Facet of Current Thesaurus.
+     * No transliteration or Thesaurus referenceId is added though
+     * Use CreateFacetCMValue instead that will also contain the logical name's 
+     * transliteration and the thesaurus Reference Id
+     * 
+     * @param facet
+     * @return 
+     */    
+    public int  CreateFacet(StringObject facet){
         CMValue cmv = new CMValue();
         cmv.assign_node(facet.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId,"",TMSAPIClass.Do_Not_Assign_ReferenceId);        
-        return CHECK_CreateFacetCMValue(cmv);
+        return CreateFacetCMValue(cmv,null);
     }
     
-    public int  CHECK_CreateFacetCMValue(CMValue facet){
+    /**
+     * Creates a Node classified as Facet of Current Thesaurus.
+     *
+     * "facet" CMValue should also contain the transliteration of the facet logical name and the 
+     * Thesaurus referenceId that will be added to the Facet's Top Term Node
+     * 
+     * @param facet
+     * @return 
+     */
+    public int  CreateFacetCMValue(CMValue facet, CMValue facetTopTermCmv){
         
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
@@ -3630,17 +3673,20 @@ int tms_api::CreateFacet(char *facet)
         // </editor-fold> 
         
         int ret;
-        StringObject prefix_thesaurus = new StringObject();//not used but makes a check so leave it
-        StringObject prefix_class = new StringObject();
-        StringObject class_facet = new StringObject();
-        StringObject thesaurus_class = new StringObject();
-        StringObject thesaurus = new StringObject();
-        
+                
+        //check if facet name is empty
         if (facet==null || facet.getString().length()==0){
             //sprintf(errorMessage,"%s %s",translate(EMPTY_STRING),translate("Facet"));
             errorMessage.setValue(EMPTY_STRING +" Facet");
             return TMS_APIFail;
         }
+        
+        //retrieval objects
+        StringObject prefix_thesaurus = new StringObject();//not used but makes a check so leave it
+        StringObject prefix_class = new StringObject();
+        StringObject prefix_term = new StringObject();
+        StringObject thesaurus = new StringObject();
+        
         
         ret = GetThesaurusName(thesaurus);
         if (ret==TMS_APIFail) {
@@ -3655,117 +3701,344 @@ int tms_api::CreateFacet(char *facet)
             errorMessage.setValue(facet.getString() +" "+OBJECT_EXISTS);
             return TMS_APIFail;
         }
+        
+        
+        // looking for MERIMEEFacet
+        IntegerObject card = new IntegerObject(0);
+        StringObject givenClass = new StringObject(userOperation.getValue() + "ThesaurusClassType");
+        StringObject thesaurus_class = new StringObject();    
+        StringObject facet_class = new StringObject();            
+        StringObject top_term_class = new StringObject();
+        
 
+        // <editor-fold defaultstate="collapsed" desc="Prefixes and classes Retrieval">
+        
 	// get the correct prefixes
 	ret = ThesaurusName(thesaurus,prefix_thesaurus,errorMessage);
 	if (ret==TMS_APIFail) {
            return TMS_APIFail;
         }
-
-	ret = ClassPrefixfThesaurus(thesaurus,prefix_class,errorMessage);
+        
+        ret = TermPrefixfThesaurus(thesaurus.getValue(),prefix_term,errorMessage);
 	if (ret==TMS_APIFail) {
             return TMS_APIFail;
         }
-
+        
+	ret = ClassPrefixfThesaurus(thesaurus,prefix_class,errorMessage);
+	if (ret==TMS_APIFail) {
+            return TMS_APIFail;
+        }        
+        
+        //looking for %THES%Facet
+        ret = GetThesaurusObject(facet_class, null, new StringObject("Facet"), null, givenClass, card);
+        if (ret==TMS_APIFail){
+            return TMS_APIFail;
+        }
+        //looking for %THES%ThesaurusClass
+        ret = GetThesaurusObject(thesaurus_class, null, new StringObject("ThesaurusClass"), null, givenClass, card);
+        if (ret==TMS_APIFail) {
+            return TMS_APIFail;
+        }
+        
+        // looking for %THES%TopTerm
+	givenClass.setValue(userOperation.getValue()+"ThesaurusNotionType");
+	ret = GetThesaurusObject(top_term_class, null, new StringObject("TopTerm"), null, givenClass, card);
+	if (ret==TMS_APIFail) {
+            return TMS_APIFail;
+        }
+        
+        //</editor-fold>
+        
+        // <editor-fold defaultstate="collapsed" desc="Performing the relevant consistency checks on facet">
+        
 	// abort if facet has not the correct prefix
 	if (facet.getString().startsWith(prefix_class.getValue())==false) {
             //sprintf(errorMessage, translate("%s has not the correct prefix: %s"), facet, prefix_class);
             errorMessage.setValue(String.format("%s has not the correct prefix: %s", facet.getString(), prefix_class.getValue()));
             return TMS_APIFail;
 	}
+        
   	// abort if facet contains only prefix
-        //int onlyPrefix = StringContainsOnlyPrefix(prefix_class, facet);
 	if (prefix_class.getValue().equals(facet.getString())) {
             //sprintf(errorMessage, translate("Given descriptor must not be blanck after prefix: %s"), prefix_class);
             errorMessage.setValue("Given descriptor must not be blanck after prefix: "+prefix_class.getValue());
             return TMS_APIFail;
 	}
+        
+        //</editor-fold>
+        
+        // <editor-fold defaultstate="collapsed" desc="Compute Top Term Name - same as the facet name but different prefix">
+        StringObject top_term = new StringObject();
+        if(facetTopTermCmv==null || facetTopTermCmv.getString()==null || facetTopTermCmv.getString().length()==0){
+            //in case nothing is defined then the same name will be used for the facet
+            top_term.setValue(prefix_term.getValue());
+            //sprintf(top_term,"%s",prefix_term);
 
-        // looking for MERIMEEFacet
-        IntegerObject card = new IntegerObject(0);
-        StringObject givenClass = new StringObject(userOperation.getValue() + "ThesaurusClassType");
-        //strcpy(givenClass, userOperation); // MERIMEE
-        //strcat(givenClass, "ThesaurusClassType"); // MERIMEEThesaurusClassType
-        ret = GetThesaurusObject(class_facet, null, new StringObject("Facet"), null, givenClass, card);
-        if (ret==TMS_APIFail){
-            return TMS_APIFail;
+            //get top term name from facet name
+            int length = top_term.getValue().length();
+
+            if (facet.getString().contains("`")==false) { 
+
+                abort_create(facet.getString(),errorMessage); 
+                return TMS_APIFail; 
+            }
+            String tmp = facet.getString().split("`")[1];
+
+            top_term.setValue(top_term.getValue()+tmp);
         }
-        // looking for MERIMEEClass
-        ret = GetThesaurusObject(thesaurus_class, null, new StringObject("ThesaurusClass"), null, givenClass, card);
-        if (ret==TMS_APIFail) {
+        else{
+            
+            // abort if facet Top term does not have the correct prefix
+            if (facetTopTermCmv.getString().startsWith(prefix_term.getValue())==false) {
+                //sprintf(errorMessage, translate("%s has not the correct prefix: %s"), facet, prefix_class);
+                errorMessage.setValue(String.format("%s has not the correct prefix: %s", facetTopTermCmv.getString(), prefix_term.getValue()));
+                return TMS_APIFail;
+            }
+
+            // abort if facet Top term contains only prefix
+            if (prefix_term.getValue().equals(facetTopTermCmv.getString())) {
+                //sprintf(errorMessage, translate("Given descriptor must not be blanck after prefix: %s"), prefix_class);
+                errorMessage.setValue("Given descriptor must not be blanck after prefix: "+prefix_term.getValue());
+                return TMS_APIFail;
+            }
+
+            QC.reset_name_scope();
+            long facetTopTermSySIdL = QC.set_current_node(new StringObject(facetTopTermCmv.getString()));
+            if (facetTopTermSySIdL>0) {
+                //sprintf(errorMessage,"%s %s",facet,translate(OBJECT_EXISTS));
+                errorMessage.setValue(facetTopTermCmv.getString() +" "+OBJECT_EXISTS);
+                return TMS_APIFail;
+            }            
+            
+            top_term.setValue(facetTopTermCmv.getString());            
+        }
+        // </editor-fold>
+        
+        //abort if top term already exists
+	QC.reset_name_scope();
+	long toptermSySIdL = QC.set_current_node(top_term);
+	if (toptermSySIdL>=0) {
+            //sprintf(errorMessage,"%s %s",top_term,translate(OBJECT_EXISTS));
+            errorMessage.setValue(String.format("%s %s", top_term.getValue(),OBJECT_EXISTS));
             return TMS_APIFail;
         }
         
-        Identifier Ifacet = new Identifier(facet.getString());
+        // <editor-fold defaultstate="collapsed" desc="Identifiers Initialization">
         //IDENTIFIER Ifacet;
         //strcpy(Ifacet.loginam,facet);
         //Ifacet.tag = ID_TYPE_LOGINAM;
         
-        StringObject Inew_thesaurus_classLoginam = new StringObject();
-        givenClass.setValue(userOperation.getValue()+"ThesaurusClassType");
-        //strcpy(givenClass, userOperation); // MERIMEE
-        //strcat(givenClass, "ThesaurusClassType"); // MERIMEEThesaurusClassType
-        ret = GetThesaurusObject(Inew_thesaurus_classLoginam, null, new StringObject("NewThesaurusClass"), null, givenClass, card);
-        
-        
-        
-        // looking for MERIMEENewThesaurusClass
-        if (ret==TMS_APIFail) {
-            return TMS_APIFail;
-        }
         //sprintf(Inew_thesaurus_class.loginam,"%s%s", userOperation, translate("NewThesaurusClass"));
-        Identifier Inew_thesaurus_class = new Identifier(Inew_thesaurus_classLoginam.getValue());
         //IDENTIFIER Inew_thesaurus_class;
         //Inew_thesaurus_class.tag = ID_TYPE_LOGINAM;
         
-        Identifier Iclass_facet = new Identifier(class_facet.getValue());
         //strcpy(Iclass_facet.loginam,class_facet);
         //Iclass_facet.tag = ID_TYPE_LOGINAM;
         
-        Identifier Ithesaurus_class = new Identifier(thesaurus_class.getValue());
+        
         //IDENTIFIER Ithesaurus_class;
         //strcpy(Ithesaurus_class.loginam,thesaurus_class);
         //Ithesaurus_class.tag = ID_TYPE_LOGINAM;
         
+        
+        Identifier Ifacet = new Identifier(facet.getString());
+        
+        // looking for %THES%NewThesaurusClass
+        StringObject Inew_thesaurus_classLoginam = new StringObject();
+        givenClass.setValue(userOperation.getValue()+"ThesaurusClassType");
+        ret = GetThesaurusObject(Inew_thesaurus_classLoginam, null, new StringObject("NewThesaurusClass"), null, givenClass, card);
+        if (ret==TMS_APIFail) {
+            return TMS_APIFail;
+        }
+        Identifier Inew_thesaurus_class = new Identifier(Inew_thesaurus_classLoginam.getValue());
+        Identifier Iclass_facet = new Identifier(facet_class.getValue());
+        Identifier Ithesaurus_class = new Identifier(thesaurus_class.getValue());
+        Identifier Itopterm = new Identifier(top_term.getValue());
+        
+        //IDENTIFIER Inew_descriptor;
+	//looking for %THES%NewDescriptor
+	givenClass.setValue(userOperation.getValue()+"ThesaurusNotionType");
+        StringObject Inew_descriptorStrObj = new StringObject();
+	ret = GetThesaurusObject(Inew_descriptorStrObj, null, new StringObject("NewDescriptor"), null, givenClass, card);
+	if (ret==TMS_APIFail) {
+            return TMS_APIFail;
+        }
+	Identifier Inew_descriptor = new Identifier(Inew_descriptorStrObj.getValue());
+
+        Identifier Itop_term_class = new Identifier(top_term_class.getValue());
+	
+        // </editor-fold>
+        
+        
+        
+        // <editor-fold defaultstate="collapsed" desc="Facet Class Addition and INSTANCEOF, ISA RELATIONSHIPS">
+        
         //retell individual facet in S_Class end
-        ret = QC.CHECK_Add_Node(Ifacet,QClass.SIS_API_S_CLASS,true,facet.getTransliterationString(),userOperation.getValue(),facet.getRefid());
+        //retell facet in newthesaurusclass end
+        //retell facet in aatfacet end
+        //retell facet in aatclass end
+        
+        
+        //Add Facet to S_Class - no Thesaurus Reference Id will be added to the hierarchy. 
+        ret = QC.CHECK_Add_Node(Ifacet,QClass.SIS_API_S_CLASS,true,facet.getTransliterationString(),userOperation.getValue(),TMSAPIClass.Do_Not_Assign_ReferenceId);
         if (ret==QClass.APIFail) { 
             abort_create(facet.getString(),errorMessage); 
             return TMS_APIFail; 
         }
         
-        //retell facet in newthesaurusclass end
+        //facet INSTANCEOF %THES%NewThesaurusClass
         ret = QC.CHECK_Add_Instance(Ifacet,Inew_thesaurus_class);
         if (ret==QClass.APIFail) { 
             abort_create(facet.getString(),errorMessage); 
             return TMS_APIFail; 
         }
         
-        //retell facet in aatfacet end
+        
+        //facet INSTANCEOF %THES%Facet
         ret = QC.CHECK_Add_Instance(Ifacet,Iclass_facet);
         if (ret==QClass.APIFail) { 
             abort_create(facet.getString(),errorMessage); 
             return TMS_APIFail; 
         }
 
-        //retell facet in aatclass end
+        //facet INSTANCEOF %THES%ThesaurusClass
         ret = QC.CHECK_Add_Instance(Ifacet,Ithesaurus_class);
         if (ret==QClass.APIFail) { 
             abort_create(facet.getString(),errorMessage); 
             return TMS_APIFail; 
+        }        
+        //</editor-fold>
+        
+        // <editor-fold defaultstate="collapsed" desc="Top Term Addition and INSTANCEOF, ISA RELATIONSHIPS">
+        //Create token Top term with transliteration and Thesaurus reference Id
+	ret = QC.CHECK_Add_Node(Itopterm,QClass.SIS_API_TOKEN_CLASS,true,facet.getTransliterationString(),userOperation.getValue(),facet.getRefid());
+	if (ret==QClass.APIFail) { 
+            abort_create(facet.getString(),errorMessage);
+            return TMS_APIFail;
+        }	
+        
+        //TopTerm INSTANCEOF %THES%TopTerm
+	ret = QC.CHECK_Add_Instance(Itopterm,Itop_term_class);
+	if (ret==QClass.APIFail) { 
+            abort_create(facet.getString(),errorMessage);
+            return TMS_APIFail;
         }
+
+        /* Does not belong to a hierarchy
+	//TopTerm INSTANCEOF "hierarchy"
+	ret = QC.CHECK_Add_Instance(Itopterm,Ihierarchy);
+	if (ret==QClass.APIFail) { 
+            abort_create(facet.getString(),errorMessage);
+            return TMS_APIFail;
+        }*/
+
+	//TopTerm INSTANCEOF %THES%NewDescriptor
+	ret = QC.CHECK_Add_Instance(Itopterm,Inew_descriptor);
+	if (ret==QClass.APIFail) { 
+            abort_create(facet.getString(),errorMessage);
+            return TMS_APIFail;
+        }
+        // </editor-fold>
+        
+        
+        // <editor-fold defaultstate="collapsed" desc="Facet Class - Top Term Addition association">
+	//at this point associate top term with the hierarchy through the
+	//		"belongs_to_%thes%_facet" link.
+
+        
+	QC.reset_name_scope();
+	toptermSySIdL = QC.set_current_node(top_term);
+	if(toptermSySIdL<=0){
+            abort_create(facet.getString(),errorMessage);
+            return TMS_APIFail;
+        }
+
+	QC.reset_name_scope();
+	facetSySIdL = QC.set_current_node(new StringObject(facet.getString()));
+	if (facetSySIdL<=0) {
+            abort_create(facet.getString(),errorMessage);
+            return TMS_APIFail; 
+        }
+
+        CMValue link_to = new CMValue();
+        link_to.assign_node(facet.getString(), facetSySIdL);
+	//cm_value link_to;
+	//QC.assign_node(&link_to,Ihierarchy.loginam,hierarchySySId);
+
+        Identifier belongs_to_from_value = new Identifier(toptermSySIdL);
+	//IDENTIFIER	belongs_to_from_value(toptermSySId);
+
+	int ret_set1 = QC.set_get_new();
+
+	QC.reset_name_scope();
+	//l_name belongs_cat_tmp;
+	//sprintf(belongs_cat_tmp,"belongs_to_%s_facet",prefix_thesaurus_l);
+	//strcpy(belongs_cat, translate(belongs_cat_tmp));
+
+        StringObject belongs_cat = new StringObject(String.format("belongs_to_%s_facet", prefix_thesaurus.getValue().toLowerCase()));
+	long retL = QC.set_current_node(top_term_class);
+	if (retL<=0) { 
+            abort_create(facet.getString(),errorMessage);
+            return TMS_APIFail;
+        }
+
+	//TO_DO : to be taken by the rule!!!!
+	retL = QC.set_current_node(belongs_cat);
+	if (retL<=0) { 
+            abort_create(facet.getString(),errorMessage);
+            return TMS_APIFail;
+        }
+
+	QC.set_put(ret_set1);
+
+	//retell topterm
+	//		with belongs_to_aat_hierarchy
+	//			: hierarchy
+	//end
+
+	ret = CreateAttribute(null, top_term, link_to, -1, ret_set1);
+	//ret = EF_Add_Unnamed_xxx(&belongs_to_from_value,&link_to,ret_set1, errorMessage);
+	QC.free_set(ret_set1);
+	if (ret==QClass.APIFail){ 
+            abort_create(facet.getString(),errorMessage);
+            return TMS_APIFail;
+        }
+        //</editor-fold>
         
         commit_create(facet.getString(),errorMessage); 
+        
         return TMS_APISucc;        
     }
     
-    public int  CHECK_CreateHierarchy(StringObject hierarchy, StringObject facet){
+    /**
+     * Creates a Node classified as Hierarchy of Current Thesaurus - belonging to the specified Facet.
+     *
+     * No transliteration or Thesaurus referenceId is added though
+     * 
+     * Use CreateHierarchyCMValue instead that will also contain the logical name's 
+     * transliteration and the thesaurus Reference Id
+     * 
+     * @param hierarchy
+     * @param facet
+     * @return 
+     */    
+    public int  CreateHierarchy(StringObject hierarchy, StringObject facet){
         CMValue cmv = new CMValue();
         cmv.assign_node(hierarchy.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId,"",TMSAPIClass.Do_Not_Assign_ReferenceId);
-        return CHECK_CreateHierarchyCMValue(cmv,facet);
+        return CreateHierarchyCMValue(cmv,facet);
     }
     
-    public int  CHECK_CreateHierarchyCMValue(CMValue hierarchy, StringObject facet){
+    /**
+     * Creates a Node classified as Hierarchy of Current Thesaurus - belonging to the specified Facet.
+     *
+     * "hierarchy" CMValue should also contain the hierarchy transliteration and the 
+     * Thesaurus referenceId that will be added to the Hierarchy's Top Term Node
+     * 
+     * @param hierarchy
+     * @param facet
+     * @return 
+     */   
+    public int  CreateHierarchyCMValue(CMValue hierarchy, StringObject facet){
         // <editor-fold defaultstate="collapsed" desc="C++ Code">
         /*
 -----------------------------------------------------------------
@@ -4064,6 +4337,7 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
         
         int ret;
 
+        //check if hierarchy name is empty
 	if (hierarchy==null || hierarchy.getString()==null || hierarchy.getString().length()==0){
             //sprintf(errorMessage,"%s %s",translate(EMPTY_STRING),translate("Hierarchy")); 
             errorMessage.setValue(String.format("%s %s", EMPTY_STRING, "Hierarchy"));
@@ -4071,11 +4345,10 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	}
         
         StringObject thesaurus = new StringObject();
-        //StringObject  = new StringObject();
         StringObject prefix_thesaurus = new StringObject();
         StringObject prefix_term = new StringObject();
         StringObject prefix_class = new StringObject();
-        StringObject prefix_thesaurus_l = new StringObject();
+        StringObject prefix_thesaurus_lower = new StringObject();
         
         
 	ret = GetThesaurusName(thesaurus);
@@ -4092,6 +4365,15 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
             return TMS_APIFail;
         }
 
+        // looking for MERIMEEThesaurusClass
+	IntegerObject card = new IntegerObject(0);
+        StringObject givenClass = new StringObject(userOperation.getValue()+"ThesaurusClassType");
+        StringObject thesaurus_class = new StringObject();
+        StringObject hierarchy_class = new StringObject();
+        StringObject facet_class = new StringObject();
+        StringObject top_term_class = new StringObject();
+        
+        // <editor-fold defaultstate="collapsed" desc="Prefixes and classes Retrieval">
 	ret = ThesaurusName(thesaurus,prefix_thesaurus,errorMessage);
 	if (ret==TMS_APIFail) {
             return TMS_APIFail;
@@ -4106,22 +4388,17 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	if (ret==TMS_APIFail) {
             return TMS_APIFail;
         }
-
-	//int i;
+        //int i;
 	//for (i=0;i<strlen(prefix_thesaurus) && prefix_thesaurus[i] != '\0';i++)
 		//prefix_thesaurus_l[i] = tolower(prefix_thesaurus[i]);
 
 	//prefix_thesaurus_l[i] = '\0';
         //prefix_thesaurus_l.setValue(prefix_thesaurus.getValue().substring(0, prefix_thesaurus.getValue().length()-1).toLowerCase());
-        prefix_thesaurus_l.setValue(prefix_thesaurus.getValue().substring(0, prefix_thesaurus.getValue().length()).toLowerCase());
-
-	// looking for MERIMEEThesaurusClass
-	IntegerObject card = new IntegerObject(0);
-        StringObject givenClass = new StringObject(userOperation.getValue()+"ThesaurusClassType");
-        StringObject thesaurus_class = new StringObject();
-        StringObject hierarchy_class = new StringObject();
-        StringObject facet_class = new StringObject();
-        StringObject top_term_class = new StringObject();
+        prefix_thesaurus_lower.setValue(prefix_thesaurus.getValue().substring(0, prefix_thesaurus.getValue().length()).toLowerCase());
+        
+        
+        
+        
 	//l_name givenClass;
 	//strcpy(givenClass, userOperation); // MERIMEE
 	//strcat(givenClass, "ThesaurusClassType"); // MERIMEEThesaurusClassType
@@ -4154,17 +4431,24 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	if (ret==TMS_APIFail) {
             return TMS_APIFail;
         }
+        // </editor-fold>
 
-        if (facet==null || facet.getValue()==null || facet.getValue().length()==0){
+        // <editor-fold defaultstate="collapsed" desc="Performing the relevant consistency checks on hierarchy and facet">
+        //checking if facet name is empty
+	if (facet==null || facet.getValue()==null || facet.getValue().length()==0){
+            /* //Changed this code so that it returns error. 
+               //TopFacet is not used and it is not also classified in thesaurus 
+              // specific %THES%TopFacet
             //sprintf(facet,"%s%s",prefix_class, "TopFacet");
             if(facet==null){
                 facet= new StringObject();
             }
             facet.setValue(prefix_class.getValue()+"TopFacet");
+            */
+            errorMessage.setValue(String.format("%s %s", EMPTY_STRING, "Facet"));
+            return TMS_APIFail;            
 	}
-	//if (facet[0]=='\0')
-		//sprintf(facet,"%s%s",prefix_class, "TopFacet");
-
+        
 	// abort if hierarchy has not the correct prefix
 	if (hierarchy.getString().startsWith(prefix_class.getValue())==false){
             //strncmp(prefix_class, hierarchy, strlen(prefix_class))) { // "str" does not contain "prefix"
@@ -4188,6 +4472,7 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
             errorMessage.setValue(String.format("%s %s", facet.getValue(),OBJECT_DOES_NOT_EXIST));
             return TMS_APIFail;
         }
+        
 	//abort if facet is not an instance of aatfacet
 	int ret1 = ObjectinClass(facet,facet_class,errorMessage);
 	int ret2 = ObjectinClass(facet,hierarchy_class,errorMessage);
@@ -4196,7 +4481,9 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
             errorMessage.setValue(String.format("%s is not an instance of %s\n", facet.getValue(),facet_class.getValue()));
             return TMS_APIFail;
 	}
+        //</editor-fold>
 
+        // <editor-fold defaultstate="collapsed" desc="Compute Top Term Name - same as the hierarchy but different prefix">
         StringObject top_term = new StringObject(prefix_term.getValue());
 	//sprintf(top_term,"%s",prefix_term);
 
@@ -4214,6 +4501,7 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 
 	//top_term[length+i-1] = '\0';
         top_term.setValue(top_term.getValue()+tmp);
+        //</editor-fold>
 
 	//abort if top term already exists
 	QC.reset_name_scope();
@@ -4224,28 +4512,30 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
             return TMS_APIFail;
         }
 
-        Identifier Ifacet = new Identifier(facetSySIdL);
-	//IDENTIFIER Ifacet; // assign an identifier to the given facet
+        // <editor-fold defaultstate="collapsed" desc="Identifiers Initialization">
+        //IDENTIFIER Ifacet; // assign an identifier to the given facet
 	//strcpy(Ifacet.loginam,facet);
 	//Ifacet.tag = ID_TYPE_LOGINAM;
-
-        Identifier Ihierarchy = new Identifier(hierarchy.getString());
-	//IDENTIFIER Ihierarchy; //assign an identifier to the given hierarchy
+        //IDENTIFIER Ihierarchy; //assign an identifier to the given hierarchy
 	//strcpy(Ihierarchy.loginam,hierarchy);
 	//Ihierarchy.tag = ID_TYPE_LOGINAM;
-
-        Identifier Itopterm = new Identifier(top_term.getValue());
-	//IDENTIFIER Itopterm; //assign an identifier to the given top term
+        //IDENTIFIER Itopterm; //assign an identifier to the given top term
 	//strcpy(Itopterm.loginam,top_term);
 	//Itopterm.tag = ID_TYPE_LOGINAM;
 
         //Identifier Inew_thesaurus_class = new Identifier(top_term.getValue());
 	//IDENTIFIER Inew_thesaurus_class;
-        givenClass.setValue(userOperation.getValue()+"ThesaurusClassType");
-	// looking for MERIMEENewThesaurusClass
+        // looking for MERIMEENewThesaurusClass
 	//strcpy(givenClass, userOperation); // MERIMEE
 	//strcat(givenClass, "ThesaurusClassType"); // MERIMEEThesaurusClassType
-        StringObject Inew_thesaurus_classStrObj = new StringObject();
+
+        
+        
+        Identifier Ifacet = new Identifier(facetSySIdL);
+        Identifier Ihierarchy = new Identifier(hierarchy.getString());
+	Identifier Itopterm = new Identifier(top_term.getValue());	
+        givenClass.setValue(userOperation.getValue()+"ThesaurusClassType");	
+        StringObject Inew_thesaurus_classStrObj = new StringObject();        
 	ret = GetThesaurusObject(Inew_thesaurus_classStrObj, null, new StringObject("NewThesaurusClass"), null, givenClass, card);
 	if (ret==TMS_APIFail) {
             return TMS_APIFail;
@@ -4305,37 +4595,50 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	//IDENTIFIER Ithesaurus_class;
 	//strcpy(Ithesaurus_class.loginam,thesaurus_class);
 	//Ithesaurus_class.tag = ID_TYPE_LOGINAM;
+        
+        //</editor-fold>
 
 	//retell individual hierarchy in S_Class end
-        //Finally no URI will be added to the hierarchy. Uri for the top term should be enough
+        //retell hierarchy in aathierarchy end
+        //retell hierarchy in newthesaurusclass end
+        //retell hierarchy in aatclass end
+        //retell hierarchy isa hierarchyclass
+        //retell hierarchy isa facet end
+        //retell individual topterm in Token end
+        //retell topterm in aattopterm end
+        //retell topterm in hierarchy end
+        //retell topterm in newdescriptor end
+        
+        // <editor-fold defaultstate="collapsed" desc="Hierarchy Class Addition and INSTANCEOF, ISA RELATIONSHIPS">
+        //Add hierarchy to S_Class - no Thesaurus Reference Id will be added to the hierarchy. 
 	ret = QC.CHECK_Add_Node(Ihierarchy,QClass.SIS_API_S_CLASS, true,hierarchy.getTransliterationString(),userOperation.getValue(),TMSAPIClass.Do_Not_Assign_ReferenceId);
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
-	//retell hierarchy in aathierarchy end
+	//hierarchy INSTANCEOF %THES%Hierarchy
 	ret = QC.CHECK_Add_Instance(Ihierarchy,Ithesaurus_hierarchy_class);
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
-	//retell hierarchy in newthesaurusclass end
+	//hierarchy INSTANCEOF %THES%NewThesaurusClass
 	ret = QC.CHECK_Add_Instance(Ihierarchy,Inew_thesaurus_class);
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
-
-	//retell hierarchy in aatclass end
+	
+        //hierarchy INSTANCEOF %THES%ThesaurusClass
 	ret = QC.CHECK_Add_Instance(Ihierarchy,Ithesaurus_class);
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
-	//retell hierarchy isa hierarchyclass
+	//hierarchy ISA %THES%HierarchyClass
 	ret = QC.CHECK_Add_IsA(Ihierarchy,Ihierarchy_class);
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy.getString(),errorMessage);
@@ -4348,44 +4651,51 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	if (ret==APIFail) { abort_create(Ihierarchy.loginam,message);return TMS_APIFail;}
 	*/
 
-	//retell hierarchy isa facet end
+	
+        //hierarchy ISA "facet"
 	ret = QC.CHECK_Add_IsA(Ihierarchy,Ifacet);
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
+        //</editor-fold>
 
-	//retell individual topterm in Token end
+        // <editor-fold defaultstate="collapsed" desc="Top Term Addition and INSTANCEOF, ISA RELATIONSHIPS">
+	//Create token Top term with transliteration and Thesaurus reference Id
 	ret = QC.CHECK_Add_Node(Itopterm,QClass.SIS_API_TOKEN_CLASS,true,hierarchy.getTransliterationString(),userOperation.getValue(),hierarchy.getRefid());
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
-
-	//retell topterm in aattopterm end
+	
+        //TopTerm INSTANCEOF %THES%TopTerm
 	ret = QC.CHECK_Add_Instance(Itopterm,Itop_term_class);
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
-	//retell topterm in hierarchy end
+	//TopTerm INSTANCEOF "hierarchy"
 	ret = QC.CHECK_Add_Instance(Itopterm,Ihierarchy);
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
-	//retell topterm in newdescriptor end
+	//TopTerm INSTANCEOF %THES%NewDescriptor
 	ret = QC.CHECK_Add_Instance(Itopterm,Inew_descriptor);
 	if (ret==QClass.APIFail) { 
             abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
 
+        //</editor-fold>
+        
+        // <editor-fold defaultstate="collapsed" desc="Hierarchy Class - Top Term Addition association">
 	//at this point associate top term with the hierarchy through the
 	//		"belongs_to_aat_hierarchy" link.
 
+        
 	QC.reset_name_scope();
 	toptermSySIdL = QC.set_current_node(top_term);
 	if(toptermSySIdL<=0){
@@ -4415,7 +4725,7 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	//sprintf(belongs_cat_tmp,"belongs_to_%s_hierarchy",prefix_thesaurus_l);
 	//strcpy(belongs_cat, translate(belongs_cat_tmp));
 
-        StringObject belongs_cat = new StringObject(String.format("belongs_to_%s_hierarchy", prefix_thesaurus_l.getValue()));
+        StringObject belongs_cat = new StringObject(String.format("belongs_to_%s_hierarchy", prefix_thesaurus_lower.getValue()));
 	long retL = QC.set_current_node(top_term_class);
 	if (retL<=0) { 
             abort_create(hierarchy.getString(),errorMessage);
@@ -4443,7 +4753,8 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
             abort_create(hierarchy.getString(),errorMessage);
             return TMS_APIFail;
         }
-
+        //</editor-fold>
+        
 	commit_create(hierarchy.getString(),errorMessage); 
         return TMS_APISucc;
     }
@@ -8706,28 +9017,30 @@ int tms_api::SetThesaurusName(char *userOp)
     }
     
     public int  GetThesaurusName(StringObject userOp){
-        //
+        //<editor-fold defaultstate="collapsed" desc="C++ code...">   
+        /*
+        tms_api::GetThesaurus()
+                INPUT: - thesaurus : an allocated string
+                OUTPUT: - TMS_APISucc
+                FUNCTION: returns the currently used data base thesaurus name
+                                         (for example: Thesaurus`MERIMEE)
+
+        int tms_api::GetThesaurus(char *thesaurus, char *message)
+        {
+          sprintf(thesaurus,"%s%s","Thesaurus`",userOperation);
+          message[0] = '\0';
+
+          return TMS_APISucc;
+        }
+        */
+        //</editor-fold>  
         
-/*
-tms_api::GetThesaurus()
-	INPUT: - thesaurus : an allocated string
-	OUTPUT: - TMS_APISucc
-	FUNCTION: returns the currently used data base thesaurus name
-				 (for example: Thesaurus`MERIMEE)
-
-int tms_api::GetThesaurus(char *thesaurus, char *message)
-{
-  sprintf(thesaurus,"%s%s","Thesaurus`",userOperation);
-  message[0] = '\0';
-
-  return TMS_APISucc;
-}
-*/
         userOp.setValue("Thesaurus`"+userOperation.getValue());
         return TMS_APISucc;
     }
+    
     public int  GetThesaurusNameWithoutPrefix(StringObject userOp){
-        //
+        //<editor-fold defaultstate="collapsed" desc="C++ code...">   
         
 /*
 tms_api::GetThesaurus()
@@ -8744,6 +9057,7 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
   return TMS_APISucc;
 }
 */
+//</editor-fold>   
         userOp.setValue(userOperation.getValue());
         return TMS_APISucc;
     }
