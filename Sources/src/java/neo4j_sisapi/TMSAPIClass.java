@@ -3767,6 +3767,7 @@ int tms_api::CreateFacet(char *facet)
         
         //</editor-fold>
         
+        /* Freezing TopTerm creation code
         // <editor-fold defaultstate="collapsed" desc="Compute Top Term Name - same as the facet name but different prefix">
         StringObject top_term = new StringObject();
         if(facetTopTermCmv==null || facetTopTermCmv.getString()==null || facetTopTermCmv.getString().length()==0){
@@ -3822,6 +3823,7 @@ int tms_api::CreateFacet(char *facet)
             errorMessage.setValue(String.format("%s %s", top_term.getValue(),OBJECT_EXISTS));
             return TMS_APIFail;
         }
+        */
         
         // <editor-fold defaultstate="collapsed" desc="Identifiers Initialization">
         //IDENTIFIER Ifacet;
@@ -3853,7 +3855,7 @@ int tms_api::CreateFacet(char *facet)
         Identifier Inew_thesaurus_class = new Identifier(Inew_thesaurus_classLoginam.getValue());
         Identifier Iclass_facet = new Identifier(facet_class.getValue());
         Identifier Ithesaurus_class = new Identifier(thesaurus_class.getValue());
-        Identifier Itopterm = new Identifier(top_term.getValue());
+        
         
         //IDENTIFIER Inew_descriptor;
 	//looking for %THES%NewDescriptor
@@ -3865,8 +3867,10 @@ int tms_api::CreateFacet(char *facet)
         }
 	Identifier Inew_descriptor = new Identifier(Inew_descriptorStrObj.getValue());
 
+        /* Freezing TopTerm creation code
+        Identifier Itopterm = new Identifier(top_term.getValue());
         Identifier Itop_term_class = new Identifier(top_term_class.getValue());
-	
+	*/
         // </editor-fold>
         
         
@@ -3880,7 +3884,10 @@ int tms_api::CreateFacet(char *facet)
         
         
         //Add Facet to S_Class - no Thesaurus Reference Id will be added to the hierarchy. 
+        /* Freezing TopTerm creation code
         ret = QC.CHECK_Add_Node(Ifacet,QClass.SIS_API_S_CLASS,true,facet.getTransliterationString(),userOperation.getValue(),TMSAPIClass.Do_Not_Assign_ReferenceId);
+        */
+        ret = QC.CHECK_Add_Node(Ifacet,QClass.SIS_API_S_CLASS,true,facet.getTransliterationString(),userOperation.getValue(),facet.getRefid());
         if (ret==QClass.APIFail) { 
             abort_create(facet.getString(),errorMessage); 
             return TMS_APIFail; 
@@ -3909,6 +3916,7 @@ int tms_api::CreateFacet(char *facet)
         }        
         //</editor-fold>
         
+        /* Freezing TopTerm creation code
         // <editor-fold defaultstate="collapsed" desc="Top Term Addition and INSTANCEOF, ISA RELATIONSHIPS">
         //Create token Top term with transliteration and Thesaurus reference Id
 	ret = QC.CHECK_Add_Node(Itopterm,QClass.SIS_API_TOKEN_CLASS,true,facet.getTransliterationString(),userOperation.getValue(),facet.getRefid());
@@ -3924,13 +3932,13 @@ int tms_api::CreateFacet(char *facet)
             return TMS_APIFail;
         }
 
-        /* Does not belong to a hierarchy
+        // Does not belong to a hierarchy - perhaps should be instance of facet
 	//TopTerm INSTANCEOF "hierarchy"
-	ret = QC.CHECK_Add_Instance(Itopterm,Ihierarchy);
-	if (ret==QClass.APIFail) { 
-            abort_create(facet.getString(),errorMessage);
-            return TMS_APIFail;
-        }*/
+	//ret = QC.CHECK_Add_Instance(Itopterm,Ihierarchy);
+	//if (ret==QClass.APIFail) { 
+        //    abort_create(facet.getString(),errorMessage);
+        //    return TMS_APIFail;
+        //}
 
 	//TopTerm INSTANCEOF %THES%NewDescriptor
 	ret = QC.CHECK_Add_Instance(Itopterm,Inew_descriptor);
@@ -4004,7 +4012,7 @@ int tms_api::CreateFacet(char *facet)
             return TMS_APIFail;
         }
         //</editor-fold>
-        
+        */
         commit_create(facet.getString(),errorMessage); 
         
         return TMS_APISucc;        
