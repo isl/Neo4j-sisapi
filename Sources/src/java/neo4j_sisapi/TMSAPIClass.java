@@ -909,6 +909,14 @@ int tms_api::Add_Del_ClassifyHierarchyInFacet(char *hierarchyName, char *facetNa
     }
 
     int CreateNode(StringObject node, int option){
+        
+        CMValue cmv = new CMValue();
+        cmv.assign_node(node.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId,"",TMSAPIClass.Do_Not_Assign_ReferenceId);
+        
+        return CreateNodeCMValue(cmv,option);
+    }
+    
+    int CreateNodeCMValue(CMValue nodeCmv, int option){
         //<editor-fold defaultstate="collapsed" desc="C++ code...">  
         /*-------------------------------------------------------------------
 							tms_api::CreateNode()
@@ -984,7 +992,7 @@ int tms_api::CreateNode(char *node, int option)
         //</editor-fold>  
         
         // abort if node name is empty
-	if (node == null || node.getValue()==null || node.getValue().length()==0){
+	if (nodeCmv == null || nodeCmv.getString()==null || nodeCmv.getString().length()==0){
             //sprintf(errorMessage,"%s%s", translate(EMPTY_STRING), translate("Node"));
             errorMessage.setValue(String.format("%s%s", EMPTY_STRING, "Node"));
             return TMS_APIFail;
@@ -992,12 +1000,12 @@ int tms_api::CreateNode(char *node, int option)
         
 	//abort if node already exists
 	QC.reset_name_scope();
-	long nodeSySIdL = QC.set_current_node(node);
+	long nodeSySIdL = QC.set_current_node(new StringObject(nodeCmv.getString()));
 	if (nodeSySIdL !=QClass.APIFail) {
             //strcpy(errorMessage, node);
             //strcat(errorMessage, " ");
             //strcat(errorMessage, translate(OBJECT_EXISTS));
-            errorMessage.setValue(node.getValue() + " " + OBJECT_EXISTS);
+            errorMessage.setValue(nodeCmv.getString() + " " + OBJECT_EXISTS);
             return TMS_APIFail;
 	}
         
@@ -1058,7 +1066,7 @@ int tms_api::CreateNode(char *node, int option)
         */
         }//end of switch
         
-        return CreateNodeSubRoutine(node, ClassName,directPrefixesOnly);        
+        return CreateNodeSubRoutineCMValue(nodeCmv, ClassName,directPrefixesOnly);        
         //return TMS_APISucc;
     }
     
@@ -1164,7 +1172,7 @@ int tms_api::CreateNode(char *node, int option)
 	//Iclass.tag = ID_TYPE_LOGINAM;
 
 	// create the node
-	int ret = QC.CHECK_Add_Node(Inode, QClass.SIS_API_TOKEN_CLASS,true,"","",node.getRefid());
+	int ret = QC.CHECK_Add_Node(Inode, QClass.SIS_API_TOKEN_CLASS,true,node.getTransliterationString(),"",node.getRefid());
 	if (ret==QClass.APIFail) { 
             abort_create(node.getString(), errorMessage); 
             return TMS_APIFail;
@@ -4766,9 +4774,20 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
 	commit_create(hierarchy.getString(),errorMessage); 
         return TMS_APISucc;
     }
-    
+    /*
     public int  CHECK_CreateSource(StringObject source){
         int ret = CreateNode(source, CREATE_SOURCE);
+        return ret;
+    }*/
+    
+    public int  CHECK_CreateSource(StringObject source){
+        CMValue cmv = new CMValue();
+        cmv.assign_node(source.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId,"",TMSAPIClass.Do_Not_Assign_ReferenceId);
+        return CHECK_CreateUsedForTermCMValue(cmv);
+    }
+    
+    public int  CHECK_CreateSourceCMValue(CMValue source){        
+        int ret = CreateNodeCMValue(source, CREATE_SOURCE);
         return ret;
     }
     
@@ -4779,6 +4798,7 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
     }
     
     public int  CHECK_CreateTranslationWordCMValue(CMValue TranslationWord, StringObject TranslationWordClass){
+        // <editor-fold defaultstate="collapsed" desc="C++ code">
         /*
         // abort if translation category name is invalid
 	if (*TranslationWordClass == '\0'){
@@ -4813,6 +4833,8 @@ int tms_api::CreateHierarchy(char *hierarchy, char *facet)
    return ret;
 
         */
+        //</editor-fold>
+        
         // abort if translation category name is invalid
 	if (TranslationWordClass == null || TranslationWordClass.getValue() == null || TranslationWordClass.getValue().length() ==0){
             //sprintf(errorMessage,"%s%s", translate(EMPTY_STRING), translate("Translation Word Category"));
@@ -9504,12 +9526,18 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
     }
     
     public int  CHECK_CreateUsedForTerm(StringObject term){
+        CMValue cmv = new CMValue();
+        cmv.assign_node(term.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId,"",TMSAPIClass.Do_Not_Assign_ReferenceId);
+        return CHECK_CreateUsedForTermCMValue(cmv);
+    }
+    
+    public int  CHECK_CreateUsedForTermCMValue(CMValue term){
         /*//USED IN WEBTMS API ONLY
         CMValue cmv = new CMValue();
         cmv.assign_node(term.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId);
         return CHECK_CreateUsedForTerm(cmv);
         */
-        int ret = CreateNode(term, CREATE_USED_FOR_TERM);
+        int ret = CreateNodeCMValue(term, CREATE_USED_FOR_TERM);
         return ret;
     }
     /*
