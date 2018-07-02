@@ -2844,8 +2844,8 @@
 320	LABEL	Generic
 320	LABEL	S_Class
 320	LABEL	Type_Attribute
-320	INSTANCEOF	262		<!-- source_note	INSTANCEOF	text_type -->
-320	RELATION	25		<!-- source_note	RELATION	hyperText -->
+320	INSTANCEOF	219		<!-- source_note	INSTANCEOF	attribute -->
+320	RELATION	3		<!-- source_note	RELATION	Telos_String -->
 321	Neo4j_Id	321
 321	Logicalname	found_in
 321	LABEL	Common
@@ -5708,3 +5708,98 @@
 653	LABEL	Type_Attribute				
 653	INSTANCEOF	219		<!-- class_note	INSTANCEOF	attribute -->
 653	RELATION	3		<!-- class_note	RELATION	Telos_String-->
+654	Neo4j_Id	654
+654	Logicalname	ExternalLink
+654	LABEL	Common				
+654	LABEL	Generic				
+654	LABEL	S_Class	
+654	LABEL	Type_Individual
+655	Neo4j_Id	655
+655	Logicalname	ExternalVocabulary
+655	LABEL	Common				
+655	LABEL	Generic				
+655	LABEL	S_Class	
+655	LABEL	Type_Individual
+656	Neo4j_Id	656
+656	Logicalname	has_external_link				
+656	LABEL	Common				
+656	LABEL	Generic				
+656	LABEL	S_Class				
+656	LABEL	Type_Attribute				
+656	INSTANCEOF	219		<!-- has_external_link	INSTANCEOF  attribute -->
+656	RELATION	654		<!-- has_external_link	RELATION ExternalLink-->
+41	RELATION	656	<!-- HierarchyTerm  RELATION  has_external_link -->
+657	Neo4j_Id	657
+657	Logicalname	belongs_to_external_vocabulary				
+657	LABEL	Common				
+657	LABEL	Generic				
+657	LABEL	S_Class				
+657	LABEL	Type_Attribute		
+657	INSTANCEOF	219		<!-- belongs_to_external_vocabulary	INSTANCEOF  attribute -->		
+657	RELATION	655	<!-- belongs_to_external_vocabulary	RELATION     ExternalVocabulary-->
+654	RELATION	657	<!-- ExternalLink  RELATION  belongs_to_external_vocabulary -->
+# 658	Neo4j_Id	658
+# 658	Logicalname	exact_match				
+# 658	LABEL	Common				
+# 658	LABEL	Generic				
+# 658	LABEL	S_Class				
+# 658	LABEL	Type_Attribute
+# 658	ISA	656		<!-- exact_match	ISA	has_external_link -->
+# 658	INSTANCEOF	219		<!-- exact_match	INSTANCEOF  attribute -->				
+# 658	RELATION	654		<!-- exact_match	RELATION ExternalLink-->
+# 41	RELATION	658	        <!-- HierarchyTerm  RELATION  exact_match -->
+# 659	Neo4j_Id	659
+# 659	Logicalname	close_match				
+# 659	LABEL	Common				
+# 659	LABEL	Generic				
+# 659	LABEL	S_Class				
+# 659	LABEL	Type_Attribute	
+# 659	ISA	656		<!-- exact_match	ISA	has_external_link -->
+# 659	INSTANCEOF	219		<!-- close_match	INSTANCEOF  attribute -->			
+# 659	RELATION	654		<!-- close_match	RELATION ExternalLink-->
+# 41	RELATION	659	        <!-- HierarchyTerm  RELATION  close_match -->
+660	Neo4j_Id	660
+660	Logicalname	has_label				
+660	LABEL	Common				
+660	LABEL	Generic				
+660	LABEL	S_Class				
+660	LABEL	Type_Attribute		
+660	INSTANCEOF	219		<!-- has_label	INSTANCEOF  attribute -->			
+660	RELATION	3		<!-- has_label	RELATION Telos_String-->
+654	RELATION	660	        <!-- ExternalLink  RELATION  has_label -->
+661	Neo4j_Id	661
+661	Logicalname	has_fullname				
+661	LABEL	Common				
+661	LABEL	Generic				
+661	LABEL	S_Class				
+661	LABEL	Type_Attribute		
+661	INSTANCEOF	219		<!-- has_fullname	INSTANCEOF  attribute -->			
+661	RELATION	3		<!-- has_fullname	RELATION Telos_String-->
+655	RELATION	661	        <!-- ExternalVocabulary  RELATION  has_fullname -->
+662	Neo4j_Id	662
+662	Logicalname	has_description				
+662	LABEL	Common				
+662	LABEL	Generic				
+662	LABEL	S_Class				
+662	LABEL	Type_Attribute		
+662	INSTANCEOF	219		<!-- has_description	INSTANCEOF  attribute -->			
+662	RELATION	3		<!-- has_description	RELATION Telos_String-->
+655	RELATION	662	        <!-- ExternalVocabulary  RELATION  has_description -->
+663	Neo4j_Id	663
+663	Logicalname	has_version				
+663	LABEL	Common				
+663	LABEL	Generic				
+663	LABEL	S_Class				
+663	LABEL	Type_Attribute		
+663	INSTANCEOF	219		<!-- has_version	INSTANCEOF  attribute -->			
+663	RELATION	3		<!-- has_version	RELATION Telos_String-->
+655	RELATION	663	        <!-- ExternalVocabulary  RELATION  has_version -->
+664	Neo4j_Id	664
+664	Logicalname	release_timestamp				
+664	LABEL	Common				
+664	LABEL	Generic				
+664	LABEL	S_Class				
+664	LABEL	Type_Attribute		
+664	INSTANCEOF	219		<!-- release_timestamp	INSTANCEOF  attribute -->			
+664	RELATION	3		<!-- release_timestamp	RELATION Telos_String-->
+655	RELATION	664	        <!-- ExternalVocabulary  RELATION  release_timestamp -->

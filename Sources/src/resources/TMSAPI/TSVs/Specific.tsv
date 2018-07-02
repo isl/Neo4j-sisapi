@@ -1999,3 +1999,109 @@
 1281	INSTANCEOF	259		<!-- belongs_to_SIS_xxxxx_SIS_hierarchy	INSTANCEOF	system_controlled -->
 1281	ISA	650		<!-- belongs_to_SIS_xxxxx_SIS_hierarchy	ISA	belongs_to_facet -->
 1281	RELATION	1036		<!-- belongs_to_SIS_xxxxx_SIS_facet	RELATION	SIS_XXXXX_SISFacet -->
+1282	Logicalname	SIS_XXXXX_SISExternalLink
+1282	LABEL	Common				
+1282	LABEL	S_Class				
+1282	LABEL	Type_Individual	
+1282	ISA	654		<!-- SIS_XXXXX_SISExternalLink	ISA	ExternalLink -->
+1283	Logicalname	SIS_XXXXX_SISExternalVocabulary
+1283	LABEL	Common				
+1283	LABEL	S_Class				
+1283	LABEL	Type_Individual	
+1283	ISA	655		<!-- SIS_XXXXX_SISExternalVocabulary	ISA	ExternalVocabulary -->
+1284	Logicalname	SIS_XXXXX_SISExtLink`				
+1284	LABEL	Common				
+1284	LABEL	Token				
+1284	LABEL	Type_Individual				
+1284	INSTANCEOF	23		<!-- SIS_XXXXX_SISExtLink`	INSTANCEOF	Prefix -->
+1285	Logicalname	SIS_XXXXX_SISExtVoc`				
+1285	LABEL	Common				
+1285	LABEL	Token				
+1285	LABEL	Type_Individual				
+1285	INSTANCEOF	23		<!-- SIS_XXXXX_SISExtVoc`	INSTANCEOF	Prefix -->
+1286	Logicalname	Label801286				
+1286	LABEL	Common				
+1286	LABEL	Token				
+1286	LABEL	Type_Attribute				
+1286	INSTANCEOF	261		<!-- Label801286	INSTANCEOF	has_prefix -->
+1286	RELATION	1284		<!-- Label801286	RELATION	SIS_XXXXX_SISExtLink` -->
+1282	RELATION	1286		<!-- SIS_XXXXX_SISExternalLink	RELATION	Label801286 -->
+1287	Logicalname	Label801287				
+1287	LABEL	Common				
+1287	LABEL	Token				
+1287	LABEL	Type_Attribute				
+1287	INSTANCEOF	261		<!-- Label801287	INSTANCEOF	has_prefix -->
+1287	RELATION	1285		<!-- Label801287	RELATION	SIS_XXXXX_SISExtVoc` -->
+1283	RELATION	1287		<!-- SIS_XXXXX_SISExternalVocabulary	RELATION	Label801287 -->
+1288	Logicalname	SIS_XXXXX_SIS_exact_match				
+1288	LABEL	Common				
+1288	LABEL	S_Class				
+1288	LABEL	Type_Attribute				
+1288	RELATION	1282		<!-- SIS_XXXXX_SIS_exact_match	RELATION	SIS_XXXXX_SISExternalLink -->
+1050	RELATION	1288		<!-- SIS_XXXXX_SISHierarchyTerm 	RELATION	SIS_XXXXX_SIS_exact_match -->
+1288	INSTANCEOF	219		<!-- SIS_XXXXX_SIS_exact_match	INSTANCEOF	attribute -->
+1288	ISA	1290		<!-- SIS_XXXXX_SIS_exact_match	ISA	SIS_XXXXX_SIS_has_external_link -->
+1289	Logicalname	SIS_XXXXX_SIS_close_match				
+1289	LABEL	Common				
+1289	LABEL	S_Class				
+1289	LABEL	Type_Attribute				
+1289	RELATION	1282		<!-- SIS_XXXXX_SIS_close_match	RELATION	SIS_XXXXX_SISExternalLink -->
+1050	RELATION	1289		<!-- SIS_XXXXX_SISHierarchyTerm 	RELATION	SIS_XXXXX_SIS_close_match -->
+1289	INSTANCEOF	219		<!-- SIS_XXXXX_SIS_close_match	INSTANCEOF	attribute -->
+1289	ISA	1290		<!-- SIS_XXXXX_SIS_close_match	ISA	SIS_XXXXX_SIS_has_external_link -->
+1290	Logicalname	SIS_XXXXX_SIS_has_external_link				
+1290	LABEL	Common				
+1290	LABEL	S_Class				
+1290	LABEL	Type_Attribute				
+1290	RELATION	1282		<!-- SIS_XXXXX_SIS_has_external_link		RELATION	SIS_XXXXX_SISExternalLink -->
+1050	RELATION	1290		<!-- SIS_XXXXX_SISHierarchyTerm 	RELATION	SIS_XXXXX_SIS_has_external_link	 -->
+1290	INSTANCEOF	219		<!-- SIS_XXXXX_SIS_has_external_link		INSTANCEOF	attribute -->
+1290	ISA	656		<!-- SIS_XXXXX_SIS_has_external_link		ISA	has_external_link -->
+1291	Logicalname	SIS_XXXXX_SIS_has_label				
+1291	LABEL	Common				
+1291	LABEL	S_Class				
+1291	LABEL	Type_Attribute				
+1291	RELATION	3		<!-- SIS_XXXXX_SIS_has_label	RELATION	Telos_String -->
+1282	RELATION	1291		<!-- SIS_XXXXX_SISExternalLink 	RELATION	SIS_XXXXX_SIS_has_label -->
+1291	INSTANCEOF	219		<!-- SIS_XXXXX_SIS_has_label	INSTANCEOF	attribute -->
+1291	ISA	660		<!-- SIS_XXXXX_SIS_has_label	ISA	has_label -->
+1292	Logicalname	SIS_XXXXX_SIS_belongs_to_external_vocabulary				
+1292	LABEL	Common				
+1292	LABEL	S_Class				
+1292	LABEL	Type_Attribute				
+1292	RELATION	1283		<!-- SIS_XXXXX_SIS_belongs_to_external_vocabulary		RELATION	SIS_XXXXX_SISExternalVocabulary	 -->
+1282	RELATION	1292		<!-- SIS_XXXXX_SISExternalLink 	RELATION	SIS_XXXXX_SIS_belongs_to_external_vocabulary	 -->
+1292	INSTANCEOF	219		<!-- SIS_XXXXX_SIS_belongs_to_external_vocabulary		INSTANCEOF	attribute -->
+1292	ISA	657		<!-- SIS_XXXXX_SIS_belongs_to_external_vocabulary		ISA	belongs_to_external_vocabulary -->
+1293	Logicalname	SIS_XXXXX_SIS_has_fullname				
+1293	LABEL	Common				
+1293	LABEL	S_Class				
+1293	LABEL	Type_Attribute				
+1293	RELATION	3		<!-- SIS_XXXXX_SIS_has_fullname	RELATION	Telos_String -->
+1283	RELATION	1293		<!-- SIS_XXXXX_SISExternalVocabulary 	RELATION	SIS_XXXXX_SIS_has_fullname -->
+1293	INSTANCEOF	219		<!-- SIS_XXXXX_SIS_has_fullname	INSTANCEOF	attribute -->
+1293	ISA	661		<!-- SIS_XXXXX_SIS_has_fullname	ISA	has_fullname -->
+1294	Logicalname	SIS_XXXXX_SIS_has_description				
+1294	LABEL	Common				
+1294	LABEL	S_Class				
+1294	LABEL	Type_Attribute				
+1294	RELATION	3		<!-- SIS_XXXXX_SIS_has_description	RELATION	Telos_String -->
+1283	RELATION	1294		<!-- SIS_XXXXX_SISExternalVocabulary 	RELATION	SIS_XXXXX_SIS_has_description -->
+1294	INSTANCEOF	219		<!-- SIS_XXXXX_SIS_has_description	INSTANCEOF	attribute -->
+1294	ISA	662		<!-- SIS_XXXXX_SIS_has_fullname	ISA	has_description -->
+1295	Logicalname	SIS_XXXXX_SIS_has_version				
+1295	LABEL	Common				
+1295	LABEL	S_Class				
+1295	LABEL	Type_Attribute				
+1295	RELATION	3		<!-- SIS_XXXXX_SIS_has_version	RELATION	Telos_String -->
+1283	RELATION	1295		<!-- SIS_XXXXX_SISExternalVocabulary 	RELATION	SIS_XXXXX_SIS_has_version -->
+1295	INSTANCEOF	219		<!-- SIS_XXXXX_SIS_has_version	INSTANCEOF	attribute -->
+1295	ISA	663		<!-- SIS_XXXXX_SIS_has_version	ISA	has_version -->
+1296	Logicalname	SIS_XXXXX_SIS_release_timestamp				
+1296	LABEL	Common				
+1296	LABEL	S_Class				
+1296	LABEL	Type_Attribute				
+1296	RELATION	3		<!-- SIS_XXXXX_SIS_release_timestamp	RELATION	Telos_String -->
+1283	RELATION	1296		<!-- SIS_XXXXX_SISExternalVocabulary 	RELATION	SIS_XXXXX_SIS_release_timestamp -->
+1296	INSTANCEOF	219		<!-- SIS_XXXXX_SIS_release_timestamp	INSTANCEOF	attribute -->
+1296	ISA	664		<!-- SIS_XXXXX_SIS_release_timestamp	ISA	release_timestamp -->
