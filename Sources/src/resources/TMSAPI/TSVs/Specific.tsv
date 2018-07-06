@@ -2105,3 +2105,11 @@
 1283	RELATION	1296		<!-- SIS_XXXXX_SISExternalVocabulary 	RELATION	SIS_XXXXX_SIS_release_timestamp -->
 1296	INSTANCEOF	219		<!-- SIS_XXXXX_SIS_release_timestamp	INSTANCEOF	attribute -->
 1296	ISA	664		<!-- SIS_XXXXX_SIS_release_timestamp	ISA	release_timestamp -->
+1297	Logicalname	SIS_XXXXX_SIS_has_uri				
+1297	LABEL	Common				
+1297	LABEL	S_Class				
+1297	LABEL	Type_Attribute				
+1297	RELATION	3		<!-- SIS_XXXXX_SIS_has_uri	RELATION	Telos_String -->
+1283	RELATION	1297		<!-- SIS_XXXXX_SISExternalVocabulary 	RELATION	SIS_XXXXX_SIS_has_uri -->
+1297	INSTANCEOF	219		<!-- SIS_XXXXX_SIS_has_uri	INSTANCEOF	attribute -->
+1297	ISA	665		<!-- SIS_XXXXX_SIS_has_uri	ISA	has_uri -->

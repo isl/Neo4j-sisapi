@@ -5803,3 +5803,12 @@
 664	INSTANCEOF	219		<!-- release_timestamp	INSTANCEOF  attribute -->			
 664	RELATION	3		<!-- release_timestamp	RELATION Telos_String-->
 655	RELATION	664	        <!-- ExternalVocabulary  RELATION  release_timestamp -->
+665	Neo4j_Id	665
+665	Logicalname	has_uri				
+665	LABEL	Common				
+665	LABEL	Generic				
+665	LABEL	S_Class				
+665	LABEL	Type_Attribute		
+665	INSTANCEOF	219		<!-- has_uri	INSTANCEOF  attribute -->			
+665	RELATION	3		<!-- has_uri	RELATION Telos_String-->
+655	RELATION	665	        <!-- ExternalVocabulary  RELATION  has_uri -->

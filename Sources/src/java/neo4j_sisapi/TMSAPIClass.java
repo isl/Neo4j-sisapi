@@ -50,6 +50,7 @@ import org.neo4j.graphdb.Transaction;
  */
 public class TMSAPIClass {
     
+    
     public final static int Do_Not_Assign_ReferenceId = 0;
     public final static int TMS_APISucc = 0;
     public final static int TMS_APIFail =-1;
@@ -249,6 +250,10 @@ public class TMSAPIClass {
     protected static final String HAS_PREFIX ="has_prefix";
     protected static final String INVALID_TRANSLATION_KEYWORD = "Translation Word %s is not defined in the database";
     
+    
+    protected static final String Failure_In_SetCurrentNode = "Failed to set current node: %s1.";
+    protected static final String Failure_In_GetLinkFromCurrentNodeByCategory = "Failed to get link from node: %s1 by category %s2->%s3.";
+    protected static final String Failure_In_ReturnLink = "Failed to return link while in function %s1.";
     // Open/Close the SIS TMS-API
     public int ALMOST_DONE_create_TMS_API_Session(QClass Q, String selectedThesaurus){
         
@@ -1513,6 +1518,8 @@ int tms_api::ClassPrefixfThesaurus(char *thesaurus, char *prefix_class, char *me
         return TMS_APISucc;
     }
     
+   
+    
     //CreateDescriptorAttribute
     int CreateDescAttr(/*String selectedThesaurus,*/ StringObject linkName, StringObject descriptorName, CMValue toValue, int level, int catSet, int creationMode) {
         // <editor-fold defaultstate="collapsed" desc="Comments..."> 
@@ -1770,7 +1777,7 @@ int tms_api::ClassPrefixfThesaurus(char *thesaurus, char *prefix_class, char *me
         QC.reset_set(catSet);
         StringObject fromCateg = new StringObject();
         StringObject categName= new StringObject();
-        ArrayList<Return_Link_Row> retLvals = new ArrayList<Return_Link_Row>();
+        ArrayList<Return_Link_Row> retLvals = new ArrayList<>();
         if(QC.bulk_return_link(catSet, retLvals)==QClass.APIFail){
             QC.free_set(catSet);
             return TMS_APIFail;
@@ -3547,6 +3554,520 @@ int tms_api::ThesaurusName(char *thesaurus, char *prefix, char *message)
         return ret;
     }
     
+    public enum Attributes_For_HierarchyTerms {NONE, HAS_LINK, HAS_EXACT_MATCH_LINK, HAS_CLOSE_MATCH_LINK};
+    
+    
+    private final String Message_NO_HierarchyTerm_Attribute_Category_Defined = "No attribute category defined in method CreateHierarchyTerm_Attribute";
+    public int  CreateHierarchyTerm_Attribute(StringObject hTermObj, Attributes_For_HierarchyTerms whichAttr, CMValue toVal){
+        
+        //LABEL 
+        //BELONGS_TO_VOCABULARY
+        
+        StringObject fromClsObj = new StringObject(ModelReader.getThesaurusClass_HierarchyTerm(userOperation.getValue()));
+        StringObject linkName = new StringObject();
+        
+        switch(whichAttr){
+            case HAS_LINK:{
+                linkName.setValue(ModelReader.getThesaurusCategory_HierTerm_has_ExtlLink(userOperation.getValue()));
+                break;
+            }
+            case HAS_EXACT_MATCH_LINK:{
+                linkName.setValue(ModelReader.getThesaurusCategory_HierTerm_has_ExactMatch_ExtLink(userOperation.getValue()));                
+                break;
+            }          
+            case HAS_CLOSE_MATCH_LINK:{
+                linkName.setValue(ModelReader.getThesaurusCategory_HierTerm_has_CloseMatch_ExtLink(userOperation.getValue()));                
+                break;
+            }          
+            default:{
+                errorMessage.setValue(Message_NO_HierarchyTerm_Attribute_Category_Defined);
+                return TMS_APIFail;
+            }
+        }
+        
+        int catSet = QC.set_get_new();
+        QC.reset_name_scope();
+        long retL = QC.set_current_node( fromClsObj);
+        if(retL<=0){
+            errorMessage.setValue(String.format("%s does not exist in database.", fromClsObj.getValue()));
+            return TMS_APIFail;
+        }
+        retL = QC.set_current_node( linkName);
+        if(retL<=0){
+            errorMessage.setValue(String.format("%s does not exist in database.", linkName.getValue()));
+            return TMS_APIFail;
+        }
+        QC.set_put(catSet);
+        
+        //check if exists and if it belongs to the correct class nothing more
+        //then create the relevant identifier
+        QC.reset_name_scope();
+        long idL = QC.set_current_node(hTermObj);
+        if(idL<=0){
+            errorMessage.setValue(String.format("%s does not exist in database.", hTermObj.getValue()));
+            return TMS_APIFail;
+        }
+        Identifier extVocId = new Identifier(idL);
+        if(QC.CHECK_Add_Unnamed_Attribute(extVocId, toVal, catSet)== TMS_APIFail){
+            QC.free_set(catSet);
+            //errorMessage.setValue(errorMessage.getValue().concat(WCD.errorMessage.getValue()));
+            return  TMS_APIFail;
+        }
+        else{
+            QC.free_set(catSet);
+            //errorMessage.setValue(errorMessage.getValue().concat(""));
+            return  TMS_APISucc;
+        }        
+    }
+    
+    
+    public enum Attributes_For_ExternalLink {NONE, LABEL, BELONGS_TO_VOCABULARY};
+    
+    
+    private final String Message_NO_ExtLink_Attribute_Category_Defined = "No attribute category defined in method CreateExternalLink_Attribute";
+    public int  CreateExternalLink_Attribute(StringObject extLink, Attributes_For_ExternalLink whichAttr, CMValue toVal){
+        
+        //LABEL 
+        //BELONGS_TO_VOCABULARY
+        
+        StringObject fromClsObj = new StringObject(ModelReader.getThesaurusClass_ExternalLink(userOperation.getValue()));
+        StringObject linkName = new StringObject();
+        
+        switch(whichAttr){
+            case LABEL:{
+                linkName.setValue(ModelReader.getThesaurusCategory_ExtLink_has_label(userOperation.getValue()));
+                break;
+            }
+            case BELONGS_TO_VOCABULARY:{
+                linkName.setValue(ModelReader.getThesaurusCategory_ExtLink_belongs_to_ExtVoc(userOperation.getValue()));
+                break;
+            }          
+            default:{
+                errorMessage.setValue(Message_NO_ExtLink_Attribute_Category_Defined);
+                return TMS_APIFail;
+            }
+        }
+        
+        int catSet = QC.set_get_new();
+        QC.reset_name_scope();
+        long retL = QC.set_current_node( fromClsObj);
+        if(retL<=0){
+            errorMessage.setValue(String.format("%s does not exist in database.", fromClsObj.getValue()));
+            return TMS_APIFail;
+        }
+        retL = QC.set_current_node( linkName);
+        if(retL<=0){
+            errorMessage.setValue(String.format("%s does not exist in database.", linkName.getValue()));
+            return TMS_APIFail;
+        }
+        QC.set_put(catSet);
+        
+        //check if exists and if it belongs to the correct class nothing more
+        //then create the relevant identifier
+        QC.reset_name_scope();
+        long idL = QC.set_current_node(extLink);
+        if(idL<=0){
+            errorMessage.setValue(String.format("%s does not exist in database.", extLink.getValue()));
+            return TMS_APIFail;
+        }
+        Identifier extVocId = new Identifier(idL);
+        if(QC.CHECK_Add_Unnamed_Attribute(extVocId, toVal, catSet)== TMS_APIFail){
+            QC.free_set(catSet);
+            //errorMessage.setValue(errorMessage.getValue().concat(WCD.errorMessage.getValue()));
+            return  TMS_APIFail;
+        }
+        else{
+            QC.free_set(catSet);
+            //errorMessage.setValue(errorMessage.getValue().concat(""));
+            return  TMS_APISucc;
+        }        
+    }
+    
+    public enum Attributes_For_ExternalVocabulary {NONE, FULLNAME, DESCRIPTION, VERSION,RELEASETIMESTAMP,URI};
+    
+    private final String Message_NO_Attribute_Category_Defined = "No attribute category defined in method CreateExternalVocabulary_Attribute";
+    public int  CreateExternalVocabulary_Attribute(StringObject extVocabulary, Attributes_For_ExternalVocabulary whichAttr, CMValue toVal){
+        
+        //FULLNAME 
+        //DESCRIPTION
+        //VERSION
+        //URI
+        //RELEASE TIMESTAMP
+        
+        StringObject fromClsObj = new StringObject(ModelReader.getThesaurusClass_ExternalVocabulary(userOperation.getValue()));
+        StringObject linkName = new StringObject();
+        
+        switch(whichAttr){
+            case FULLNAME:{
+                linkName.setValue(ModelReader.getThesaurusCategory_ExtVoc_has_fullname(userOperation.getValue()));
+                break;
+            }
+            case DESCRIPTION:{
+                linkName.setValue(ModelReader.getThesaurusCategory_ExtVoc_has_description(userOperation.getValue()));
+                break;
+            }
+            case VERSION:{
+                linkName.setValue(ModelReader.getThesaurusCategory_ExtVoc_has_version(userOperation.getValue()));
+                break;
+            }
+            case RELEASETIMESTAMP:{
+                linkName.setValue(ModelReader.getThesaurusCategory_ExtVoc_release_timestamp(userOperation.getValue()));                
+                break;
+            }
+            case URI:{
+                linkName.setValue(ModelReader.getThesaurusCategory_ExtVoc_has_uri(userOperation.getValue()));                
+                break;
+            }
+            default:{
+                errorMessage.setValue(Message_NO_Attribute_Category_Defined);
+                return TMS_APIFail;
+            }
+        }
+        
+        int catSet = QC.set_get_new();
+        QC.reset_name_scope();
+        long retL = QC.set_current_node( fromClsObj);
+        if(retL<=0){
+            errorMessage.setValue(String.format("%s does not exist in database.", fromClsObj.getValue()));
+            return TMS_APIFail;
+        }
+        retL = QC.set_current_node( linkName);
+        if(retL<=0){
+            errorMessage.setValue(String.format("%s does not exist in database.", linkName.getValue()));
+            return TMS_APIFail;
+        }
+        QC.set_put(catSet);
+        
+        //check if exists and if it belongs to the correct class nothing more
+        //then create the relevant identifier
+        QC.reset_name_scope();
+        long idL = QC.set_current_node(extVocabulary);
+        if(idL<=0){
+            errorMessage.setValue(String.format("%s does not exist in database.", extVocabulary.getValue()));
+            return TMS_APIFail;
+        }
+        Identifier extVocId = new Identifier(idL);
+        if(QC.CHECK_Add_Unnamed_Attribute(extVocId, toVal, catSet)== TMS_APIFail){
+            QC.free_set(catSet);
+            //errorMessage.setValue(errorMessage.getValue().concat(WCD.errorMessage.getValue()));
+            return  TMS_APIFail;
+        }
+        else{
+            QC.free_set(catSet);
+            //errorMessage.setValue(errorMessage.getValue().concat(""));
+            return  TMS_APISucc;
+        }        
+    }
+                
+    /**
+     * Creates a Node classified as External Link of Current Thesaurus.
+     * 
+     * @param External Link Logicalname - thesaurus prefix + uri
+     * @return 
+     */
+    public int  CreateExternalLink(StringObject extLink){
+        CMValue extLinkCmv = new CMValue();
+        extLinkCmv.assign_node(extLink.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId,"",TMSAPIClass.Do_Not_Assign_ReferenceId);        
+        return CreateExternalLinkCMValue(extLinkCmv);
+    }
+    
+    /**
+     * Creates a Node classified as External Link of Current Thesaurus.
+     * 
+     * @param External  Link Logicalname - thesaurus prefix + uri
+     * @return 
+     */
+    public int  CreateExternalLinkCMValue(CMValue extLinkCmv){
+        
+        int ret;
+                
+        
+        //check if external Vocabulary identifier short name is empty
+        if (extLinkCmv==null || extLinkCmv.getString().length()==0){
+            errorMessage.setValue(EMPTY_STRING +" "+ModelReader.getGenericClass_ExternalLink());
+            return TMS_APIFail;
+        }
+        
+        //retrieval objects
+        StringObject prefix_ExternalLink = new StringObject();
+        
+        
+        StringObject thesaurus = new StringObject();
+        
+        ret = GetThesaurusName(thesaurus);
+        if (ret==TMS_APIFail) {
+            return TMS_APIFail;
+        }
+
+        //abort if external vocabulary already exists
+        QC.reset_name_scope();
+        long extVocabularyIdL = QC.set_current_node(new StringObject(extLinkCmv.getString()));
+        if (extVocabularyIdL>0) {
+            errorMessage.setValue(extLinkCmv.getString() +" "+OBJECT_EXISTS);
+            return TMS_APIFail;
+        }
+        
+        
+        /*
+        // looking for MERIMEEFacet
+        IntegerObject card = new IntegerObject(0);
+        StringObject givenClass = new StringObject(userOperation.getValue() + "ThesaurusClassType");
+        StringObject thesaurus_class = new StringObject();    
+                
+        StringObject top_term_class = new StringObject();
+        */
+        StringObject externalLink_class = new StringObject(ModelReader.getThesaurusClass_ExternalLink(userOperation.getValue()));            
+
+        // <editor-fold defaultstate="collapsed" desc="Prefixes and classes Retrieval">
+        
+        ret = GetPrefix_of_ExternalLink(prefix_ExternalLink, errorMessage);
+        if (ret==TMS_APIFail) {
+           return TMS_APIFail;
+        }
+        
+        QC.reset_name_scope();
+        //looking for %THES%ExternalLink
+        long thesExternalLinkdL = QC.set_current_node(externalLink_class);
+        if (thesExternalLinkdL<=0){
+            return TMS_APIFail;
+        }        
+        //</editor-fold>
+        
+        // <editor-fold defaultstate="collapsed" desc="Performing the relevant consistency checks on external vocabulary">
+        
+	// abort if external Vocabulary has not the correct prefix
+	if (extLinkCmv.getString().startsWith(prefix_ExternalLink.getValue())==false) {
+            //sprintf(errorMessage, translate("%s has not the correct prefix: %s"), facet, prefix_class);
+            errorMessage.setValue(String.format("%s has not the correct prefix: %s", extLinkCmv.getString(), prefix_ExternalLink.getValue()));
+            return TMS_APIFail;
+	}
+        
+  	// abort if facet contains only prefix
+	if (prefix_ExternalLink.getValue().equals(extLinkCmv.getString())) {
+            //sprintf(errorMessage, translate("Given descriptor must not be blanck after prefix: %s"), prefix_class);
+            errorMessage.setValue("Given descriptor must not be blanck after prefix: "+prefix_ExternalLink.getValue());
+            return TMS_APIFail;
+	}
+        
+        //</editor-fold>
+        
+        Identifier IExtLink = new Identifier(extLinkCmv.getString());
+        Identifier IthesExtLinkClass = new Identifier(thesExternalLinkdL);
+        /*
+        
+        
+        // looking for %THES%NewThesaurusClass
+        StringObject Inew_thesaurus_classLoginam = new StringObject();
+        givenClass.setValue(userOperation.getValue()+"ThesaurusClassType");
+        ret = GetThesaurusObject(Inew_thesaurus_classLoginam, null, new StringObject("NewThesaurusClass"), null, givenClass, card);
+        if (ret==TMS_APIFail) {
+            return TMS_APIFail;
+        }
+        Identifier Inew_thesaurus_class = new Identifier(Inew_thesaurus_classLoginam.getValue());
+        Identifier Iclass_facet = new Identifier(facet_class.getValue());
+        Identifier Ithesaurus_class = new Identifier(thesaurus_class.getValue());
+        
+        
+        //IDENTIFIER Inew_descriptor;
+	//looking for %THES%NewDescriptor
+	givenClass.setValue(userOperation.getValue()+"ThesaurusNotionType");
+        StringObject Inew_descriptorStrObj = new StringObject();
+	ret = GetThesaurusObject(Inew_descriptorStrObj, null, new StringObject("NewDescriptor"), null, givenClass, card);
+	if (ret==TMS_APIFail) {
+            return TMS_APIFail;
+        }
+	Identifier Inew_descriptor = new Identifier(Inew_descriptorStrObj.getValue());
+*/
+       
+        
+        
+        
+        // <editor-fold defaultstate="collapsed" desc="External Vocabulary Class Addition with INSTANCEOF ISA and RELATIONS">
+        
+        //retell individual facet in S_Class end
+        //retell facet in newthesaurusclass end
+        //retell facet in aatfacet end
+        //retell facet in aatclass end
+        
+        
+        //Add Facet to S_Class - no Thesaurus Reference Id will be added to the hierarchy. 
+        /* Freezing TopTerm creation code
+        ret = QC.CHECK_Add_Node(Ifacet,QClass.SIS_API_S_CLASS,true,facet.getTransliterationString(),userOperation.getValue(),TMSAPIClass.Do_Not_Assign_ReferenceId);
+        */
+        
+        ret = QC.CHECK_Add_Node(IExtLink,QClass.SIS_API_TOKEN_CLASS,true,extLinkCmv.getTransliterationString(),userOperation.getValue(),TMSAPIClass.Do_Not_Assign_ReferenceId);
+        if (ret==QClass.APIFail) { 
+            abort_create(extLinkCmv.getString(),errorMessage); 
+            return TMS_APIFail; 
+        }
+        
+        //facet INSTANCEOF %THES%ExternalVocabulary
+        ret = QC.CHECK_Add_Instance(IExtLink,IthesExtLinkClass);
+        if (ret==QClass.APIFail) { 
+            abort_create(extLinkCmv.getString(),errorMessage); 
+            return TMS_APIFail; 
+        }
+        //</editor-fold>
+       
+        commit_create(extLinkCmv.getString(),errorMessage); 
+        
+        return TMS_APISucc;        
+    }
+            
+    /**
+     * Creates a Node classified as External Vocabulary of Current Thesaurus.
+     * 
+     * @param External Vocabulary Logicalname - short name - local thesaurus identifier
+     * @return 
+     */
+    public int  CreateExternalVocabulary(StringObject extVocabulary){
+        CMValue extVocabularyCmv = new CMValue();
+        extVocabularyCmv.assign_node(extVocabulary.getValue(), TMSAPIClass.Do_Not_Assign_ReferenceId,"",TMSAPIClass.Do_Not_Assign_ReferenceId);        
+        return CreateExternalVocabularyCMValue(extVocabularyCmv);
+    }
+    
+    /**
+     * Creates a Node classified as External Vocabulary of Current Thesaurus.
+     * 
+     * @param External Vocabulary CMValue with Logicalname - short name - local thesaurus identifier
+     * @return 
+     */
+    public int  CreateExternalVocabularyCMValue(CMValue extVocabulary){
+        
+        int ret;
+                
+        
+        //check if external Vocabulary identifier short name is empty
+        if (extVocabulary==null || extVocabulary.getString().length()==0){
+            errorMessage.setValue(EMPTY_STRING +" "+ModelReader.getGenericClass_ExternalVocabulary());
+            return TMS_APIFail;
+        }
+        
+        //retrieval objects
+        StringObject prefix_ExternalVocabulary = new StringObject();
+        
+        
+        StringObject thesaurus = new StringObject();
+        
+        ret = GetThesaurusName(thesaurus);
+        if (ret==TMS_APIFail) {
+            return TMS_APIFail;
+        }
+
+        //abort if external vocabulary already exists
+        QC.reset_name_scope();
+        long extVocabularyIdL = QC.set_current_node(new StringObject(extVocabulary.getString()));
+        if (extVocabularyIdL>0) {
+            errorMessage.setValue(extVocabulary.getString() +" "+OBJECT_EXISTS);
+            return TMS_APIFail;
+        }
+        
+        
+        /*
+        // looking for MERIMEEFacet
+        IntegerObject card = new IntegerObject(0);
+        StringObject givenClass = new StringObject(userOperation.getValue() + "ThesaurusClassType");
+        StringObject thesaurus_class = new StringObject();    
+                
+        StringObject top_term_class = new StringObject();
+        */
+        StringObject externalVocabulary_class = new StringObject(ModelReader.getThesaurusClass_ExternalVocabulary(userOperation.getValue()));
+        // <editor-fold defaultstate="collapsed" desc="Prefixes and classes Retrieval">
+        
+        ret = GetPrefix_of_ExternalVocabulary(prefix_ExternalVocabulary, errorMessage);
+        if (ret==TMS_APIFail) {
+           return TMS_APIFail;
+        }
+        
+        QC.reset_name_scope();
+        //looking for %THES%ExternalVocabulary
+        long thesExternalVocabularyIdL = QC.set_current_node(externalVocabulary_class);
+        if (thesExternalVocabularyIdL<=0){
+            return TMS_APIFail;
+        }        
+        //</editor-fold>
+        
+        // <editor-fold defaultstate="collapsed" desc="Performing the relevant consistency checks on external vocabulary">
+        
+	// abort if external Vocabulary has not the correct prefix
+	if (extVocabulary.getString().startsWith(prefix_ExternalVocabulary.getValue())==false) {
+            //sprintf(errorMessage, translate("%s has not the correct prefix: %s"), facet, prefix_class);
+            errorMessage.setValue(String.format("%s has not the correct prefix: %s", extVocabulary.getString(), prefix_ExternalVocabulary.getValue()));
+            return TMS_APIFail;
+	}
+        
+  	// abort if facet contains only prefix
+	if (prefix_ExternalVocabulary.getValue().equals(extVocabulary.getString())) {
+            //sprintf(errorMessage, translate("Given descriptor must not be blanck after prefix: %s"), prefix_class);
+            errorMessage.setValue("Given descriptor must not be blanck after prefix: "+prefix_ExternalVocabulary.getValue());
+            return TMS_APIFail;
+	}
+        
+        //</editor-fold>
+        
+        Identifier IExtVoc = new Identifier(extVocabulary.getString());
+        Identifier IthesExtVocClass = new Identifier(thesExternalVocabularyIdL);
+        /*
+        
+        
+        // looking for %THES%NewThesaurusClass
+        StringObject Inew_thesaurus_classLoginam = new StringObject();
+        givenClass.setValue(userOperation.getValue()+"ThesaurusClassType");
+        ret = GetThesaurusObject(Inew_thesaurus_classLoginam, null, new StringObject("NewThesaurusClass"), null, givenClass, card);
+        if (ret==TMS_APIFail) {
+            return TMS_APIFail;
+        }
+        Identifier Inew_thesaurus_class = new Identifier(Inew_thesaurus_classLoginam.getValue());
+        Identifier Iclass_facet = new Identifier(facet_class.getValue());
+        Identifier Ithesaurus_class = new Identifier(thesaurus_class.getValue());
+        
+        
+        //IDENTIFIER Inew_descriptor;
+	//looking for %THES%NewDescriptor
+	givenClass.setValue(userOperation.getValue()+"ThesaurusNotionType");
+        StringObject Inew_descriptorStrObj = new StringObject();
+	ret = GetThesaurusObject(Inew_descriptorStrObj, null, new StringObject("NewDescriptor"), null, givenClass, card);
+	if (ret==TMS_APIFail) {
+            return TMS_APIFail;
+        }
+	Identifier Inew_descriptor = new Identifier(Inew_descriptorStrObj.getValue());
+*/
+       
+        
+        
+        
+        // <editor-fold defaultstate="collapsed" desc="External Vocabulary Class Addition with INSTANCEOF ISA and RELATIONS">
+        
+        //retell individual facet in S_Class end
+        //retell facet in newthesaurusclass end
+        //retell facet in aatfacet end
+        //retell facet in aatclass end
+        
+        
+        //Add Facet to S_Class - no Thesaurus Reference Id will be added to the hierarchy. 
+        /* Freezing TopTerm creation code
+        ret = QC.CHECK_Add_Node(Ifacet,QClass.SIS_API_S_CLASS,true,facet.getTransliterationString(),userOperation.getValue(),TMSAPIClass.Do_Not_Assign_ReferenceId);
+        */
+        
+        ret = QC.CHECK_Add_Node(IExtVoc,QClass.SIS_API_TOKEN_CLASS,true,extVocabulary.getTransliterationString(),userOperation.getValue(),TMSAPIClass.Do_Not_Assign_ReferenceId);
+        if (ret==QClass.APIFail) { 
+            abort_create(extVocabulary.getString(),errorMessage); 
+            return TMS_APIFail; 
+        }
+        
+        //facet INSTANCEOF %THES%ExternalVocabulary
+        ret = QC.CHECK_Add_Instance(IExtVoc,IthesExtVocClass);
+        if (ret==QClass.APIFail) { 
+            abort_create(extVocabulary.getString(),errorMessage); 
+            return TMS_APIFail; 
+        }
+        //</editor-fold>
+       
+        commit_create(extVocabulary.getString(),errorMessage); 
+        
+        return TMS_APISucc;        
+    }
+        
     /**
      * Creates a Node classified as Facet of Current Thesaurus.
      * No transliteration or Thesaurus referenceId is added though
@@ -8773,7 +9294,6 @@ int tms_api::RenameHierarchy(char *ohierarchy, char *nhierarchy)
 	return TMS_APISucc;
     }
     
-    
     public int  CHECK_RenameNewDescriptor(StringObject descriptorName, StringObject newDescriptorName){
         CMValue oldCmv = new CMValue();
         CMValue newCmv = new CMValue();
@@ -10509,7 +11029,96 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
         throw new UnsupportedOperationException();
     }
     
+    /**
+     * returns the (thesauric) prefix defined in the model for 
+     * ExternalLink instances of current thesaurus 
+     * in prefixValue object
+     * 
+     * @param thesaurus
+     * @param prefixValue
+     * @param message
+     * @return 
+     */
+    public int GetPrefix_of_ExternalLink(StringObject prefixValue, StringObject message){
+        //public String getThesaurusPrefix_Descriptor(String SelectedThesaurus,  QClass Q, int SISsessionID) {
+        // looking for EKTThesaurusNotion
+
+        QC.reset_name_scope();
         
+        StringObject thesauricExternalVocabularyClass = new StringObject(ModelReader.getThesaurusClass_ExternalLink(userOperation.getValue())); 
+        
+        
+        long thesExtVoc = QC.set_current_node(thesauricExternalVocabularyClass);
+        if(thesExtVoc<=0){
+            message.setValue(Failure_In_SetCurrentNode.replace("%s1", thesauricExternalVocabularyClass.getValue()));
+            return TMS_APIFail;         
+        }
+        int set = QC.get_link_from_by_category( 0, new StringObject("Individual"), new StringObject("has_prefix"));
+        if(set==QClass.APIFail){
+            message.setValue(Failure_In_GetLinkFromCurrentNodeByCategory.replace("%s1", thesauricExternalVocabularyClass.getValue()).replace("%s2","Individual").replace("%s3","has_prefix"));
+            return TMS_APIFail;         
+        }
+        QC.reset_set(set);
+
+        StringObject cls = new StringObject();
+        StringObject label = new StringObject();
+        CMValue cmv = new CMValue();
+        if(QC.return_link( set, cls, label, cmv)==QClass.APIFail){
+            message.setValue(Failure_In_ReturnLink.replace("%s1", "GetPrefix_of_ExternalVocabulary"));
+            QC.free_set(set);
+            return TMS_APIFail; 
+        }
+        QC.free_set(set);
+
+        String prefix = cmv.getString();
+        prefixValue.setValue(prefix);
+        
+        return TMS_APISucc;
+    }
+    
+    /**
+     * returns the (thesauric) prefix defined in the model for 
+     * ExternalVocabularies instances of current thesaurus (in userOperation object)
+     * in prefixValue object
+     * 
+     * @param prefixValue
+     * @param message
+     * @return 
+     */
+    public int GetPrefix_of_ExternalVocabulary(StringObject prefixValue, StringObject message){
+        //public String getThesaurusPrefix_Descriptor(String SelectedThesaurus,  QClass Q, int SISsessionID) {
+        // looking for EKTThesaurusNotion
+
+        QC.reset_name_scope();
+        
+        StringObject thesauricExternalVocabularyClass = new StringObject(ModelReader.getThesaurusClass_ExternalVocabulary(userOperation.getValue()));
+        long thesExtVoc = QC.set_current_node(thesauricExternalVocabularyClass);
+        if(thesExtVoc<=0){
+            message.setValue(Failure_In_SetCurrentNode.replace("%s1", thesauricExternalVocabularyClass.getValue()));
+            return TMS_APIFail;         
+        }
+        int set = QC.get_link_from_by_category( 0, new StringObject("Individual"), new StringObject("has_prefix"));
+        if(set==QClass.APIFail){
+            message.setValue(Failure_In_GetLinkFromCurrentNodeByCategory.replace("%s1", thesauricExternalVocabularyClass.getValue()).replace("%s2","Individual").replace("%s3","has_prefix"));
+            return TMS_APIFail;         
+        }
+        QC.reset_set(set);
+
+        StringObject cls = new StringObject();
+        StringObject label = new StringObject();
+        CMValue cmv = new CMValue();
+        if(QC.return_link( set, cls, label, cmv)==QClass.APIFail){
+            message.setValue(Failure_In_ReturnLink.replace("%s1", "GetPrefix_of_ExternalVocabulary"));
+            QC.free_set(set);
+            return TMS_APIFail; 
+        }
+        QC.free_set(set);
+
+        String prefix = cmv.getString();
+        prefixValue.setValue(prefix);
+        
+        return TMS_APISucc;
+    }
     // various functions quring the database
     int TermPrefixfThesaurus(String thesaurus, StringObject prefix_term, StringObject message){
         // get the links pointing to the given thesaurus
