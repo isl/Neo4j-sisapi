@@ -106,7 +106,7 @@ class DBaccess {
         /*if(str.contains("'")){
             Logger.getLogger(DBaccess.class.getName()).log(Level.INFO, "Contains ' ");
         }*/
-        return Configs.Neo4j_Key_For_Logicalname+":'"+str.replace("'", "\\'")+"'";
+        return Configs.Neo4j_Key_For_Logicalname+":'"+str.replace("\\", "\\\\").replace("'", "\\'")+"'";
     }
     
     // SET retSysids contains all the immediate instances of object with sysid  objSysid.
