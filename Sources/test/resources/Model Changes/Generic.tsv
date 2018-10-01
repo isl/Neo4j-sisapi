@@ -2844,8 +2844,8 @@
 320	LABEL	Generic
 320	LABEL	S_Class
 320	LABEL	Type_Attribute
-320	INSTANCEOF	262		<!-- source_note	INSTANCEOF	text_type -->
-320	RELATION	25		<!-- source_note	RELATION	hyperText -->
+320	INSTANCEOF	219		<!-- source_note	INSTANCEOF	attribute -->
+320	RELATION	3		<!-- source_note	RELATION	Telos_String -->
 321	Neo4j_Id	321
 321	Logicalname	found_in
 321	LABEL	Common
