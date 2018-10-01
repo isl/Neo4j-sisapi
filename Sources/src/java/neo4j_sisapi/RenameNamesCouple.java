@@ -38,6 +38,7 @@ package neo4j_sisapi;
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
  */
 public class RenameNamesCouple {
+    
 public final static int NUMBER_OF_COUPLES = 100;
 
 	String oldName, newName;

@@ -28,13 +28,19 @@ How to compile
 -----------------------------------------------------------------------------
 Create a new java library project.
 
-Until now we have used java jdk1.8.0_131 64 bit
+Until now we have used java jdk1.8.0_181 64 bit
 
-- use the sources included in the /Sources/src folder 
+- Use the sources included in the /Sources/src folder 
   of this repository
   
-- Neo4j v 3.2.5 Community Edition should automatically be downloaded by a maven supporting IDE
-  
+- Neo4j v 3.2.5 Community Edition should automatically 
+  be downloaded by a maven supporting IDE
+ 
 - Apply jvm option -Dfile.encoding=UTF8 (Perhaps not needed step)
 
 You must now be able to compile
+and create a dist folder containing 
+- Neo4j-sisapi-{version}.jar
+- Neo4j-sisapi-{version}-javadoc.jar
+- Neo4j-sisapi-{version}-sources.jar
+- TSV folder containing the model files with which this code works with

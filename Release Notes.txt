@@ -26,22 +26,33 @@ This file is part of the Neo4j-sisapi project.
 
 
 =============================================================================
+Neo4j-sis-api 1.3 (pre-release of 2.0 handling git compilation error of THEMAS)
+=============================================================================
+- Reduced TMSApi Scope note complexity
+- Abandoned TMSApi helper classes (HandleCommentsClass, PairInfo)
+- Transliteration support for translations, used for terms, translation uf terms etc.
+- Moved of specific and system tsv files in Neo4j-sis-api
+- complexity reduction for Scopenotes, histroynotes, source_notes etc.
+- External links addition (exact match/ close match) supported in XML/SKOS import/export operations 
+
+
+=============================================================================
 Neo4j-sis-api 1.2.1
 =============================================================================
 - Added function DeleteEmptyThesaurusModel function
   that removes the model of an empty thesaurus in order to 
-  support the delete thesaurus operatrion.
+  support the delete thesaurus operation.
 - Added UniqueInDB label in specific TSV files in order to denote both that 
   this node should not be created once per thesaurus and that while searching the model 
   you should check before you delete these nodes, if they have other references 
   in the database from other thesauri.
-- Sub pakages re-structuring
+- Sub packages re-structuring
     Merged packages "neo4j_sisapi" and "neo4j_sisapi.tmsapi" into "neo4j_sisapi"
     in order to be able to apply better separation of sisapi functions (QClass) 
     and thesaurus specific functions (TMSApiClass) such as DeleteEmptyThesaurus, 
     find by thesaurus referenceId etc. 
     (perhaps a further re-structuring process should follow as thesaurus specific
-    properties like thesaurus reference id and transliteration are also propageted in
+    properties like thesaurus reference id and transliteration are also propagated in
     QClass functions e.g. AddNode and more)  
 	
 =============================================================================
@@ -50,7 +61,7 @@ Neo4j-sis-api 1.2
 - Update to Java 8 / Neo4j 3.2.5 / Neo4j-sisapi 1.2 
 
 - 2 new Properties "Transliteration" and "ThesaurusReferenceId" were added to Facets/TopTerms/Terms 
-  Each thesaurus reference Id is unique per thesaurus and is stored and maintened as a property
+  Each thesaurus reference Id is unique per thesaurus and is stored and maintained as a property
   in the node with Logicalname the prefixed name of the Thesaurus (e.g. Thesaurus`THESNAME)
 
 - Changes / additions built in order to support management of these 2 extra properties:

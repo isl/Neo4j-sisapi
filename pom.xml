@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gr.forth.ics.isl</groupId>
     <artifactId>Neo4j-sisapi</artifactId>
-    <version>1.2.1</version>
+    <version>1.3</version>
     <packaging>jar</packaging>         
     <licenses>
         <license>
@@ -26,11 +26,21 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <showDeprecation>true</showDeprecation>
-                    
+                    <showDeprecation>true</showDeprecation>                    
                 </configuration>
             </plugin>
+            
             <plugin>
+                <!-- clean dist directory contents -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <directory>${basedir}/dist</directory>                    
+                </configuration>
+            </plugin>
+            
+            <plugin>                
                 <!-- procude jar in dist folder --> 
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -39,6 +49,7 @@
                     <outputDirectory>${basedir}/dist</outputDirectory>
                 </configuration>
             </plugin>
+            
             <plugin>
                 <!-- procude sources jar in dist folder --> 
                 <groupId>org.apache.maven.plugins</groupId>
@@ -58,15 +69,6 @@
                 </executions>
             </plugin>
             
-            <plugin>
-                <!-- clean dist directory contents -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <directory>${basedir}/dist</directory>                    
-                </configuration>
-            </plugin>
     
             <plugin>
                 <!-- procude javadoc jar in dist folder --> 
@@ -85,8 +87,32 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>            
-
+            </plugin>
+            
+             <plugin>
+                 <!-- copy tsv files in dist folder -->
+                 <artifactId>maven-resources-plugin</artifactId>
+                 <version>3.0.2</version>
+                 <executions>
+                     <execution>
+                         <id>copy-resources</id>
+                         <!-- here the phase you need -->
+                         <phase>validate</phase>
+                         <goals>
+                             <goal>copy-resources</goal>
+                         </goals>
+                         <configuration>
+                             <outputDirectory>${basedir}/dist</outputDirectory>
+                             <resources>          
+                                 <resource>
+                                     <directory>Sources/src/resources/TMSAPI</directory>
+                                     <filtering>false</filtering>
+                                 </resource>
+                             </resources>              
+                         </configuration>            
+                     </execution>
+                 </executions>
+             </plugin>      
         </plugins>
         <sourceDirectory>Sources/src/java</sourceDirectory>
         <scriptSourceDirectory>Sources/src/main/scripts</scriptSourceDirectory>
@@ -98,7 +124,7 @@
                     <include>Neo4j_sisapi_build_version.txt</include>
                 </includes>
                 <filtering>true</filtering>
-            </resource>
+            </resource>            
         </resources>
         <testResources>
         <testResource>
