@@ -394,6 +394,7 @@
 41	RELATION	311		<!-- HierarchyTerm	RELATION	editor -->
 41	RELATION	321		<!-- HierarchyTerm	RELATION	found_in -->
 41	RELATION	322		<!-- HierarchyTerm	RELATION	not_found_in -->
+41	RELATION	656		<!-- HierarchyTerm	RELATION	has_external_link -->
 42	Neo4j_Id	42
 42	Logicalname	TopTerm
 42	LABEL	Common
@@ -403,6 +404,7 @@
 42	INSTANCEOF	32		<!-- TopTerm	INSTANCEOF	ThesaurusNotionType -->
 42	ISA	41		<!-- TopTerm	ISA	HierarchyTerm -->
 42	RELATION	323		<!-- TopTerm	RELATION	belongs_to_hierarchy -->
+42	RELATION	650		<!-- TopTerm	RELATION	belongs_to_facet -->
 43	Neo4j_Id	43
 43	Logicalname	Non-PreferredTerm
 43	LABEL	Common
@@ -431,6 +433,7 @@
 45	RELATION	325		<!-- ThesaurusConcept	RELATION	translations_scope_note -->
 45	RELATION	326		<!-- ThesaurusConcept	RELATION	comment -->
 45	RELATION	327		<!-- ThesaurusConcept	RELATION	historical_note -->
+45	RELATION	651		<!-- ThesaurusConcept	RELATION	note -->
 46	Neo4j_Id	46
 46	Logicalname	NodeLabel
 46	LABEL	Common
@@ -446,6 +449,8 @@
 47	LABEL	M1_Class
 47	LABEL	Type_Individual
 47	RELATION	266		<!-- Facet	RELATION	letter_code -->
+47	RELATION	652		<!-- Facet	RELATION	class_scope_note -->
+47	RELATION	653		<!-- Facet	RELATION	class_note -->
 48	Neo4j_Id	48
 48	Logicalname	Hierarchy
 48	LABEL	Common
@@ -2877,7 +2882,7 @@
 324	LABEL	S_Class
 324	LABEL	Type_Attribute
 324	INSTANCEOF	219		<!-- scope_note	INSTANCEOF	attribute -->
-324	RELATION	3		<!-- scope_note	RELATION	Telos_String-->
+324	RELATION	3		<!-- scope_note	RELATION	Telos_String -->
 325	Neo4j_Id	325
 325	Logicalname	translations_scope_note
 325	LABEL	Common
@@ -5672,72 +5677,73 @@
 649	LABEL	Token
 649	LABEL	Type_Attribute
 649	INSTANCEOF	238		<!-- Label8000cd	INSTANCEOF	outputHeader -->
-650	Neo4j_Id	650				
-650	Logicalname	belongs_to_facet				
-650	LABEL	Common				
-650	LABEL	Generic				
-650	LABEL	S_Class				
-650	LABEL	Type_Attribute				
+650	Neo4j_Id	650
+650	Logicalname	belongs_to_facet
+650	LABEL	Common
+650	LABEL	Generic
+650	LABEL	S_Class
+650	LABEL	Type_Attribute
 650	INSTANCEOF	259		<!-- belongs_to_facet	INSTANCEOF	system_controlled -->
 650	RELATION	47		<!-- belongs_to_facet	RELATION	Facet -->
-42	RELATION	650		<!-- TopTerm	RELATION	belongs_to_facet -->
-651	Neo4j_Id	651				
-651	Logicalname	note				
-651	LABEL	Common				
-651	LABEL	Generic				
-651	LABEL	S_Class				
-651	LABEL	Type_Attribute				
+651	Neo4j_Id	651
+651	Logicalname	note
+651	LABEL	Common
+651	LABEL	Generic
+651	LABEL	S_Class
+651	LABEL	Type_Attribute
 651	INSTANCEOF	219		<!-- note	INSTANCEOF	attribute -->
-651	RELATION	3		<!-- note	RELATION	Telos_String-->
-45	RELATION	651		<!-- ThesaurusConcept	RELATION	note -->
-47	RELATION	652		<!-- Facet	RELATION	class_scope_note -->
+651	RELATION	3		<!-- note	RELATION	Telos_String -->
 652	Neo4j_Id	652
-652	Logicalname	class_scope_note				
-652	LABEL	Common				
-652	LABEL	Generic				
-652	LABEL	S_Class				
-652	LABEL	Type_Attribute				
+652	Logicalname	class_scope_note
+652	LABEL	Common
+652	LABEL	Generic
+652	LABEL	S_Class
+652	LABEL	Type_Attribute
 652	INSTANCEOF	219		<!-- class_scope_note	INSTANCEOF	attribute -->
-652	RELATION	3		<!-- class_scope_note	RELATION	Telos_String-->
-47	RELATION	653		<!-- Facet	RELATION	class_note -->
+652	RELATION	3		<!-- class_scope_note	RELATION	Telos_String -->
 653	Neo4j_Id	653
-653	Logicalname	class_note				
-653	LABEL	Common				
-653	LABEL	Generic				
-653	LABEL	S_Class				
-653	LABEL	Type_Attribute				
+653	Logicalname	class_note
+653	LABEL	Common
+653	LABEL	Generic
+653	LABEL	S_Class
+653	LABEL	Type_Attribute
 653	INSTANCEOF	219		<!-- class_note	INSTANCEOF	attribute -->
-653	RELATION	3		<!-- class_note	RELATION	Telos_String-->
+653	RELATION	3		<!-- class_note	RELATION	Telos_String -->
 654	Neo4j_Id	654
 654	Logicalname	ExternalLink
-654	LABEL	Common				
-654	LABEL	Generic				
-654	LABEL	S_Class	
+654	LABEL	Common
+654	LABEL	Generic
+654	LABEL	S_Class
 654	LABEL	Type_Individual
+654	RELATION	657		<!-- ExternalLink	RELATION	belongs_to_external_vocabulary -->
+654	RELATION	660		<!-- ExternalLink	RELATION	has_label -->
 655	Neo4j_Id	655
 655	Logicalname	ExternalVocabulary
-655	LABEL	Common				
-655	LABEL	Generic				
-655	LABEL	S_Class	
+655	LABEL	Common
+655	LABEL	Generic
+655	LABEL	S_Class
 655	LABEL	Type_Individual
+655	RELATION	661		<!-- ExternalVocabulary	RELATION	has_fullname -->
+655	RELATION	662		<!-- ExternalVocabulary	RELATION	has_description -->
+655	RELATION	663		<!-- ExternalVocabulary	RELATION	has_version -->
+655	RELATION	664		<!-- ExternalVocabulary	RELATION	release_timestamp -->
+655	RELATION	665		<!-- ExternalVocabulary	RELATION	has_uri -->
 656	Neo4j_Id	656
-656	Logicalname	has_external_link				
-656	LABEL	Common				
-656	LABEL	Generic				
-656	LABEL	S_Class				
-656	LABEL	Type_Attribute				
-656	INSTANCEOF	219		<!-- has_external_link	INSTANCEOF  attribute -->
-656	RELATION	654		<!-- has_external_link	RELATION ExternalLink-->
-41	RELATION	656	<!-- HierarchyTerm  RELATION  has_external_link -->
+656	Logicalname	has_external_link
+656	LABEL	Common
+656	LABEL	Generic
+656	LABEL	S_Class
+656	LABEL	Type_Attribute
+656	INSTANCEOF	219		<!-- has_external_link	INSTANCEOF	attribute -->
+656	RELATION	654		<!-- has_external_link	RELATION	ExternalLink -->
 657	Neo4j_Id	657
-657	Logicalname	belongs_to_external_vocabulary				
-657	LABEL	Common				
-657	LABEL	Generic				
-657	LABEL	S_Class				
-657	LABEL	Type_Attribute		
-657	INSTANCEOF	219		<!-- belongs_to_external_vocabulary	INSTANCEOF  attribute -->		
-657	RELATION	655	<!-- belongs_to_external_vocabulary	RELATION     ExternalVocabulary-->
-654	RELATION	657	<!-- ExternalLink  RELATION  belongs_to_external_vocabulary -->
+657	Logicalname	belongs_to_external_vocabulary
+657	LABEL	Common
+657	LABEL	Generic
+657	LABEL	S_Class
+657	LABEL	Type_Attribute
+657	INSTANCEOF	219		<!-- belongs_to_external_vocabulary	INSTANCEOF	attribute -->
+657	RELATION	655		<!-- belongs_to_external_vocabulary	RELATION	ExternalVocabulary -->
 # 658	Neo4j_Id	658
 # 658	Logicalname	exact_match				
 # 658	LABEL	Common				
@@ -5759,56 +5765,50 @@
 # 659	RELATION	654		<!-- close_match	RELATION ExternalLink-->
 # 41	RELATION	659	        <!-- HierarchyTerm  RELATION  close_match -->
 660	Neo4j_Id	660
-660	Logicalname	has_label				
-660	LABEL	Common				
-660	LABEL	Generic				
-660	LABEL	S_Class				
-660	LABEL	Type_Attribute		
-660	INSTANCEOF	219		<!-- has_label	INSTANCEOF  attribute -->			
-660	RELATION	3		<!-- has_label	RELATION Telos_String-->
-654	RELATION	660	        <!-- ExternalLink  RELATION  has_label -->
+660	Logicalname	has_label
+660	LABEL	Common
+660	LABEL	Generic
+660	LABEL	S_Class
+660	LABEL	Type_Attribute
+660	INSTANCEOF	219		<!-- has_label	INSTANCEOF	attribute -->
+660	RELATION	3		<!-- has_label	RELATION	Telos_String -->
 661	Neo4j_Id	661
-661	Logicalname	has_fullname				
-661	LABEL	Common				
-661	LABEL	Generic				
-661	LABEL	S_Class				
-661	LABEL	Type_Attribute		
-661	INSTANCEOF	219		<!-- has_fullname	INSTANCEOF  attribute -->			
-661	RELATION	3		<!-- has_fullname	RELATION Telos_String-->
-655	RELATION	661	        <!-- ExternalVocabulary  RELATION  has_fullname -->
+661	Logicalname	has_fullname
+661	LABEL	Common
+661	LABEL	Generic
+661	LABEL	S_Class
+661	LABEL	Type_Attribute
+661	INSTANCEOF	219		<!-- has_fullname	INSTANCEOF	attribute -->
+661	RELATION	3		<!-- has_fullname	RELATION	Telos_String -->
 662	Neo4j_Id	662
-662	Logicalname	has_description				
-662	LABEL	Common				
-662	LABEL	Generic				
-662	LABEL	S_Class				
-662	LABEL	Type_Attribute		
-662	INSTANCEOF	219		<!-- has_description	INSTANCEOF  attribute -->			
-662	RELATION	3		<!-- has_description	RELATION Telos_String-->
-655	RELATION	662	        <!-- ExternalVocabulary  RELATION  has_description -->
+662	Logicalname	has_description
+662	LABEL	Common
+662	LABEL	Generic
+662	LABEL	S_Class
+662	LABEL	Type_Attribute
+662	INSTANCEOF	219		<!-- has_description	INSTANCEOF	attribute -->
+662	RELATION	3		<!-- has_description	RELATION	Telos_String -->
 663	Neo4j_Id	663
-663	Logicalname	has_version				
-663	LABEL	Common				
-663	LABEL	Generic				
-663	LABEL	S_Class				
-663	LABEL	Type_Attribute		
-663	INSTANCEOF	219		<!-- has_version	INSTANCEOF  attribute -->			
-663	RELATION	3		<!-- has_version	RELATION Telos_String-->
-655	RELATION	663	        <!-- ExternalVocabulary  RELATION  has_version -->
+663	Logicalname	has_version
+663	LABEL	Common
+663	LABEL	Generic
+663	LABEL	S_Class
+663	LABEL	Type_Attribute
+663	INSTANCEOF	219		<!-- has_version	INSTANCEOF	attribute -->
+663	RELATION	3		<!-- has_version	RELATION	Telos_String -->
 664	Neo4j_Id	664
-664	Logicalname	release_timestamp				
-664	LABEL	Common				
-664	LABEL	Generic				
-664	LABEL	S_Class				
-664	LABEL	Type_Attribute		
-664	INSTANCEOF	219		<!-- release_timestamp	INSTANCEOF  attribute -->			
-664	RELATION	3		<!-- release_timestamp	RELATION Telos_String-->
-655	RELATION	664	        <!-- ExternalVocabulary  RELATION  release_timestamp -->
+664	Logicalname	release_timestamp
+664	LABEL	Common
+664	LABEL	Generic
+664	LABEL	S_Class
+664	LABEL	Type_Attribute
+664	INSTANCEOF	219		<!-- release_timestamp	INSTANCEOF	attribute -->
+664	RELATION	3		<!-- release_timestamp	RELATION	Telos_String -->
 665	Neo4j_Id	665
-665	Logicalname	has_uri				
-665	LABEL	Common				
-665	LABEL	Generic				
-665	LABEL	S_Class				
-665	LABEL	Type_Attribute		
-665	INSTANCEOF	219		<!-- has_uri	INSTANCEOF  attribute -->			
-665	RELATION	3		<!-- has_uri	RELATION Telos_String-->
-655	RELATION	665	        <!-- ExternalVocabulary  RELATION  has_uri -->
+665	Logicalname	has_uri
+665	LABEL	Common
+665	LABEL	Generic
+665	LABEL	S_Class
+665	LABEL	Type_Attribute
+665	INSTANCEOF	219		<!-- has_uri	INSTANCEOF	attribute -->
+665	RELATION	3		<!-- has_uri	RELATION	Telos_String -->

@@ -3558,6 +3558,7 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
         */
         return APISucc;
     }
+    
     int getMatchedOnTransliteration(ArrayList<Long> ids, String searchVal, boolean exactMatch, PQI_Set retIds){
         //ArrayList<Pattern_info> pattrns = new ArrayList<Pattern_info>();
         //CHECK_setup_patterns(ptrn_set,pattrns);
@@ -3584,10 +3585,10 @@ int sis_api::getMatchedString(SYSID sysid, char* prtn_str, int mtch_type, SET *r
             
             String criterion = "";
             if(exactMatch){
-                criterion = " n."+Configs.Neo4j_Key_For_Transliteration +" = '" + searchVal+"' " ;
+                criterion = " n."+Configs.Neo4j_Key_For_Transliteration +" = '" + utils.prepareStringForCypherLikeClaues(searchVal)+"' " ;
             }
             else{
-                criterion = " n."+Configs.Neo4j_Key_For_Transliteration +" =~ '.*" + searchVal+".*' " ;
+                criterion = " n."+Configs.Neo4j_Key_For_Transliteration +" =~ '.*" + utils.prepareStringForCypherLikeClaues(searchVal)+".*' " ;
             }
             
             if(subSetofIds.size()==1){

@@ -1,0 +1,1482 @@
+1	Neo4j_Id	1
+1	Logicalname	Telos_Integer
+1	LABEL	Common
+1	LABEL	Generic
+1	LABEL	PrimitiveClass
+1	LABEL	S_Class
+1	LABEL	Type_Individual
+2	Neo4j_Id	2
+2	Logicalname	Telos_Real
+2	LABEL	Common
+2	LABEL	Generic
+2	LABEL	PrimitiveClass
+2	LABEL	S_Class
+2	LABEL	Type_Individual
+3	Neo4j_Id	3
+3	Logicalname	Telos_String
+3	LABEL	Common
+3	LABEL	Generic
+3	LABEL	PrimitiveClass
+3	LABEL	S_Class
+3	LABEL	Type_Individual
+4	Neo4j_Id	4
+4	Logicalname	Individual
+4	LABEL	Common
+4	LABEL	Generic
+4	LABEL	Type_Individual
+4	RELATION	249		<!-- Individual	RELATION	display -->
+4	RELATION	251		<!-- Individual	RELATION	default_ef -->
+4	RELATION	252		<!-- Individual	RELATION	interconnected -->
+4	RELATION	253		<!-- Individual	RELATION	non_shared -->
+4	RELATION	254		<!-- Individual	RELATION	necessary -->
+4	RELATION	255		<!-- Individual	RELATION	dependent -->
+4	RELATION	256		<!-- Individual	RELATION	garbage_collected -->
+4	RELATION	257		<!-- Individual	RELATION	trans_garbage_collected -->
+4	RELATION	258		<!-- Individual	RELATION	system_controlled_meta_categories -->
+4	RELATION	259		<!-- Individual	RELATION	system_controlled -->
+4	RELATION	260		<!-- Individual	RELATION	DAG -->
+4	RELATION	261		<!-- Individual	RELATION	has_prefix -->
+4	RELATION	262		<!-- Individual	RELATION	text_type -->
+4	RELATION	264		<!-- Individual	RELATION	forwards_sorted -->
+4	RELATION	265		<!-- Individual	RELATION	backwards_sorted -->
+5	Neo4j_Id	5
+5	Logicalname	Telos_Time
+5	LABEL	Common
+5	LABEL	Generic
+5	LABEL	PrimitiveClass
+5	LABEL	S_Class
+5	LABEL	Type_Individual
+6	Neo4j_Id	6
+6	Logicalname	Telos_Object
+6	LABEL	Common
+6	LABEL	Generic
+6	RELATION	219		<!-- Telos_Object	RELATION	attribute -->
+19	Neo4j_Id	19
+19	Logicalname	Text
+19	LABEL	Common
+19	LABEL	Generic
+19	LABEL	S_Class
+19	LABEL	Type_Individual
+20	Neo4j_Id	20
+20	Logicalname	Restricted_Vocabulary
+20	LABEL	Common
+20	LABEL	Generic
+20	LABEL	M1_Class
+20	LABEL	Type_Individual
+21	Neo4j_Id	21
+21	Logicalname	SystemControlledMetaClass
+21	LABEL	Common
+21	LABEL	Generic
+21	LABEL	M2_Class
+21	LABEL	Type_Individual
+22	Neo4j_Id	22
+22	Logicalname	SystemControlled
+22	LABEL	Common
+22	LABEL	Generic
+22	LABEL	M1_Class
+22	LABEL	Type_Individual
+22	INSTANCEOF	21		<!-- SystemControlled	INSTANCEOF	SystemControlledMetaClass -->
+23	Neo4j_Id	23
+23	Logicalname	Prefix
+23	LABEL	Common
+23	LABEL	Generic
+23	LABEL	S_Class
+23	LABEL	Type_Individual
+24	Neo4j_Id	24
+24	Logicalname	hyper_text_type
+24	LABEL	Common
+24	LABEL	Generic
+24	LABEL	M1_Class
+24	LABEL	Type_Individual
+25	Neo4j_Id	25
+25	Logicalname	hyperText
+25	LABEL	Common
+25	LABEL	Generic
+25	LABEL	S_Class
+25	LABEL	Type_Individual
+25	INSTANCEOF	24		<!-- hyperText	INSTANCEOF	hyper_text_type -->
+25	RELATION	263		<!-- hyperText	RELATION	plainText -->
+26	Neo4j_Id	26
+26	Logicalname	MetaRootClass
+26	LABEL	Common
+26	LABEL	Generic
+26	LABEL	M2_Class
+26	LABEL	Type_Individual
+27	Neo4j_Id	27
+27	Logicalname	RootClass
+27	LABEL	Common
+27	LABEL	Generic
+27	LABEL	M1_Class
+27	LABEL	Type_Individual
+28	Neo4j_Id	28
+28	Logicalname	Language
+28	LABEL	Common
+28	LABEL	Generic
+28	LABEL	S_Class
+28	LABEL	Type_Individual
+29	Neo4j_Id	29
+29	Logicalname	ThesaurusClassType
+29	LABEL	Common
+29	LABEL	Generic
+29	LABEL	M2_Class
+29	LABEL	Type_Individual
+29	RELATION	271		<!-- ThesaurusClassType	RELATION	of_thesaurus -->
+29	RELATION	272		<!-- ThesaurusClassType	RELATION	Class`UsesAsPrefix -->
+29	RELATION	276		<!-- ThesaurusClassType	RELATION	inLanguage -->
+30	Neo4j_Id	30
+30	Logicalname	ThesaurusClass
+30	LABEL	Common
+30	LABEL	Generic
+30	LABEL	M1_Class
+30	LABEL	Type_Individual
+30	INSTANCEOF	29		<!-- ThesaurusClass	INSTANCEOF	ThesaurusClassType -->
+31	Neo4j_Id	31
+31	Logicalname	Thesaurus
+31	LABEL	Common
+31	LABEL	Generic
+31	LABEL	S_Class
+31	LABEL	Type_Individual
+31	RELATION	318		<!-- Thesaurus	RELATION	version-number -->
+31	RELATION	482		<!-- Thesaurus	RELATION	Label800003 -->
+32	Neo4j_Id	32
+32	Logicalname	ThesaurusNotionType
+32	LABEL	Common
+32	LABEL	Generic
+32	LABEL	M1_Class
+32	LABEL	Type_Individual
+32	RELATION	273		<!-- ThesaurusNotionType	RELATION	Notion`UsesAsPrefix -->
+32	RELATION	274		<!-- ThesaurusNotionType	RELATION	of_thesaurus -->
+32	RELATION	275		<!-- ThesaurusNotionType	RELATION	thesaurus_relation -->
+32	RELATION	277		<!-- ThesaurusNotionType	RELATION	intra_thesaurus_relation -->
+32	RELATION	278		<!-- ThesaurusNotionType	RELATION	inter_thesauri_relation -->
+32	RELATION	279		<!-- ThesaurusNotionType	RELATION	translation_type -->
+32	RELATION	280		<!-- ThesaurusNotionType	RELATION	hierarchical_association_Type -->
+32	RELATION	281		<!-- ThesaurusNotionType	RELATION	equivalence_association_Type -->
+32	RELATION	282		<!-- ThesaurusNotionType	RELATION	associative_relation_Type -->
+32	RELATION	290		<!-- ThesaurusNotionType	RELATION	exact_equivalence_Type -->
+32	RELATION	291		<!-- ThesaurusNotionType	RELATION	partial_equivalence_Type -->
+32	RELATION	292		<!-- ThesaurusNotionType	RELATION	broader_equivalence_Type -->
+32	RELATION	293		<!-- ThesaurusNotionType	RELATION	narrower_equivalence_Type -->
+32	RELATION	294		<!-- ThesaurusNotionType	RELATION	inexact_equivalence_Type -->
+32	RELATION	295		<!-- ThesaurusNotionType	RELATION	single_to_multiple_equivalence_Type -->
+32	RELATION	304		<!-- ThesaurusNotionType	RELATION	composite_links -->
+32	RELATION	307		<!-- ThesaurusNotionType	RELATION	Thesaurus_attribute -->
+33	Neo4j_Id	33
+33	Logicalname	ThesaurusNotion
+33	LABEL	Common
+33	LABEL	Generic
+33	LABEL	S_Class
+33	LABEL	Type_Individual
+33	INSTANCEOF	32		<!-- ThesaurusNotion	INSTANCEOF	ThesaurusNotionType -->
+34	Neo4j_Id	34
+34	Logicalname	ThesaurusExpressionType
+34	LABEL	Common
+34	LABEL	Generic
+34	LABEL	M1_Class
+34	LABEL	Type_Individual
+34	ISA	32		<!-- ThesaurusExpressionType	ISA	ThesaurusNotionType -->
+35	Neo4j_Id	35
+35	Logicalname	ThesaurusExpression
+35	LABEL	Common
+35	LABEL	Generic
+35	LABEL	S_Class
+35	LABEL	Type_Individual
+35	INSTANCEOF	34		<!-- ThesaurusExpression	INSTANCEOF	ThesaurusExpressionType -->
+35	ISA	33		<!-- ThesaurusExpression	ISA	ThesaurusNotion -->
+36	Neo4j_Id	36
+36	Logicalname	Term
+36	LABEL	Common
+36	LABEL	Generic
+36	LABEL	S_Class
+36	LABEL	Type_Individual
+36	INSTANCEOF	34		<!-- Term	INSTANCEOF	ThesaurusExpressionType -->
+36	ISA	35		<!-- Term	ISA	ThesaurusExpression -->
+36	RELATION	302		<!-- Term	RELATION	Translation -->
+37	Neo4j_Id	37
+37	Logicalname	PreferredTerm
+37	LABEL	Common
+37	LABEL	Generic
+37	LABEL	S_Class
+37	LABEL	Type_Individual
+37	INSTANCEOF	34		<!-- PreferredTerm	INSTANCEOF	ThesaurusExpressionType -->
+37	ISA	36		<!-- PreferredTerm	ISA	Term -->
+38	Neo4j_Id	38
+38	Logicalname	AlternativeTerm
+38	LABEL	Common
+38	LABEL	Generic
+38	LABEL	S_Class
+38	LABEL	Type_Individual
+38	INSTANCEOF	32		<!-- AlternativeTerm	INSTANCEOF	ThesaurusNotionType -->
+38	ISA	37		<!-- AlternativeTerm	ISA	PreferredTerm -->
+39	Neo4j_Id	39
+39	Logicalname	AssumedDescriptor
+39	LABEL	Common
+39	LABEL	Generic
+39	LABEL	S_Class
+39	LABEL	Type_Individual
+39	INSTANCEOF	32		<!-- AssumedDescriptor	INSTANCEOF	ThesaurusNotionType -->
+39	ISA	33		<!-- AssumedDescriptor	ISA	ThesaurusNotion -->
+40	Neo4j_Id	40
+40	Logicalname	Descriptor
+40	LABEL	Common
+40	LABEL	Generic
+40	LABEL	S_Class
+40	LABEL	Type_Individual
+40	INSTANCEOF	32		<!-- Descriptor	INSTANCEOF	ThesaurusNotionType -->
+40	ISA	37		<!-- Descriptor	ISA	PreferredTerm -->
+40	ISA	39		<!-- Descriptor	ISA	AssumedDescriptor -->
+40	ISA	41		<!-- Descriptor	ISA	HierarchyTerm -->
+40	RELATION	286		<!-- Descriptor	RELATION	BT -->
+41	Neo4j_Id	41
+41	Logicalname	HierarchyTerm
+41	LABEL	Common
+41	LABEL	Generic
+41	LABEL	S_Class
+41	LABEL	Type_Individual
+41	INSTANCEOF	32		<!-- HierarchyTerm	INSTANCEOF	ThesaurusNotionType -->
+41	ISA	36		<!-- HierarchyTerm	ISA	Term -->
+41	ISA	45		<!-- HierarchyTerm	ISA	ThesaurusConcept -->
+41	RELATION	267		<!-- HierarchyTerm	RELATION	created -->
+41	RELATION	268		<!-- HierarchyTerm	RELATION	modified -->
+41	RELATION	269		<!-- HierarchyTerm	RELATION	dewey -->
+41	RELATION	270		<!-- HierarchyTerm	RELATION	taxonomic_code -->
+41	RELATION	283		<!-- HierarchyTerm	RELATION	hierarchical_association -->
+41	RELATION	284		<!-- HierarchyTerm	RELATION	equivalence_association -->
+41	RELATION	285		<!-- HierarchyTerm	RELATION	associative_relation -->
+41	RELATION	287		<!-- HierarchyTerm	RELATION	RT -->
+41	RELATION	288		<!-- HierarchyTerm	RELATION	UF -->
+41	RELATION	289		<!-- HierarchyTerm	RELATION	ALT -->
+41	RELATION	296		<!-- HierarchyTerm	RELATION	exact_equivalence -->
+41	RELATION	297		<!-- HierarchyTerm	RELATION	partial_equivalence -->
+41	RELATION	298		<!-- HierarchyTerm	RELATION	narrower_equivalence -->
+41	RELATION	299		<!-- HierarchyTerm	RELATION	broader_equivalence -->
+41	RELATION	300		<!-- HierarchyTerm	RELATION	inexact_equivalence -->
+41	RELATION	301		<!-- HierarchyTerm	RELATION	single_to_multiple_equivalence -->
+41	RELATION	303		<!-- HierarchyTerm	RELATION	UF_Translation -->
+41	RELATION	308		<!-- HierarchyTerm	RELATION	gave_name_to -->
+41	RELATION	309		<!-- HierarchyTerm	RELATION	had_name -->
+41	RELATION	311		<!-- HierarchyTerm	RELATION	editor -->
+41	RELATION	321		<!-- HierarchyTerm	RELATION	found_in -->
+41	RELATION	322		<!-- HierarchyTerm	RELATION	not_found_in -->
+41	RELATION	656		<!-- HierarchyTerm	RELATION	has_external_link -->
+42	Neo4j_Id	42
+42	Logicalname	TopTerm
+42	LABEL	Common
+42	LABEL	Generic
+42	LABEL	S_Class
+42	LABEL	Type_Individual
+42	INSTANCEOF	32		<!-- TopTerm	INSTANCEOF	ThesaurusNotionType -->
+42	ISA	41		<!-- TopTerm	ISA	HierarchyTerm -->
+42	RELATION	323		<!-- TopTerm	RELATION	belongs_to_hierarchy -->
+42	RELATION	650		<!-- TopTerm	RELATION	belongs_to_facet -->
+43	Neo4j_Id	43
+43	Logicalname	Non-PreferredTerm
+43	LABEL	Common
+43	LABEL	Generic
+43	LABEL	S_Class
+43	LABEL	Type_Individual
+43	INSTANCEOF	34		<!-- Non-PreferredTerm	INSTANCEOF	ThesaurusExpressionType -->
+43	ISA	36		<!-- Non-PreferredTerm	ISA	Term -->
+44	Neo4j_Id	44
+44	Logicalname	UsedForTerm
+44	LABEL	Common
+44	LABEL	Generic
+44	LABEL	S_Class
+44	LABEL	Type_Individual
+44	INSTANCEOF	34		<!-- UsedForTerm	INSTANCEOF	ThesaurusExpressionType -->
+44	ISA	43		<!-- UsedForTerm	ISA	Non-PreferredTerm -->
+45	Neo4j_Id	45
+45	Logicalname	ThesaurusConcept
+45	LABEL	Common
+45	LABEL	Generic
+45	LABEL	S_Class
+45	LABEL	Type_Individual
+45	INSTANCEOF	32		<!-- ThesaurusConcept	INSTANCEOF	ThesaurusNotionType -->
+45	ISA	33		<!-- ThesaurusConcept	ISA	ThesaurusNotion -->
+45	RELATION	324		<!-- ThesaurusConcept	RELATION	scope_note -->
+45	RELATION	325		<!-- ThesaurusConcept	RELATION	translations_scope_note -->
+45	RELATION	326		<!-- ThesaurusConcept	RELATION	comment -->
+45	RELATION	327		<!-- ThesaurusConcept	RELATION	historical_note -->
+45	RELATION	651		<!-- ThesaurusConcept	RELATION	note -->
+46	Neo4j_Id	46
+46	Logicalname	NodeLabel
+46	LABEL	Common
+46	LABEL	Generic
+46	LABEL	S_Class
+46	LABEL	Type_Individual
+46	INSTANCEOF	32		<!-- NodeLabel	INSTANCEOF	ThesaurusNotionType -->
+46	ISA	40		<!-- NodeLabel	ISA	Descriptor -->
+47	Neo4j_Id	47
+47	Logicalname	Facet
+47	LABEL	Common
+47	LABEL	Generic
+47	LABEL	M1_Class
+47	LABEL	Type_Individual
+47	RELATION	266		<!-- Facet	RELATION	letter_code -->
+47	RELATION	652		<!-- Facet	RELATION	class_scope_note -->
+47	RELATION	653		<!-- Facet	RELATION	class_note -->
+48	Neo4j_Id	48
+48	Logicalname	Hierarchy
+48	LABEL	Common
+48	LABEL	Generic
+48	LABEL	M1_Class
+48	LABEL	Type_Individual
+48	ISA	47		<!-- Hierarchy	ISA	Facet -->
+49	Neo4j_Id	49
+49	Logicalname	NonAbstractConcept
+49	LABEL	Common
+49	LABEL	Generic
+49	LABEL	S_Class
+49	LABEL	Type_Individual
+49	INSTANCEOF	32		<!-- NonAbstractConcept	INSTANCEOF	ThesaurusNotionType -->
+49	ISA	45		<!-- NonAbstractConcept	ISA	ThesaurusConcept -->
+50	Neo4j_Id	50
+50	Logicalname	DeweyNumber
+50	LABEL	Common
+50	LABEL	Generic
+50	LABEL	S_Class
+50	LABEL	Type_Individual
+50	RELATION	480		<!-- DeweyNumber	RELATION	Label800001 -->
+51	Neo4j_Id	51
+51	Logicalname	TaxonomicCode
+51	LABEL	Common
+51	LABEL	Generic
+51	LABEL	S_Class
+51	LABEL	Type_Individual
+51	RELATION	481		<!-- TaxonomicCode	RELATION	Label800002 -->
+52	Neo4j_Id	52
+52	Logicalname	Date
+52	LABEL	Common
+52	LABEL	Generic
+52	LABEL	S_Class
+52	LABEL	Type_Individual
+53	Neo4j_Id	53
+53	Logicalname	Word
+53	LABEL	Common
+53	LABEL	Generic
+53	LABEL	S_Class
+53	LABEL	Type_Individual
+53	INSTANCEOF	32		<!-- Word	INSTANCEOF	ThesaurusNotionType -->
+54	Neo4j_Id	54
+54	Logicalname	CollectiveConcept
+54	LABEL	Common
+54	LABEL	Generic
+54	LABEL	S_Class
+54	LABEL	Type_Individual
+54	INSTANCEOF	32		<!-- CollectiveConcept	INSTANCEOF	ThesaurusNotionType -->
+54	ISA	33		<!-- CollectiveConcept	ISA	ThesaurusNotion -->
+54	RELATION	305		<!-- CollectiveConcept	RELATION	BT_according_to -->
+54	RELATION	306		<!-- CollectiveConcept	RELATION	NT_according_to -->
+55	Neo4j_Id	55
+55	Logicalname	AdministrativeType
+55	LABEL	Common
+55	LABEL	Generic
+55	LABEL	M1_Class
+55	LABEL	Type_Individual
+56	Neo4j_Id	56
+56	Logicalname	Editor
+56	LABEL	Common
+56	LABEL	Generic
+56	LABEL	S_Class
+56	LABEL	Type_Individual
+56	INSTANCEOF	55		<!-- Editor	INSTANCEOF	AdministrativeType -->
+56	RELATION	310		<!-- Editor	RELATION	affiliation -->
+56	RELATION	483		<!-- Editor	RELATION	Label800004 -->
+57	Neo4j_Id	57
+57	Logicalname	NewDescriptors
+57	LABEL	Common
+57	LABEL	Generic
+57	LABEL	S_Class
+57	LABEL	Type_Individual
+57	INSTANCEOF	32		<!-- NewDescriptors	INSTANCEOF	ThesaurusNotionType -->
+57	INSTANCEOF	58		<!-- NewDescriptors	INSTANCEOF	VersionsOfDescriptors -->
+57	ISA	33		<!-- NewDescriptors	ISA	ThesaurusNotion -->
+58	Neo4j_Id	58
+58	Logicalname	VersionsOfDescriptors
+58	LABEL	Common
+58	LABEL	Generic
+58	LABEL	M1_Class
+58	LABEL	Type_Individual
+58	RELATION	312		<!-- VersionsOfDescriptors	RELATION	release-date -->
+58	RELATION	313		<!-- VersionsOfDescriptors	RELATION	version-number -->
+58	RELATION	314		<!-- VersionsOfDescriptors	RELATION	of_thesaurus -->
+59	Neo4j_Id	59
+59	Logicalname	NewDescriptor
+59	LABEL	Common
+59	LABEL	Generic
+59	LABEL	S_Class
+59	LABEL	Type_Individual
+59	INSTANCEOF	32		<!-- NewDescriptor	INSTANCEOF	ThesaurusNotionType -->
+59	INSTANCEOF	58		<!-- NewDescriptor	INSTANCEOF	VersionsOfDescriptors -->
+59	ISA	57		<!-- NewDescriptor	ISA	NewDescriptors -->
+60	Neo4j_Id	60
+60	Logicalname	ObsoleteDescriptors
+60	LABEL	Common
+60	LABEL	Generic
+60	LABEL	S_Class
+60	LABEL	Type_Individual
+60	INSTANCEOF	32		<!-- ObsoleteDescriptors	INSTANCEOF	ThesaurusNotionType -->
+60	INSTANCEOF	58		<!-- ObsoleteDescriptors	INSTANCEOF	VersionsOfDescriptors -->
+60	ISA	33		<!-- ObsoleteDescriptors	ISA	ThesaurusNotion -->
+61	Neo4j_Id	61
+61	Logicalname	ObsoleteDescriptor
+61	LABEL	Common
+61	LABEL	Generic
+61	LABEL	S_Class
+61	LABEL	Type_Individual
+61	INSTANCEOF	22		<!-- ObsoleteDescriptor	INSTANCEOF	SystemControlled -->
+61	INSTANCEOF	32		<!-- ObsoleteDescriptor	INSTANCEOF	ThesaurusNotionType -->
+61	INSTANCEOF	58		<!-- ObsoleteDescriptor	INSTANCEOF	VersionsOfDescriptors -->
+61	ISA	38		<!-- ObsoleteDescriptor	ISA	AlternativeTerm -->
+61	ISA	60		<!-- ObsoleteDescriptor	ISA	ObsoleteDescriptors -->
+62	Neo4j_Id	62
+62	Logicalname	JustBecameObsoleteDescriptor
+62	LABEL	Common
+62	LABEL	Generic
+62	LABEL	S_Class
+62	LABEL	Type_Individual
+62	INSTANCEOF	22		<!-- JustBecameObsoleteDescriptor	INSTANCEOF	SystemControlled -->
+62	INSTANCEOF	32		<!-- JustBecameObsoleteDescriptor	INSTANCEOF	ThesaurusNotionType -->
+62	INSTANCEOF	58		<!-- JustBecameObsoleteDescriptor	INSTANCEOF	VersionsOfDescriptors -->
+62	ISA	38		<!-- JustBecameObsoleteDescriptor	ISA	AlternativeTerm -->
+62	ISA	60		<!-- JustBecameObsoleteDescriptor	ISA	ObsoleteDescriptors -->
+63	Neo4j_Id	63
+63	Logicalname	NewThesaurusClasses
+63	LABEL	Common
+63	LABEL	Generic
+63	LABEL	M1_Class
+63	LABEL	Type_Individual
+63	INSTANCEOF	64		<!-- NewThesaurusClasses	INSTANCEOF	VersionsOfThesaurusClasses -->
+64	Neo4j_Id	64
+64	Logicalname	VersionsOfThesaurusClasses
+64	LABEL	Common
+64	LABEL	Generic
+64	LABEL	M2_Class
+64	LABEL	Type_Individual
+64	RELATION	315		<!-- VersionsOfThesaurusClasses	RELATION	release-date -->
+64	RELATION	316		<!-- VersionsOfThesaurusClasses	RELATION	version-number -->
+64	RELATION	317		<!-- VersionsOfThesaurusClasses	RELATION	of_thesaurus -->
+65	Neo4j_Id	65
+65	Logicalname	NewThesaurusClass
+65	LABEL	Common
+65	LABEL	Generic
+65	LABEL	M1_Class
+65	LABEL	Type_Individual
+65	INSTANCEOF	64		<!-- NewThesaurusClass	INSTANCEOF	VersionsOfThesaurusClasses -->
+65	ISA	63		<!-- NewThesaurusClass	ISA	NewThesaurusClasses -->
+66	Neo4j_Id	66
+66	Logicalname	ObsoleteThesaurusClasses
+66	LABEL	Common
+66	LABEL	Generic
+66	LABEL	M1_Class
+66	LABEL	Type_Individual
+66	INSTANCEOF	64		<!-- ObsoleteThesaurusClasses	INSTANCEOF	VersionsOfThesaurusClasses -->
+67	Neo4j_Id	67
+67	Logicalname	ObsoleteThesaurusClass
+67	LABEL	Common
+67	LABEL	Generic
+67	LABEL	M1_Class
+67	LABEL	Type_Individual
+67	INSTANCEOF	64		<!-- ObsoleteThesaurusClass	INSTANCEOF	VersionsOfThesaurusClasses -->
+67	ISA	66		<!-- ObsoleteThesaurusClass	ISA	ObsoleteThesaurusClasses -->
+68	Neo4j_Id	68
+68	Logicalname	JustBecameObsoleteThesaurusClass
+68	LABEL	Common
+68	LABEL	Generic
+68	LABEL	M1_Class
+68	LABEL	Type_Individual
+68	INSTANCEOF	64		<!-- JustBecameObsoleteThesaurusClass	INSTANCEOF	VersionsOfThesaurusClasses -->
+68	ISA	66		<!-- JustBecameObsoleteThesaurusClass	ISA	ObsoleteThesaurusClasses -->
+69	Neo4j_Id	69
+69	Logicalname	ObsoleteFacet
+69	LABEL	Common
+69	LABEL	Generic
+69	LABEL	M1_Class
+69	LABEL	Type_Individual
+69	INSTANCEOF	29		<!-- ObsoleteFacet	INSTANCEOF	ThesaurusClassType -->
+70	Neo4j_Id	70
+70	Logicalname	ObsoleteHierarchy
+70	LABEL	Common
+70	LABEL	Generic
+70	LABEL	M1_Class
+70	LABEL	Type_Individual
+70	INSTANCEOF	29		<!-- ObsoleteHierarchy	INSTANCEOF	ThesaurusClassType -->
+71	Neo4j_Id	71
+71	Logicalname	ObsoleteTerm
+71	LABEL	Common
+71	LABEL	Generic
+71	LABEL	S_Class
+71	LABEL	Type_Individual
+71	INSTANCEOF	22		<!-- ObsoleteTerm	INSTANCEOF	SystemControlled -->
+71	INSTANCEOF	34		<!-- ObsoleteTerm	INSTANCEOF	ThesaurusExpressionType -->
+71	ISA	38		<!-- ObsoleteTerm	ISA	AlternativeTerm -->
+71	ISA	44		<!-- ObsoleteTerm	ISA	UsedForTerm -->
+72	Neo4j_Id	72
+72	Logicalname	StatusOfTerm
+72	LABEL	Common
+72	LABEL	Generic
+72	LABEL	S_Class
+72	LABEL	Type_Individual
+73	Neo4j_Id	73
+73	Logicalname	StatusUnderConstruction
+73	LABEL	Common
+73	LABEL	Generic
+73	LABEL	S_Class
+73	LABEL	Type_Individual
+73	ISA	72		<!-- StatusUnderConstruction	ISA	StatusOfTerm -->
+74	Neo4j_Id	74
+74	Logicalname	StatusForApproval
+74	LABEL	Common
+74	LABEL	Generic
+74	LABEL	S_Class
+74	LABEL	Type_Individual
+74	ISA	72		<!-- StatusForApproval	ISA	StatusOfTerm -->
+75	Neo4j_Id	75
+75	Logicalname	StatusForInsertion
+75	LABEL	Common
+75	LABEL	Generic
+75	LABEL	S_Class
+75	LABEL	Type_Individual
+75	ISA	72		<!-- StatusForInsertion	ISA	StatusOfTerm -->
+76	Neo4j_Id	76
+76	Logicalname	StatusForReinspection
+76	LABEL	Common
+76	LABEL	Generic
+76	LABEL	S_Class
+76	LABEL	Type_Individual
+76	ISA	72		<!-- StatusForReinspection	ISA	StatusOfTerm -->
+77	Neo4j_Id	77
+77	Logicalname	StatusApproved
+77	LABEL	Common
+77	LABEL	Generic
+77	LABEL	S_Class
+77	LABEL	Type_Individual
+77	ISA	72		<!-- StatusApproved	ISA	StatusOfTerm -->
+78	Neo4j_Id	78
+78	Logicalname	StatusTermAccepted
+78	LABEL	Common
+78	LABEL	Generic
+78	LABEL	S_Class
+78	LABEL	Type_Individual
+78	ISA	72		<!-- StatusTermAccepted	ISA	StatusOfTerm -->
+79	Neo4j_Id	79
+79	Logicalname	StatusTermNotAccepted
+79	LABEL	Common
+79	LABEL	Generic
+79	LABEL	S_Class
+79	LABEL	Type_Individual
+79	ISA	72		<!-- StatusTermNotAccepted	ISA	StatusOfTerm -->
+80	Neo4j_Id	80
+80	Logicalname	Source
+80	LABEL	Common
+80	LABEL	Generic
+80	LABEL	S_Class
+80	LABEL	Type_Individual
+80	INSTANCEOF	32		<!-- Source	INSTANCEOF	ThesaurusNotionType -->
+80	ISA	33		<!-- Source	ISA	ThesaurusNotion -->
+80	RELATION	319		<!-- Source	RELATION	full_reference -->
+80	RELATION	320		<!-- Source	RELATION	source_note -->
+80	RELATION	484		<!-- Source	RELATION	Label800005 -->
+81	Neo4j_Id	81
+81	Logicalname	Citation
+81	LABEL	Common
+81	LABEL	Generic
+81	LABEL	S_Class
+81	LABEL	Type_Individual
+81	INSTANCEOF	32		<!-- Citation	INSTANCEOF	ThesaurusNotionType -->
+81	ISA	80		<!-- Citation	ISA	Source -->
+82	Neo4j_Id	82
+82	Logicalname	Monograph
+82	LABEL	Common
+82	LABEL	Generic
+82	LABEL	S_Class
+82	LABEL	Type_Individual
+82	INSTANCEOF	32		<!-- Monograph	INSTANCEOF	ThesaurusNotionType -->
+82	ISA	81		<!-- Monograph	ISA	Citation -->
+83	Neo4j_Id	83
+83	Logicalname	Serial
+83	LABEL	Common
+83	LABEL	Generic
+83	LABEL	S_Class
+83	LABEL	Type_Individual
+83	INSTANCEOF	32		<!-- Serial	INSTANCEOF	ThesaurusNotionType -->
+83	ISA	81		<!-- Serial	ISA	Citation -->
+84	Neo4j_Id	84
+84	Logicalname	TopFacet
+84	LABEL	Common
+84	LABEL	Generic
+84	LABEL	S_Class
+84	LABEL	Type_Individual
+84	INSTANCEOF	27		<!-- TopFacet	INSTANCEOF	RootClass -->
+85	Neo4j_Id	85
+85	Logicalname	DummyHierarchy
+85	LABEL	Common
+85	LABEL	Generic
+85	LABEL	S_Class
+85	LABEL	Type_Individual
+86	Neo4j_Id	86
+86	Logicalname	HierarchyClass
+86	LABEL	Common
+86	LABEL	Generic
+86	LABEL	S_Class
+86	LABEL	Type_Individual
+86	INSTANCEOF	27		<!-- HierarchyClass	INSTANCEOF	RootClass -->
+86	INSTANCEOF	48		<!-- HierarchyClass	INSTANCEOF	Hierarchy -->
+86	ISA	84		<!-- HierarchyClass	ISA	TopFacet -->
+86	ISA	85		<!-- HierarchyClass	ISA	DummyHierarchy -->
+100	Neo4j_Id	100
+100	Logicalname	Dewey`
+100	LABEL	Common
+100	LABEL	Generic
+100	LABEL	Token
+100	LABEL	Type_Individual
+100	INSTANCEOF	23		<!-- Dewey`	INSTANCEOF	Prefix -->
+101	Neo4j_Id	101
+101	Logicalname	TaxCode`
+101	LABEL	Common
+101	LABEL	Generic
+101	LABEL	Token
+101	LABEL	Type_Individual
+101	INSTANCEOF	23		<!-- TaxCode`	INSTANCEOF	Prefix -->
+102	Neo4j_Id	102
+102	Logicalname	Thesaurus`
+102	LABEL	Common
+102	LABEL	Generic
+102	LABEL	Token
+102	LABEL	Type_Individual
+102	INSTANCEOF	23		<!-- Thesaurus`	INSTANCEOF	Prefix -->
+103	Neo4j_Id	103
+103	Logicalname	Person`
+103	LABEL	Common
+103	LABEL	Generic
+103	LABEL	Token
+103	LABEL	Type_Individual
+103	INSTANCEOF	23		<!-- Person`	INSTANCEOF	Prefix -->
+104	Neo4j_Id	104
+104	Logicalname	Literature`
+104	LABEL	Common
+104	LABEL	Generic
+104	LABEL	Token
+104	LABEL	Type_Individual
+104	INSTANCEOF	23		<!-- Literature`	INSTANCEOF	Prefix -->
+219	Neo4j_Id	219
+219	Logicalname	attribute
+219	LABEL	Common
+219	LABEL	Generic
+219	LABEL	Type_Attribute
+219	RELATION	4		<!-- attribute	RELATION	Individual -->
+249	Neo4j_Id	249
+249	Logicalname	display
+249	LABEL	Common
+249	LABEL	Generic
+249	LABEL	S_Class
+249	LABEL	Type_Attribute
+249	INSTANCEOF	219		<!-- display	INSTANCEOF	attribute -->
+249	RELATION	3		<!-- display	RELATION	Telos_String -->
+251	Neo4j_Id	251
+251	Logicalname	default_ef
+251	LABEL	Common
+251	LABEL	Generic
+251	LABEL	M1_Class
+251	LABEL	Type_Attribute
+251	INSTANCEOF	219		<!-- default_ef	INSTANCEOF	attribute -->
+251	RELATION	4		<!-- default_ef	RELATION	Individual -->
+252	Neo4j_Id	252
+252	Logicalname	interconnected
+252	LABEL	Common
+252	LABEL	Generic
+252	LABEL	M1_Class
+252	LABEL	Type_Attribute
+252	INSTANCEOF	219		<!-- interconnected	INSTANCEOF	attribute -->
+252	RELATION	4		<!-- interconnected	RELATION	Individual -->
+253	Neo4j_Id	253
+253	Logicalname	non_shared
+253	LABEL	Common
+253	LABEL	Generic
+253	LABEL	M1_Class
+253	LABEL	Type_Attribute
+253	INSTANCEOF	219		<!-- non_shared	INSTANCEOF	attribute -->
+253	RELATION	4		<!-- non_shared	RELATION	Individual -->
+254	Neo4j_Id	254
+254	Logicalname	necessary
+254	LABEL	Common
+254	LABEL	Generic
+254	LABEL	M1_Class
+254	LABEL	Type_Attribute
+254	INSTANCEOF	219		<!-- necessary	INSTANCEOF	attribute -->
+254	RELATION	4		<!-- necessary	RELATION	Individual -->
+255	Neo4j_Id	255
+255	Logicalname	dependent
+255	LABEL	Common
+255	LABEL	Generic
+255	LABEL	M1_Class
+255	LABEL	Type_Attribute
+255	INSTANCEOF	219		<!-- dependent	INSTANCEOF	attribute -->
+255	RELATION	4		<!-- dependent	RELATION	Individual -->
+256	Neo4j_Id	256
+256	Logicalname	garbage_collected
+256	LABEL	Common
+256	LABEL	Generic
+256	LABEL	M1_Class
+256	LABEL	Type_Attribute
+256	INSTANCEOF	219		<!-- garbage_collected	INSTANCEOF	attribute -->
+256	RELATION	4		<!-- garbage_collected	RELATION	Individual -->
+257	Neo4j_Id	257
+257	Logicalname	trans_garbage_collected
+257	LABEL	Common
+257	LABEL	Generic
+257	LABEL	M1_Class
+257	LABEL	Type_Attribute
+257	INSTANCEOF	219		<!-- trans_garbage_collected	INSTANCEOF	attribute -->
+257	RELATION	4		<!-- trans_garbage_collected	RELATION	Individual -->
+258	Neo4j_Id	258
+258	Logicalname	system_controlled_meta_categories
+258	LABEL	Common
+258	LABEL	Generic
+258	LABEL	M2_Class
+258	LABEL	Type_Attribute
+258	INSTANCEOF	219		<!-- system_controlled_meta_categories	INSTANCEOF	attribute -->
+258	RELATION	4		<!-- system_controlled_meta_categories	RELATION	Individual -->
+259	Neo4j_Id	259
+259	Logicalname	system_controlled
+259	LABEL	Common
+259	LABEL	Generic
+259	LABEL	M1_Class
+259	LABEL	Type_Attribute
+259	INSTANCEOF	258		<!-- system_controlled	INSTANCEOF	system_controlled_meta_categories -->
+259	RELATION	4		<!-- system_controlled	RELATION	Individual -->
+260	Neo4j_Id	260
+260	Logicalname	DAG
+260	LABEL	Common
+260	LABEL	Generic
+260	LABEL	M1_Class
+260	LABEL	Type_Attribute
+260	INSTANCEOF	219		<!-- DAG	INSTANCEOF	attribute -->
+260	RELATION	4		<!-- DAG	RELATION	Individual -->
+261	Neo4j_Id	261
+261	Logicalname	has_prefix
+261	LABEL	Common
+261	LABEL	Generic
+261	LABEL	S_Class
+261	LABEL	Type_Attribute
+261	INSTANCEOF	219		<!-- has_prefix	INSTANCEOF	attribute -->
+261	RELATION	23		<!-- has_prefix	RELATION	Prefix -->
+262	Neo4j_Id	262
+262	Logicalname	text_type
+262	LABEL	Common
+262	LABEL	Generic
+262	LABEL	M1_Class
+262	LABEL	Type_Attribute
+262	INSTANCEOF	219		<!-- text_type	INSTANCEOF	attribute -->
+262	RELATION	24		<!-- text_type	RELATION	hyper_text_type -->
+263	Neo4j_Id	263
+263	Logicalname	plainText
+263	LABEL	Common
+263	LABEL	Generic
+263	LABEL	S_Class
+263	LABEL	Type_Attribute
+263	INSTANCEOF	219		<!-- plainText	INSTANCEOF	attribute -->
+263	RELATION	3		<!-- plainText	RELATION	Telos_String -->
+264	Neo4j_Id	264
+264	Logicalname	forwards_sorted
+264	LABEL	Common
+264	LABEL	Generic
+264	LABEL	M1_Class
+264	LABEL	Type_Attribute
+264	INSTANCEOF	219		<!-- forwards_sorted	INSTANCEOF	attribute -->
+264	RELATION	4		<!-- forwards_sorted	RELATION	Individual -->
+265	Neo4j_Id	265
+265	Logicalname	backwards_sorted
+265	LABEL	Common
+265	LABEL	Generic
+265	LABEL	M1_Class
+265	LABEL	Type_Attribute
+265	INSTANCEOF	219		<!-- backwards_sorted	INSTANCEOF	attribute -->
+265	RELATION	4		<!-- backwards_sorted	RELATION	Individual -->
+266	Neo4j_Id	266
+266	Logicalname	letter_code
+266	LABEL	Common
+266	LABEL	Generic
+266	LABEL	S_Class
+266	LABEL	Type_Attribute
+266	INSTANCEOF	219		<!-- letter_code	INSTANCEOF	attribute -->
+266	RELATION	3		<!-- letter_code	RELATION	Telos_String -->
+267	Neo4j_Id	267
+267	Logicalname	created
+267	LABEL	Common
+267	LABEL	Generic
+267	LABEL	S_Class
+267	LABEL	Type_Attribute
+267	INSTANCEOF	219		<!-- created	INSTANCEOF	attribute -->
+267	RELATION	52		<!-- created	RELATION	Date -->
+268	Neo4j_Id	268
+268	Logicalname	modified
+268	LABEL	Common
+268	LABEL	Generic
+268	LABEL	S_Class
+268	LABEL	Type_Attribute
+268	INSTANCEOF	219		<!-- modified	INSTANCEOF	attribute -->
+268	RELATION	52		<!-- modified	RELATION	Date -->
+269	Neo4j_Id	269
+269	Logicalname	dewey
+269	LABEL	Common
+269	LABEL	Generic
+269	LABEL	S_Class
+269	LABEL	Type_Attribute
+269	INSTANCEOF	219		<!-- dewey	INSTANCEOF	attribute -->
+269	RELATION	50		<!-- dewey	RELATION	DeweyNumber -->
+270	Neo4j_Id	270
+270	Logicalname	taxonomic_code
+270	LABEL	Common
+270	LABEL	Generic
+270	LABEL	S_Class
+270	LABEL	Type_Attribute
+270	INSTANCEOF	219		<!-- taxonomic_code	INSTANCEOF	attribute -->
+270	RELATION	51		<!-- taxonomic_code	RELATION	TaxonomicCode -->
+271	Neo4j_Id	271
+271	Logicalname	of_thesaurus
+271	LABEL	Common
+271	LABEL	Generic
+271	LABEL	S_Class
+271	LABEL	Type_Attribute
+271	INSTANCEOF	219		<!-- of_thesaurus	INSTANCEOF	attribute -->
+271	RELATION	31		<!-- of_thesaurus	RELATION	Thesaurus -->
+272	Neo4j_Id	272
+272	Logicalname	Class`UsesAsPrefix
+272	LABEL	Common
+272	LABEL	Generic
+272	LABEL	S_Class
+272	LABEL	Type_Attribute
+272	INSTANCEOF	219		<!-- Class`UsesAsPrefix	INSTANCEOF	attribute -->
+272	RELATION	23		<!-- Class`UsesAsPrefix	RELATION	Prefix -->
+273	Neo4j_Id	273
+273	Logicalname	Notion`UsesAsPrefix
+273	LABEL	Common
+273	LABEL	Generic
+273	LABEL	S_Class
+273	LABEL	Type_Attribute
+273	INSTANCEOF	219		<!-- Notion`UsesAsPrefix	INSTANCEOF	attribute -->
+273	RELATION	23		<!-- Notion`UsesAsPrefix	RELATION	Prefix -->
+274	Neo4j_Id	274
+274	Logicalname	of_thesaurus
+274	LABEL	Common
+274	LABEL	Generic
+274	LABEL	S_Class
+274	LABEL	Type_Attribute
+274	INSTANCEOF	219		<!-- of_thesaurus	INSTANCEOF	attribute -->
+274	RELATION	31		<!-- of_thesaurus	RELATION	Thesaurus -->
+275	Neo4j_Id	275
+275	Logicalname	thesaurus_relation
+275	LABEL	Common
+275	LABEL	Generic
+275	LABEL	M1_Class
+275	LABEL	Type_Attribute
+275	INSTANCEOF	219		<!-- thesaurus_relation	INSTANCEOF	attribute -->
+275	RELATION	32		<!-- thesaurus_relation	RELATION	ThesaurusNotionType -->
+276	Neo4j_Id	276
+276	Logicalname	inLanguage
+276	LABEL	Common
+276	LABEL	Generic
+276	LABEL	S_Class
+276	LABEL	Type_Attribute
+276	INSTANCEOF	219		<!-- inLanguage	INSTANCEOF	attribute -->
+276	RELATION	28		<!-- inLanguage	RELATION	Language -->
+277	Neo4j_Id	277
+277	Logicalname	intra_thesaurus_relation
+277	LABEL	Common
+277	LABEL	Generic
+277	LABEL	M1_Class
+277	LABEL	Type_Attribute
+277	INSTANCEOF	219		<!-- intra_thesaurus_relation	INSTANCEOF	attribute -->
+277	ISA	275		<!-- intra_thesaurus_relation	ISA	thesaurus_relation -->
+277	RELATION	32		<!-- intra_thesaurus_relation	RELATION	ThesaurusNotionType -->
+278	Neo4j_Id	278
+278	Logicalname	inter_thesauri_relation
+278	LABEL	Common
+278	LABEL	Generic
+278	LABEL	M1_Class
+278	LABEL	Type_Attribute
+278	INSTANCEOF	219		<!-- inter_thesauri_relation	INSTANCEOF	attribute -->
+278	ISA	275		<!-- inter_thesauri_relation	ISA	thesaurus_relation -->
+278	RELATION	32		<!-- inter_thesauri_relation	RELATION	ThesaurusNotionType -->
+279	Neo4j_Id	279
+279	Logicalname	translation_type
+279	LABEL	Common
+279	LABEL	Generic
+279	LABEL	M1_Class
+279	LABEL	Type_Attribute
+279	INSTANCEOF	219		<!-- translation_type	INSTANCEOF	attribute -->
+279	RELATION	32		<!-- translation_type	RELATION	ThesaurusNotionType -->
+280	Neo4j_Id	280
+280	Logicalname	hierarchical_association_Type
+280	LABEL	Common
+280	LABEL	Generic
+280	LABEL	M1_Class
+280	LABEL	Type_Attribute
+280	INSTANCEOF	219		<!-- hierarchical_association_Type	INSTANCEOF	attribute -->
+280	ISA	277		<!-- hierarchical_association_Type	ISA	intra_thesaurus_relation -->
+280	RELATION	32		<!-- hierarchical_association_Type	RELATION	ThesaurusNotionType -->
+281	Neo4j_Id	281
+281	Logicalname	equivalence_association_Type
+281	LABEL	Common
+281	LABEL	Generic
+281	LABEL	M1_Class
+281	LABEL	Type_Attribute
+281	INSTANCEOF	219		<!-- equivalence_association_Type	INSTANCEOF	attribute -->
+281	ISA	277		<!-- equivalence_association_Type	ISA	intra_thesaurus_relation -->
+281	RELATION	32		<!-- equivalence_association_Type	RELATION	ThesaurusNotionType -->
+282	Neo4j_Id	282
+282	Logicalname	associative_relation_Type
+282	LABEL	Common
+282	LABEL	Generic
+282	LABEL	M1_Class
+282	LABEL	Type_Attribute
+282	INSTANCEOF	219		<!-- associative_relation_Type	INSTANCEOF	attribute -->
+282	ISA	277		<!-- associative_relation_Type	ISA	intra_thesaurus_relation -->
+282	RELATION	32		<!-- associative_relation_Type	RELATION	ThesaurusNotionType -->
+283	Neo4j_Id	283
+283	Logicalname	hierarchical_association
+283	LABEL	Common
+283	LABEL	Generic
+283	LABEL	S_Class
+283	LABEL	Type_Attribute
+283	INSTANCEOF	259		<!-- hierarchical_association	INSTANCEOF	system_controlled -->
+283	INSTANCEOF	280		<!-- hierarchical_association	INSTANCEOF	hierarchical_association_Type -->
+283	RELATION	41		<!-- hierarchical_association	RELATION	HierarchyTerm -->
+284	Neo4j_Id	284
+284	Logicalname	equivalence_association
+284	LABEL	Common
+284	LABEL	Generic
+284	LABEL	S_Class
+284	LABEL	Type_Attribute
+284	INSTANCEOF	259		<!-- equivalence_association	INSTANCEOF	system_controlled -->
+284	INSTANCEOF	281		<!-- equivalence_association	INSTANCEOF	equivalence_association_Type -->
+284	RELATION	36		<!-- equivalence_association	RELATION	Term -->
+285	Neo4j_Id	285
+285	Logicalname	associative_relation
+285	LABEL	Common
+285	LABEL	Generic
+285	LABEL	S_Class
+285	LABEL	Type_Attribute
+285	INSTANCEOF	259		<!-- associative_relation	INSTANCEOF	system_controlled -->
+285	INSTANCEOF	282		<!-- associative_relation	INSTANCEOF	associative_relation_Type -->
+285	RELATION	41		<!-- associative_relation	RELATION	HierarchyTerm -->
+286	Neo4j_Id	286
+286	Logicalname	BT
+286	LABEL	Common
+286	LABEL	Generic
+286	LABEL	S_Class
+286	LABEL	Type_Attribute
+286	INSTANCEOF	252		<!-- BT	INSTANCEOF	interconnected -->
+286	INSTANCEOF	254		<!-- BT	INSTANCEOF	necessary -->
+286	INSTANCEOF	259		<!-- BT	INSTANCEOF	system_controlled -->
+286	INSTANCEOF	260		<!-- BT	INSTANCEOF	DAG -->
+286	INSTANCEOF	265		<!-- BT	INSTANCEOF	backwards_sorted -->
+286	INSTANCEOF	280		<!-- BT	INSTANCEOF	hierarchical_association_Type -->
+286	ISA	283		<!-- BT	ISA	hierarchical_association -->
+286	RELATION	41		<!-- BT	RELATION	HierarchyTerm -->
+287	Neo4j_Id	287
+287	Logicalname	RT
+287	LABEL	Common
+287	LABEL	Generic
+287	LABEL	S_Class
+287	LABEL	Type_Attribute
+287	INSTANCEOF	259		<!-- RT	INSTANCEOF	system_controlled -->
+287	INSTANCEOF	282		<!-- RT	INSTANCEOF	associative_relation_Type -->
+287	ISA	285		<!-- RT	ISA	associative_relation -->
+287	RELATION	41		<!-- RT	RELATION	HierarchyTerm -->
+288	Neo4j_Id	288
+288	Logicalname	UF
+288	LABEL	Common
+288	LABEL	Generic
+288	LABEL	S_Class
+288	LABEL	Type_Attribute
+288	INSTANCEOF	259		<!-- UF	INSTANCEOF	system_controlled -->
+288	INSTANCEOF	281		<!-- UF	INSTANCEOF	equivalence_association_Type -->
+288	ISA	284		<!-- UF	ISA	equivalence_association -->
+288	RELATION	44		<!-- UF	RELATION	UsedForTerm -->
+289	Neo4j_Id	289
+289	Logicalname	ALT
+289	LABEL	Common
+289	LABEL	Generic
+289	LABEL	S_Class
+289	LABEL	Type_Attribute
+289	INSTANCEOF	259		<!-- ALT	INSTANCEOF	system_controlled -->
+289	INSTANCEOF	281		<!-- ALT	INSTANCEOF	equivalence_association_Type -->
+289	ISA	284		<!-- ALT	ISA	equivalence_association -->
+289	RELATION	38		<!-- ALT	RELATION	AlternativeTerm -->
+290	Neo4j_Id	290
+290	Logicalname	exact_equivalence_Type
+290	LABEL	Common
+290	LABEL	Generic
+290	LABEL	M1_Class
+290	LABEL	Type_Attribute
+290	INSTANCEOF	219		<!-- exact_equivalence_Type	INSTANCEOF	attribute -->
+290	ISA	278		<!-- exact_equivalence_Type	ISA	inter_thesauri_relation -->
+290	RELATION	32		<!-- exact_equivalence_Type	RELATION	ThesaurusNotionType -->
+291	Neo4j_Id	291
+291	Logicalname	partial_equivalence_Type
+291	LABEL	Common
+291	LABEL	Generic
+291	LABEL	M1_Class
+291	LABEL	Type_Attribute
+291	INSTANCEOF	219		<!-- partial_equivalence_Type	INSTANCEOF	attribute -->
+291	ISA	278		<!-- partial_equivalence_Type	ISA	inter_thesauri_relation -->
+291	RELATION	32		<!-- partial_equivalence_Type	RELATION	ThesaurusNotionType -->
+292	Neo4j_Id	292
+292	Logicalname	broader_equivalence_Type
+292	LABEL	Common
+292	LABEL	Generic
+292	LABEL	M1_Class
+292	LABEL	Type_Attribute
+292	INSTANCEOF	219		<!-- broader_equivalence_Type	INSTANCEOF	attribute -->
+292	ISA	291		<!-- broader_equivalence_Type	ISA	partial_equivalence_Type -->
+292	RELATION	32		<!-- broader_equivalence_Type	RELATION	ThesaurusNotionType -->
+293	Neo4j_Id	293
+293	Logicalname	narrower_equivalence_Type
+293	LABEL	Common
+293	LABEL	Generic
+293	LABEL	M1_Class
+293	LABEL	Type_Attribute
+293	INSTANCEOF	219		<!-- narrower_equivalence_Type	INSTANCEOF	attribute -->
+293	ISA	291		<!-- narrower_equivalence_Type	ISA	partial_equivalence_Type -->
+293	RELATION	32		<!-- narrower_equivalence_Type	RELATION	ThesaurusNotionType -->
+294	Neo4j_Id	294
+294	Logicalname	inexact_equivalence_Type
+294	LABEL	Common
+294	LABEL	Generic
+294	LABEL	M1_Class
+294	LABEL	Type_Attribute
+294	INSTANCEOF	219		<!-- inexact_equivalence_Type	INSTANCEOF	attribute -->
+294	ISA	278		<!-- inexact_equivalence_Type	ISA	inter_thesauri_relation -->
+294	RELATION	32		<!-- inexact_equivalence_Type	RELATION	ThesaurusNotionType -->
+295	Neo4j_Id	295
+295	Logicalname	single_to_multiple_equivalence_Type
+295	LABEL	Common
+295	LABEL	Generic
+295	LABEL	M1_Class
+295	LABEL	Type_Attribute
+295	INSTANCEOF	219		<!-- single_to_multiple_equivalence_Type	INSTANCEOF	attribute -->
+295	ISA	278		<!-- single_to_multiple_equivalence_Type	ISA	inter_thesauri_relation -->
+295	RELATION	32		<!-- single_to_multiple_equivalence_Type	RELATION	ThesaurusNotionType -->
+296	Neo4j_Id	296
+296	Logicalname	exact_equivalence
+296	LABEL	Common
+296	LABEL	Generic
+296	LABEL	S_Class
+296	LABEL	Type_Attribute
+296	INSTANCEOF	259		<!-- exact_equivalence	INSTANCEOF	system_controlled -->
+296	INSTANCEOF	290		<!-- exact_equivalence	INSTANCEOF	exact_equivalence_Type -->
+296	RELATION	33		<!-- exact_equivalence	RELATION	ThesaurusNotion -->
+297	Neo4j_Id	297
+297	Logicalname	partial_equivalence
+297	LABEL	Common
+297	LABEL	Generic
+297	LABEL	S_Class
+297	LABEL	Type_Attribute
+297	INSTANCEOF	259		<!-- partial_equivalence	INSTANCEOF	system_controlled -->
+297	INSTANCEOF	291		<!-- partial_equivalence	INSTANCEOF	partial_equivalence_Type -->
+297	RELATION	33		<!-- partial_equivalence	RELATION	ThesaurusNotion -->
+298	Neo4j_Id	298
+298	Logicalname	narrower_equivalence
+298	LABEL	Common
+298	LABEL	Generic
+298	LABEL	S_Class
+298	LABEL	Type_Attribute
+298	INSTANCEOF	259		<!-- narrower_equivalence	INSTANCEOF	system_controlled -->
+298	INSTANCEOF	293		<!-- narrower_equivalence	INSTANCEOF	narrower_equivalence_Type -->
+298	ISA	297		<!-- narrower_equivalence	ISA	partial_equivalence -->
+298	RELATION	33		<!-- narrower_equivalence	RELATION	ThesaurusNotion -->
+299	Neo4j_Id	299
+299	Logicalname	broader_equivalence
+299	LABEL	Common
+299	LABEL	Generic
+299	LABEL	S_Class
+299	LABEL	Type_Attribute
+299	INSTANCEOF	259		<!-- broader_equivalence	INSTANCEOF	system_controlled -->
+299	INSTANCEOF	292		<!-- broader_equivalence	INSTANCEOF	broader_equivalence_Type -->
+299	ISA	297		<!-- broader_equivalence	ISA	partial_equivalence -->
+299	RELATION	33		<!-- broader_equivalence	RELATION	ThesaurusNotion -->
+300	Neo4j_Id	300
+300	Logicalname	inexact_equivalence
+300	LABEL	Common
+300	LABEL	Generic
+300	LABEL	S_Class
+300	LABEL	Type_Attribute
+300	INSTANCEOF	259		<!-- inexact_equivalence	INSTANCEOF	system_controlled -->
+300	INSTANCEOF	294		<!-- inexact_equivalence	INSTANCEOF	inexact_equivalence_Type -->
+300	RELATION	33		<!-- inexact_equivalence	RELATION	ThesaurusNotion -->
+301	Neo4j_Id	301
+301	Logicalname	single_to_multiple_equivalence
+301	LABEL	Common
+301	LABEL	Generic
+301	LABEL	S_Class
+301	LABEL	Type_Attribute
+301	INSTANCEOF	259		<!-- single_to_multiple_equivalence	INSTANCEOF	system_controlled -->
+301	INSTANCEOF	295		<!-- single_to_multiple_equivalence	INSTANCEOF	single_to_multiple_equivalence_Type -->
+301	RELATION	33		<!-- single_to_multiple_equivalence	RELATION	ThesaurusNotion -->
+302	Neo4j_Id	302
+302	Logicalname	Translation
+302	LABEL	Common
+302	LABEL	Generic
+302	LABEL	S_Class
+302	LABEL	Type_Attribute
+302	INSTANCEOF	259		<!-- Translation	INSTANCEOF	system_controlled -->
+302	INSTANCEOF	279		<!-- Translation	INSTANCEOF	translation_type -->
+302	RELATION	53		<!-- Translation	RELATION	Word -->
+303	Neo4j_Id	303
+303	Logicalname	UF_Translation
+303	LABEL	Common
+303	LABEL	Generic
+303	LABEL	S_Class
+303	LABEL	Type_Attribute
+303	INSTANCEOF	259		<!-- UF_Translation	INSTANCEOF	system_controlled -->
+303	INSTANCEOF	279		<!-- UF_Translation	INSTANCEOF	translation_type -->
+303	RELATION	53		<!-- UF_Translation	RELATION	Word -->
+304	Neo4j_Id	304
+304	Logicalname	composite_links
+304	LABEL	Common
+304	LABEL	Generic
+304	LABEL	M1_Class
+304	LABEL	Type_Attribute
+304	INSTANCEOF	219		<!-- composite_links	INSTANCEOF	attribute -->
+304	RELATION	32		<!-- composite_links	RELATION	ThesaurusNotionType -->
+305	Neo4j_Id	305
+305	Logicalname	BT_according_to
+305	LABEL	Common
+305	LABEL	Generic
+305	LABEL	S_Class
+305	LABEL	Type_Attribute
+305	INSTANCEOF	280		<!-- BT_according_to	INSTANCEOF	hierarchical_association_Type -->
+305	RELATION	33		<!-- BT_according_to	RELATION	ThesaurusNotion -->
+306	Neo4j_Id	306
+306	Logicalname	NT_according_to
+306	LABEL	Common
+306	LABEL	Generic
+306	LABEL	S_Class
+306	LABEL	Type_Attribute
+306	INSTANCEOF	280		<!-- NT_according_to	INSTANCEOF	hierarchical_association_Type -->
+306	RELATION	33		<!-- NT_according_to	RELATION	ThesaurusNotion -->
+307	Neo4j_Id	307
+307	Logicalname	Thesaurus_attribute
+307	LABEL	Common
+307	LABEL	Generic
+307	LABEL	M1_Class
+307	LABEL	Type_Attribute
+307	INSTANCEOF	219		<!-- Thesaurus_attribute	INSTANCEOF	attribute -->
+307	RELATION	4		<!-- Thesaurus_attribute	RELATION	Individual -->
+308	Neo4j_Id	308
+308	Logicalname	gave_name_to
+308	LABEL	Common
+308	LABEL	Generic
+308	LABEL	S_Class
+308	LABEL	Type_Attribute
+308	INSTANCEOF	259		<!-- gave_name_to	INSTANCEOF	system_controlled -->
+308	RELATION	36		<!-- gave_name_to	RELATION	Term -->
+309	Neo4j_Id	309
+309	Logicalname	had_name
+309	LABEL	Common
+309	LABEL	Generic
+309	LABEL	S_Class
+309	LABEL	Type_Attribute
+309	INSTANCEOF	259		<!-- had_name	INSTANCEOF	system_controlled -->
+309	RELATION	3		<!-- had_name	RELATION	Telos_String -->
+310	Neo4j_Id	310
+310	Logicalname	affiliation
+310	LABEL	Common
+310	LABEL	Generic
+310	LABEL	S_Class
+310	LABEL	Type_Attribute
+310	INSTANCEOF	219		<!-- affiliation	INSTANCEOF	attribute -->
+310	RELATION	3		<!-- affiliation	RELATION	Telos_String -->
+311	Neo4j_Id	311
+311	Logicalname	editor
+311	LABEL	Common
+311	LABEL	Generic
+311	LABEL	S_Class
+311	LABEL	Type_Attribute
+311	INSTANCEOF	219		<!-- editor	INSTANCEOF	attribute -->
+311	RELATION	56		<!-- editor	RELATION	Editor -->
+312	Neo4j_Id	312
+312	Logicalname	release-date
+312	LABEL	Common
+312	LABEL	Generic
+312	LABEL	S_Class
+312	LABEL	Type_Attribute
+312	INSTANCEOF	219		<!-- release-date	INSTANCEOF	attribute -->
+312	RELATION	3		<!-- release-date	RELATION	Telos_String -->
+313	Neo4j_Id	313
+313	Logicalname	version-number
+313	LABEL	Common
+313	LABEL	Generic
+313	LABEL	S_Class
+313	LABEL	Type_Attribute
+313	INSTANCEOF	219		<!-- version-number	INSTANCEOF	attribute -->
+313	RELATION	1		<!-- version-number	RELATION	Telos_Integer -->
+314	Neo4j_Id	314
+314	Logicalname	of_thesaurus
+314	LABEL	Common
+314	LABEL	Generic
+314	LABEL	S_Class
+314	LABEL	Type_Attribute
+314	INSTANCEOF	219		<!-- of_thesaurus	INSTANCEOF	attribute -->
+314	RELATION	31		<!-- of_thesaurus	RELATION	Thesaurus -->
+315	Neo4j_Id	315
+315	Logicalname	release-date
+315	LABEL	Common
+315	LABEL	Generic
+315	LABEL	S_Class
+315	LABEL	Type_Attribute
+315	INSTANCEOF	219		<!-- release-date	INSTANCEOF	attribute -->
+315	RELATION	3		<!-- release-date	RELATION	Telos_String -->
+316	Neo4j_Id	316
+316	Logicalname	version-number
+316	LABEL	Common
+316	LABEL	Generic
+316	LABEL	S_Class
+316	LABEL	Type_Attribute
+316	INSTANCEOF	219		<!-- version-number	INSTANCEOF	attribute -->
+316	RELATION	1		<!-- version-number	RELATION	Telos_Integer -->
+317	Neo4j_Id	317
+317	Logicalname	of_thesaurus
+317	LABEL	Common
+317	LABEL	Generic
+317	LABEL	S_Class
+317	LABEL	Type_Attribute
+317	INSTANCEOF	219		<!-- of_thesaurus	INSTANCEOF	attribute -->
+317	RELATION	31		<!-- of_thesaurus	RELATION	Thesaurus -->
+318	Neo4j_Id	318
+318	Logicalname	version-number
+318	LABEL	Common
+318	LABEL	Generic
+318	LABEL	S_Class
+318	LABEL	Type_Attribute
+318	INSTANCEOF	259		<!-- version-number	INSTANCEOF	system_controlled -->
+318	RELATION	1		<!-- version-number	RELATION	Telos_Integer -->
+319	Neo4j_Id	319
+319	Logicalname	full_reference
+319	LABEL	Common
+319	LABEL	Generic
+319	LABEL	S_Class
+319	LABEL	Type_Attribute
+319	INSTANCEOF	219		<!-- full_reference	INSTANCEOF	attribute -->
+319	RELATION	3		<!-- full_reference	RELATION	Telos_String -->
+320	Neo4j_Id	320
+320	Logicalname	source_note
+320	LABEL	Common
+320	LABEL	Generic
+320	LABEL	S_Class
+320	LABEL	Type_Attribute
+320	INSTANCEOF	219		<!-- source_note	INSTANCEOF	attribute -->
+320	RELATION	3		<!-- source_note	RELATION	Telos_String -->
+321	Neo4j_Id	321
+321	Logicalname	found_in
+321	LABEL	Common
+321	LABEL	Generic
+321	LABEL	S_Class
+321	LABEL	Type_Attribute
+321	INSTANCEOF	219		<!-- found_in	INSTANCEOF	attribute -->
+321	RELATION	80		<!-- found_in	RELATION	Source -->
+322	Neo4j_Id	322
+322	Logicalname	not_found_in
+322	LABEL	Common
+322	LABEL	Generic
+322	LABEL	S_Class
+322	LABEL	Type_Attribute
+322	INSTANCEOF	219		<!-- not_found_in	INSTANCEOF	attribute -->
+322	RELATION	80		<!-- not_found_in	RELATION	Source -->
+323	Neo4j_Id	323
+323	Logicalname	belongs_to_hierarchy
+323	LABEL	Common
+323	LABEL	Generic
+323	LABEL	S_Class
+323	LABEL	Type_Attribute
+323	INSTANCEOF	259		<!-- belongs_to_hierarchy	INSTANCEOF	system_controlled -->
+323	RELATION	48		<!-- belongs_to_hierarchy	RELATION	Hierarchy -->
+324	Neo4j_Id	324
+324	Logicalname	scope_note
+324	LABEL	Common
+324	LABEL	Generic
+324	LABEL	S_Class
+324	LABEL	Type_Attribute
+324	INSTANCEOF	219		<!-- scope_note	INSTANCEOF	attribute -->
+324	RELATION	3		<!-- scope_note	RELATION	Telos_String -->
+325	Neo4j_Id	325
+325	Logicalname	translations_scope_note
+325	LABEL	Common
+325	LABEL	Generic
+325	LABEL	S_Class
+325	LABEL	Type_Attribute
+325	INSTANCEOF	219		<!-- translations_scope_note	INSTANCEOF	attribute -->
+325	RELATION	3		<!-- translations_scope_note	RELATION	Telos_String -->
+326	Neo4j_Id	326
+326	Logicalname	comment
+326	LABEL	Common
+326	LABEL	Generic
+326	LABEL	S_Class
+326	LABEL	Type_Attribute
+326	INSTANCEOF	219		<!-- comment	INSTANCEOF	attribute -->
+326	RELATION	3		<!-- comment	RELATION	Telos_String -->
+327	Neo4j_Id	327
+327	Logicalname	historical_note
+327	LABEL	Common
+327	LABEL	Generic
+327	LABEL	S_Class
+327	LABEL	Type_Attribute
+327	INSTANCEOF	219		<!-- historical_note	INSTANCEOF	attribute -->
+327	RELATION	3		<!-- historical_note	RELATION	Telos_String -->
+480	Neo4j_Id	480
+480	Logicalname	Label800001
+480	LABEL	Common
+480	LABEL	Generic
+480	LABEL	Token
+480	LABEL	Type_Attribute
+480	INSTANCEOF	261		<!-- Label800001	INSTANCEOF	has_prefix -->
+480	RELATION	100		<!-- Label800001	RELATION	Dewey` -->
+481	Neo4j_Id	481
+481	Logicalname	Label800002
+481	LABEL	Common
+481	LABEL	Generic
+481	LABEL	Token
+481	LABEL	Type_Attribute
+481	INSTANCEOF	261		<!-- Label800002	INSTANCEOF	has_prefix -->
+481	RELATION	101		<!-- Label800002	RELATION	TaxCode` -->
+482	Neo4j_Id	482
+482	Logicalname	Label800003
+482	LABEL	Common
+482	LABEL	Generic
+482	LABEL	Token
+482	LABEL	Type_Attribute
+482	INSTANCEOF	261		<!-- Label800003	INSTANCEOF	has_prefix -->
+482	RELATION	102		<!-- Label800003	RELATION	Thesaurus` -->
+483	Neo4j_Id	483
+483	Logicalname	Label800004
+483	LABEL	Common
+483	LABEL	Generic
+483	LABEL	Token
+483	LABEL	Type_Attribute
+483	INSTANCEOF	261		<!-- Label800004	INSTANCEOF	has_prefix -->
+483	RELATION	103		<!-- Label800004	RELATION	Person` -->
+484	Neo4j_Id	484
+484	Logicalname	Label800005
+484	LABEL	Common
+484	LABEL	Generic
+484	LABEL	Token
+484	LABEL	Type_Attribute
+484	INSTANCEOF	261		<!-- Label800005	INSTANCEOF	has_prefix -->
+484	RELATION	104		<!-- Label800005	RELATION	Literature` -->
+650	Neo4j_Id	650
+650	Logicalname	belongs_to_facet
+650	LABEL	Common
+650	LABEL	Generic
+650	LABEL	S_Class
+650	LABEL	Type_Attribute
+650	INSTANCEOF	259		<!-- belongs_to_facet	INSTANCEOF	system_controlled -->
+650	RELATION	47		<!-- belongs_to_facet	RELATION	Facet -->
+651	Neo4j_Id	651
+651	Logicalname	note
+651	LABEL	Common
+651	LABEL	Generic
+651	LABEL	S_Class
+651	LABEL	Type_Attribute
+651	INSTANCEOF	219		<!-- note	INSTANCEOF	attribute -->
+651	RELATION	3		<!-- note	RELATION	Telos_String -->
+652	Neo4j_Id	652
+652	Logicalname	class_scope_note
+652	LABEL	Common
+652	LABEL	Generic
+652	LABEL	S_Class
+652	LABEL	Type_Attribute
+652	INSTANCEOF	219		<!-- class_scope_note	INSTANCEOF	attribute -->
+652	RELATION	3		<!-- class_scope_note	RELATION	Telos_String -->
+653	Neo4j_Id	653
+653	Logicalname	class_note
+653	LABEL	Common
+653	LABEL	Generic
+653	LABEL	S_Class
+653	LABEL	Type_Attribute
+653	INSTANCEOF	219		<!-- class_note	INSTANCEOF	attribute -->
+653	RELATION	3		<!-- class_note	RELATION	Telos_String -->
+654	Neo4j_Id	654
+654	Logicalname	ExternalLink
+654	LABEL	Common
+654	LABEL	Generic
+654	LABEL	S_Class
+654	LABEL	Type_Individual
+654	RELATION	657		<!-- ExternalLink	RELATION	belongs_to_external_vocabulary -->
+654	RELATION	660		<!-- ExternalLink	RELATION	has_label -->
+655	Neo4j_Id	655
+655	Logicalname	ExternalVocabulary
+655	LABEL	Common
+655	LABEL	Generic
+655	LABEL	S_Class
+655	LABEL	Type_Individual
+655	RELATION	661		<!-- ExternalVocabulary	RELATION	has_fullname -->
+655	RELATION	662		<!-- ExternalVocabulary	RELATION	has_description -->
+655	RELATION	663		<!-- ExternalVocabulary	RELATION	has_version -->
+655	RELATION	664		<!-- ExternalVocabulary	RELATION	release_timestamp -->
+655	RELATION	665		<!-- ExternalVocabulary	RELATION	has_uri -->
+656	Neo4j_Id	656
+656	Logicalname	has_external_link
+656	LABEL	Common
+656	LABEL	Generic
+656	LABEL	S_Class
+656	LABEL	Type_Attribute
+656	INSTANCEOF	219		<!-- has_external_link	INSTANCEOF	attribute -->
+656	RELATION	654		<!-- has_external_link	RELATION	ExternalLink -->
+657	Neo4j_Id	657
+657	Logicalname	belongs_to_external_vocabulary
+657	LABEL	Common
+657	LABEL	Generic
+657	LABEL	S_Class
+657	LABEL	Type_Attribute
+657	INSTANCEOF	219		<!-- belongs_to_external_vocabulary	INSTANCEOF	attribute -->
+657	RELATION	655		<!-- belongs_to_external_vocabulary	RELATION	ExternalVocabulary -->
+660	Neo4j_Id	660
+660	Logicalname	has_label
+660	LABEL	Common
+660	LABEL	Generic
+660	LABEL	S_Class
+660	LABEL	Type_Attribute
+660	INSTANCEOF	219		<!-- has_label	INSTANCEOF	attribute -->
+660	RELATION	3		<!-- has_label	RELATION	Telos_String -->
+661	Neo4j_Id	661
+661	Logicalname	has_fullname
+661	LABEL	Common
+661	LABEL	Generic
+661	LABEL	S_Class
+661	LABEL	Type_Attribute
+661	INSTANCEOF	219		<!-- has_fullname	INSTANCEOF	attribute -->
+661	RELATION	3		<!-- has_fullname	RELATION	Telos_String -->
+662	Neo4j_Id	662
+662	Logicalname	has_description
+662	LABEL	Common
+662	LABEL	Generic
+662	LABEL	S_Class
+662	LABEL	Type_Attribute
+662	INSTANCEOF	219		<!-- has_description	INSTANCEOF	attribute -->
+662	RELATION	3		<!-- has_description	RELATION	Telos_String -->
+663	Neo4j_Id	663
+663	Logicalname	has_version
+663	LABEL	Common
+663	LABEL	Generic
+663	LABEL	S_Class
+663	LABEL	Type_Attribute
+663	INSTANCEOF	219		<!-- has_version	INSTANCEOF	attribute -->
+663	RELATION	3		<!-- has_version	RELATION	Telos_String -->
+664	Neo4j_Id	664
+664	Logicalname	release_timestamp
+664	LABEL	Common
+664	LABEL	Generic
+664	LABEL	S_Class
+664	LABEL	Type_Attribute
+664	INSTANCEOF	219		<!-- release_timestamp	INSTANCEOF	attribute -->
+664	RELATION	3		<!-- release_timestamp	RELATION	Telos_String -->
+665	Neo4j_Id	665
+665	Logicalname	has_uri
+665	LABEL	Common
+665	LABEL	Generic
+665	LABEL	S_Class
+665	LABEL	Type_Attribute
+665	INSTANCEOF	219		<!-- has_uri	INSTANCEOF	attribute -->
+665	RELATION	3		<!-- has_uri	RELATION	Telos_String -->
