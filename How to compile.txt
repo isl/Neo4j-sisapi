@@ -18,7 +18,7 @@ Contact:  POBox 1385, Heraklio Crete, GR-700 13 GREECE
 Tel:+30-2810-391632
 Fax: +30-2810-391638
 E-mail: isl@ics.forth.gr
-http://www.ics.forth.gr/isl
+https://www.ics.forth.gr/isl/
 
 Authors: Elias Tzortzakakis <tzortzak@ics.forth.gr>
 
@@ -28,7 +28,7 @@ How to compile
 -----------------------------------------------------------------------------
 Create a new java library project.
 
-Until now we have used java jdk1.8.0_181 64 bit
+Until now we have used java jdk1.8.0_231 64 bit
 
 - Use the sources included in the /Sources/src folder 
   of this repository
