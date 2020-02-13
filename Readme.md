@@ -24,7 +24,7 @@ Authors: Elias Tzortzakakis <tzortzak@ics.forth.gr>
 
 This file is part of the Neo4j-sisapi project.
 
-##Neo4j-sis-api
+## Neo4j-sis-api
  
 "Neo4j sis api" version 1.2 is a Java Application Program 
 Interface that was built in order to communicate with a 
