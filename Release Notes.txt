@@ -18,12 +18,19 @@ Contact:  POBox 1385, Heraklio Crete, GR-700 13 GREECE
 Tel:+30-2810-391632
 Fax: +30-2810-391638
 E-mail: isl@ics.forth.gr
-http://www.ics.forth.gr/isl
+https://www.ics.forth.gr/isl/
 
 Authors: Elias Tzortzakakis <tzortzak@ics.forth.gr>
 
 This file is part of the Neo4j-sisapi project.
 
+=============================================================================
+Neo4j-sis-api 1.4 - numbering synchronization with THEMAS 1.4
+=============================================================================
+- Bug resolution related to backslash character in names
+- No Generic model change - only some re-orderings for better grouping
+- DocLint javadocs errors suppression
+- ISL and CCI Website info updates
 
 =============================================================================
 Neo4j-sis-api 1.3 (pre-release of 2.0 handling git compilation error of THEMAS)

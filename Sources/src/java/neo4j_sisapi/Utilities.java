@@ -48,4 +48,12 @@ class Utilities {
         }
     }
 
+    String prepareStringForCypher(String searchVal) {
+        return searchVal.replace("\\","\\\\");
+    }
+    
+    String prepareStringForCypherLikeClaues(String searchVal) {
+        return searchVal.replace("\\","\\\\\\\\");
+    }
+
 }
