@@ -25,6 +25,11 @@ Authors: Elias Tzortzakakis <tzortzak@ics.forth.gr>
 This file is part of the Neo4j-sisapi project.
 
 =============================================================================
+Neo4j-sis-api 2.0-SNAPSHOT
+=============================================================================
+- added the minimum database folder structure in dist output folder
+
+=============================================================================
 Neo4j-sis-api 1.4 - numbering synchronization with THEMAS 1.4
 =============================================================================
 - Bug resolution related to backslash character in names
