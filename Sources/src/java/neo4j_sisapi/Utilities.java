@@ -52,8 +52,21 @@ class Utilities {
         return searchVal.replace("\\","\\\\");
     }
     
+    private final String  regExEscape="\\\\";
     String prepareStringForCypherLikeClaues(String searchVal) {
-        return searchVal.replace("\\","\\\\\\\\");
+        
+        String retVal = searchVal.replace("\\","\\\\\\\\");
+        retVal = retVal.replace("(",regExEscape+"(");
+        retVal = retVal.replace(")",regExEscape+")");
+        retVal = retVal.replace("[",regExEscape+"[");
+        retVal = retVal.replace("]",regExEscape+"]");
+        retVal = retVal.replace("{",regExEscape+"{");
+        retVal = retVal.replace("}",regExEscape+"}");
+        retVal = retVal.replace("?",regExEscape+"?");
+        retVal = retVal.replace(".",regExEscape+".");
+        retVal = retVal.replace("+",regExEscape+"+");
+        
+        return retVal;
     }
 
 }

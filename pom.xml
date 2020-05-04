@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gr.forth.ics.isl</groupId>
     <artifactId>Neo4j-sisapi</artifactId>
-    <version>1.4</version>
+    <version>1.4.1</version>
     <packaging>jar</packaging>         
     <licenses>
         <license>
@@ -17,7 +17,13 @@
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j</artifactId>
             <version>3.2.5</version>
-        </dependency>        
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -109,7 +115,7 @@
                              <resources>          
                                  <resource>
                                      <directory>Sources/src/resources/TMSAPI</directory>
-                                     <filtering>false</filtering>
+                                     <filtering>false</filtering>                                     
                                  </resource>
                              </resources>              
                          </configuration>            
