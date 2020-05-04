@@ -25,9 +25,10 @@ Authors: Elias Tzortzakakis <tzortzak@ics.forth.gr>
 This file is part of the Neo4j-sisapi project.
 
 =============================================================================
-Neo4j-sis-api 1.4.1-SNAPSHOT
+Neo4j-sis-api 1.4.1 (2020-04-05)
 =============================================================================
 - added the minimum database folder structure in dist output folder
+- resolution of bug with regex special characters during search
 
 =============================================================================
 Neo4j-sis-api 1.4 - numbering synchronization with THEMAS 1.4
