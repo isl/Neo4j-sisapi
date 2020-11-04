@@ -6,11 +6,30 @@
 package neo4j_sisapi;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class Utilities {
+public class Utilities {
 
+    
+    public enum CsvExportMode { ALL, ONLY_GENERIC, ONLY_DATA}
+    public ArrayList<Long> csv_export_GetLabelIds(QClass q, Configs.Labels targetLabel, CsvExportMode csvMode){
+        
+        
+        return q.db.csv_export_GetLabelIds(targetLabel, csvMode);
+    }
+    
+    public Map<Long, ArrayList<Long>> csv_export_GetRelIds(QClass q, Configs.Rels targetRelation, CsvExportMode csvMode){
+        return q.db.csv_export_GetRelIds(targetRelation, csvMode);
+    }
+    
+    public Map<Long, ArrayList<Object>> csv_export_GetProperty(QClass q, Configs.Attributes targetAttribute, CsvExportMode csvMode){
+        return q.db.csv_export_GetProperty(targetAttribute, csvMode);
+    }
+    
+    
+    
     String removePrefix(String s) {
 
         if (s.contains("`")) {

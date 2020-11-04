@@ -541,14 +541,14 @@ class DBaccess {
             if(subSetIds.size()==1){
                 query = "MATCH (n"+getCommonLabelStr()+"{"+prepareNeo4jIdPropertyFilterForCypher(subSetIds.get(0))+"}) "+
                     (linksFromInsteadOfTo?" <-[:RELATION]- ":" -[:RELATION]-> ") + "(m) "+
-                    (excludeTokens? "WHERE NOT(\""+Configs.Neo4j_Level_Token+"\" IN labels(m) ) ":"")+
+                    (excludeTokens? "WHERE NOT(\""+Configs.Labels.Token.name()+"\" IN labels(m) ) ":"")+
                      "RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
             }
             else{
                 query = "MATCH (n"+getCommonLabelStr()+") "+
                     (linksFromInsteadOfTo?" <-[:RELATION]- ":" -[:RELATION]-> ") + "(m) "+
                     " WHERE n." +Configs.Neo4j_Key_For_Neo4j_Id+" IN " + subSetIds.toString() +" " + 
-                    (excludeTokens? "AND NOT(\""+Configs.Neo4j_Level_Token+"\" IN labels(m) ) ":"")+
+                    (excludeTokens? "AND NOT(\""+Configs.Labels.Token.name()+"\" IN labels(m) ) ":"")+
                      "RETURN m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+" ";
             }
                     
@@ -1104,22 +1104,22 @@ class DBaccess {
         }
         
         if(n.hasLabel(Configs.Labels.Token)){
-            return SystemClass+"_"+ Configs.Neo4j_Level_Token;
+            return SystemClass+"_"+ Configs.Labels.Token.name();
         }
         if(n.hasLabel(Configs.Labels.S_Class)){
-            return SystemClass+"_"+ Configs.Neo4j_Level_S_Class;
+            return SystemClass+"_"+ Configs.Labels.S_Class.name();
         }
         if(n.hasLabel(Configs.Labels.M1_Class)){
-            return SystemClass+"_"+ Configs.Neo4j_Level_M1_Class;
+            return SystemClass+"_"+ Configs.Labels.M1_Class.name();
         }
         if(n.hasLabel(Configs.Labels.M2_Class)){
-            return SystemClass+"_"+ Configs.Neo4j_Level_M2_Class;
+            return SystemClass+"_"+ Configs.Labels.M2_Class.name();
         }
         if(n.hasLabel(Configs.Labels.M3_Class)){
-            return SystemClass+"_"+ Configs.Neo4j_Level_M3_Class;
+            return SystemClass+"_"+ Configs.Labels.M3_Class.name();
         }
         if(n.hasLabel(Configs.Labels.M4_Class)){
-            return SystemClass+"_"+ Configs.Neo4j_Level_M4_Class;
+            return SystemClass+"_"+ Configs.Labels.M4_Class.name();
         }
         return SystemClass;
     }
@@ -4970,22 +4970,22 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
                     type = Neo4j_Object.Types.Type_Individual;
                 }
                 
-                if(labels.contains(Configs.Neo4j_Level_Token)){
+                if(labels.contains(Configs.Labels.Token.name())){
                     level = Neo4j_Object.Levels.Token;
                 }
-                else if(labels.contains(Configs.Neo4j_Level_S_Class)){
+                else if(labels.contains(Configs.Labels.S_Class.name())){
                     level = Neo4j_Object.Levels.S_Class;
                 }
-                else if(labels.contains(Configs.Neo4j_Level_M1_Class)){
+                else if(labels.contains(Configs.Labels.M1_Class.name())){
                     level = Neo4j_Object.Levels.M1_Class;
                 }
-                else if(labels.contains(Configs.Neo4j_Level_M2_Class)){
+                else if(labels.contains(Configs.Labels.M2_Class.name())){
                     level = Neo4j_Object.Levels.M2_Class;
                 }
-                else if(labels.contains(Configs.Neo4j_Level_M3_Class)){
+                else if(labels.contains(Configs.Labels.M3_Class.name())){
                     level = Neo4j_Object.Levels.M3_Class;
                 }
-                else if(labels.contains(Configs.Neo4j_Level_M4_Class)){
+                else if(labels.contains(Configs.Labels.M4_Class.name())){
                     level = Neo4j_Object.Levels.M4_Class;
                 }
                 if(isPrimitiveClass){
@@ -7680,7 +7680,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         //WHERE ALL(c IN nodes(p) WHERE not c:Generic) 
         //return  DISTINCT m.Neo4j_Id, m.Logicalname order by m.Neo4j_Id "
         String baseRetrievalQuery ="MATCH p= (n:"+Configs.CommonLabelName+"{"+Configs.Neo4j_Key_For_Logicalname+":\"%GROUPNAME%\"})-[*0.."+maxDepth+"]-(m) "+
-                " WHERE ALL(c IN nodes(p) WHERE not c:"+Configs.GenericLabelName+" and not c:"+Configs.UniqueInDBLabelName +" ) "+
+                " WHERE ALL(c IN nodes(p) WHERE not c:"+Configs.Labels.Generic.name()+" and not c:"+Configs.Labels.UniqueInDB.name() +" ) "+
                 " RETURN DISTINCT m."+Configs.Neo4j_Key_For_Neo4j_Id+" as "+Configs.Neo4j_Key_For_Neo4j_Id+ " , m."+Configs.Neo4j_Key_For_Logicalname+
                 " ORDER BY "+Configs.Neo4j_Key_For_Neo4j_Id;
                 
@@ -7870,7 +7870,7 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
         }
         
         
-        String detachNonReferecedUniqueInDBInstances = "MATCH(n:"+Configs.UniqueInDBLabelName+") "+
+        String detachNonReferecedUniqueInDBInstances = "MATCH(n:"+Configs.Labels.UniqueInDB.name()+") "+
                 " WHERE NOT (n)-[:"+Configs.Rels.RELATION.name()+"]-() "+
                 " DETACH DELETE n";
         try {
@@ -7927,6 +7927,212 @@ int sis_api::getTraverseByCategory_With_SIS_Server_Implementation(SYSID objSysid
             return APIFail;
         }
     }
+
+    ArrayList<Long> csv_export_GetLabelIds(Configs.Labels targetLabel, Utilities.CsvExportMode csvMode) {
+        ArrayList<Long> retVal = new ArrayList();
+        
+        String neo4jQuery = "MATCH (n:"+targetLabel.name()+") ";
+        switch(csvMode){
+            case ONLY_GENERIC:{
+                neo4jQuery+= " and n."+Configs.Attributes.Neo4j_Id.name()+" < 1000 ";
+
+                break;
+            }
+            case ONLY_DATA:{
+                neo4jQuery+= " WHERE  n."+Configs.Attributes.Neo4j_Id.name()+" >= 1000 ";
+                break;
+            }
+            default:{
+                break;
+            }
+        }
+        
+        neo4jQuery += "RETURN n."+Configs.Attributes.Neo4j_Id.name()+" as "+Configs.Attributes.Neo4j_Id.name();
+        
+        
+        Result res = this.graphDb.execute(neo4jQuery);
+        try {
+            while (res.hasNext()) {
+
+                Map<String, Object> row = res.next();
+                if (row != null && row.containsKey(Configs.Attributes.Neo4j_Id.name()) && row.get(Configs.Attributes.Neo4j_Id.name()) != null) {
+                    long val = (long) row.get(Configs.Attributes.Neo4j_Id.name());
+                    
+
+                    if (val > 0 && retVal.contains(val) == false) {
+                        retVal.add(val);
+                    }
+                }
+            }
+        } 
+        catch(Exception ex){
+            utils.handleException(ex);
+            return null;
+        }
+        finally {
+            res.close();
+            res = null;
+        }
+        
+        return retVal;
+    }
+
+    Map<Long, ArrayList<Long>> csv_export_GetRelIds(Configs.Rels targetRelation, Utilities.CsvExportMode csvMode) {
+        Map<Long, ArrayList<Long>> retVal = new HashMap();
+        
+        String neo4jQuery1 = "MATCH (n:"+Configs.Labels.Common.name()+") - [:"+targetRelation.name()+"]-> (m)";
+        String neo4jQuery2 = "";
+        
+        String returnStatement = " RETURN n."+Configs.Attributes.Neo4j_Id.name()+" as "+Configs.csvExportFromNodeLabel +", m."+Configs.Attributes.Neo4j_Id.name()+" as "+Configs.csvExportToNodeLabel;
+        
+        switch(csvMode){
+            case ONLY_GENERIC:{
+                neo4jQuery1+= " WHERE  n."+Configs.Attributes.Neo4j_Id.name()+" < 1000 and m."+Configs.Attributes.Neo4j_Id.name()+" < 1000 ";
+                break;
+            }
+            case ONLY_DATA:{
+                neo4jQuery2+=neo4jQuery1;
+                neo4jQuery1+= " WHERE  n."+Configs.Attributes.Neo4j_Id.name()+" >= 1000 ";
+                neo4jQuery2+= " WHERE  n."+Configs.Attributes.Neo4j_Id.name()+" < 1000  and m."+Configs.Attributes.Neo4j_Id.name()+" >=1000 ";
+                neo4jQuery2 += returnStatement;
+                break;
+            }
+            default:{
+                break;
+            }
+        }
+        
+        
+        neo4jQuery1 += returnStatement;
+        
+        
+        Result res = this.graphDb.execute(neo4jQuery1);
+        try {
+            while (res.hasNext()) {
+
+                Map<String, Object> row = res.next();
+                if (row != null && row.containsKey(Configs.csvExportFromNodeLabel) && row.get(Configs.csvExportFromNodeLabel) != null
+                        && row.containsKey(Configs.csvExportToNodeLabel) && row.get(Configs.csvExportToNodeLabel) != null) {
+                    
+                    long fromVal = (long) row.get(Configs.csvExportFromNodeLabel);
+                    long toVal   = (long) row.get(Configs.csvExportToNodeLabel);
+                    
+
+                    if(!retVal.containsKey(fromVal)){
+                        retVal.put(fromVal, new ArrayList());
+                    }
+                    if(!retVal.get(fromVal).contains(toVal)){
+                        retVal.get(fromVal).add(toVal);
+                    }
+                }
+            }
+        } 
+        catch(Exception ex){
+            utils.handleException(ex);
+            return null;
+        }
+        finally {
+            res.close();
+            res = null;
+        }
+        
+        if(!neo4jQuery2.isEmpty()){
+            Result res2 = this.graphDb.execute(neo4jQuery2);
+            try {
+                while (res2.hasNext()) {
+
+                    Map<String, Object> row = res2.next();
+                    if (row != null && row.containsKey(Configs.csvExportFromNodeLabel) && row.get(Configs.csvExportFromNodeLabel) != null
+                            && row.containsKey(Configs.csvExportToNodeLabel) && row.get(Configs.csvExportToNodeLabel) != null) {
+
+                        long fromVal = (long) row.get(Configs.csvExportFromNodeLabel);
+                        long toVal   = (long) row.get(Configs.csvExportToNodeLabel);
+
+
+                        if(!retVal.containsKey(fromVal)){
+                            retVal.put(fromVal, new ArrayList());
+                        }
+                        if(!retVal.get(fromVal).contains(toVal)){
+                            retVal.get(fromVal).add(toVal);
+                        }
+                    }
+                }
+            } 
+            catch(Exception ex){
+                utils.handleException(ex);
+                return null;
+            }
+            finally {
+                res2.close();
+                res2 = null;
+            }
+
+        }
+        
+        return retVal;
+    }
+    
+    
+    Map<Long, ArrayList<Object>> csv_export_GetProperty(Configs.Attributes targetAttribute, Utilities.CsvExportMode csvMode) {
+        
+        Map<Long, ArrayList<Object>> retVal = new HashMap();
+        
+        String neo4jQuery = "MATCH (n:"+Configs.Labels.Common.name()+") WHERE EXISTS(n."+targetAttribute.name()+") ";
+        
+        String returnStatement = " RETURN n."+Configs.Attributes.Neo4j_Id.name()+" as "+Configs.Attributes.Neo4j_Id.name() +", n."+targetAttribute.name()+" as "+targetAttribute;
+        switch(csvMode){
+            case ONLY_GENERIC:{
+                neo4jQuery+= " and n."+Configs.Attributes.Neo4j_Id.name()+" < 1000 ";
+                break;
+            }
+            case ONLY_DATA:{
+                neo4jQuery+= " and  n."+Configs.Attributes.Neo4j_Id.name()+" >= 1000 ";
+                break;
+            }
+            default:{
+                break;
+            }
+        }
+        
+        
+        neo4jQuery += returnStatement;
+        
+        
+        Result res = this.graphDb.execute(neo4jQuery);
+        try {
+            while (res.hasNext()) {
+
+                Map<String, Object> row = res.next();
+                if (row != null && row.containsKey(Configs.Attributes.Neo4j_Id.name()) && row.get(Configs.Attributes.Neo4j_Id.name()) != null
+                        && row.containsKey(targetAttribute.name()) && row.get(targetAttribute.name()) != null) {
+                    
+                    long fromVal = (long) row.get(Configs.Attributes.Neo4j_Id.name());
+                    Object toVal   = row.get(targetAttribute.name());
+                        
+                    if(!retVal.containsKey(fromVal)){
+                        retVal.put(fromVal, new ArrayList());
+                    }
+                    
+                    retVal.get(fromVal).add(toVal);
+                    
+                }
+            }
+        } 
+        catch(Exception ex){
+            System.out.println(neo4jQuery);
+            utils.handleException(ex);
+            return null;
+        }
+        finally {
+            res.close();
+            res = null;
+        }
+        
+        return retVal;
+    
+    }
+
+    
     
 }
 

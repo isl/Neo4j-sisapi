@@ -168,14 +168,14 @@ public class TMSAPIClass {
  *
  *   COPYRIGHT (c) 1992 by Institute of Computer Science,
  *                         Foundation of Research and Technology - Hellas
- *                         POBox 1385, Heraklio Crete, GR-711 10 GREECE
+ *                         POBox 1385, Heraklion Crete, GR-711 10 GREECE
  *
  *
  *                       ALL RIGHTS RESERVED
  *
  *   This software is furnished under license and may be used only in
  *   accordance with the terms of that license and with the inclusion
- *   of the above copright notice.  This software may not be provided
+ *   of the above copyright notice.  This software may not be provided
  *   or otherwise made available to, or used by, any other person. No
  *   title to or ownership of the software is hereby transferred.
  *

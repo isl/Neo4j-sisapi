@@ -76,23 +76,23 @@ public class Return_Full_Nodes_Row {
             this.systemClass.setValue(Configs.SystemClass_SubStringForNotDefined);
         }
         else{
-            if(labels.contains(Configs.Neo4j_Level_Token)){
-                level = Configs.Neo4j_Level_Token;
+            if(labels.contains(Configs.Labels.Token.name())){
+                level = Configs.Labels.Token.name();
             }
-            else if(labels.contains(Configs.Neo4j_Level_S_Class)){
-                level = Configs.Neo4j_Level_S_Class;
+            else if(labels.contains(Configs.Labels.S_Class.name())){
+                level = Configs.Labels.S_Class.name();
             }            
-            else if(labels.contains(Configs.Neo4j_Level_M1_Class)){
-                level = Configs.Neo4j_Level_M1_Class;
+            else if(labels.contains(Configs.Labels.M1_Class.name())){
+                level = Configs.Labels.M1_Class.name();
             }
-            else if(labels.contains(Configs.Neo4j_Level_M2_Class)){
-                level = Configs.Neo4j_Level_M2_Class;
+            else if(labels.contains(Configs.Labels.M2_Class.name())){
+                level = Configs.Labels.M2_Class.name();
             }
-            else if(labels.contains(Configs.Neo4j_Level_M3_Class)){
-                level = Configs.Neo4j_Level_M3_Class;
+            else if(labels.contains(Configs.Labels.M3_Class.name())){
+                level = Configs.Labels.M3_Class.name();
             }
-            else if(labels.contains(Configs.Neo4j_Level_M4_Class)){
-                level = Configs.Neo4j_Level_M4_Class;
+            else if(labels.contains(Configs.Labels.M4_Class.name())){
+                level = Configs.Labels.M4_Class.name();
             }
             
             if(labels.contains(Configs.Neo4j_Key_For_Type_AttributeStr)){

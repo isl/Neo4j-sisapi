@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations
 under the Licence.
 
-Contact:  POBox 1385, Heraklio Crete, GR-700 13 GREECE
+Contact:  POBox 1385, Heraklion Crete, GR-700 13 GREECE
 Tel:+30-2810-391632
 Fax: +30-2810-391638
 E-mail: isl@ics.forth.gr
@@ -23,6 +23,10 @@ https://www.ics.forth.gr/isl/
 Authors: Elias Tzortzakakis <tzortzak@ics.forth.gr>
 
 This file is part of the Neo4j-sisapi project.
+
+Neo4j-sis-api 1.4.2 (2020-11-04)
+=============================================================================
+Addition of csv_Export functionalities in Utilities class - enabling migration to the latest neo4j version
 
 Neo4j-sis-api 1.4.1 (2020-04-05)
 =============================================================================
