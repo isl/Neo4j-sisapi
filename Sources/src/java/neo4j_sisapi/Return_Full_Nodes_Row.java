@@ -33,6 +33,8 @@
  */
 package neo4j_sisapi;
 
+import neo4j_sisapi.Configs.Labels;
+
 /**
  *
  * @author Elias Tzortzakakis <tzortzak@ics.forth.gr>
@@ -76,29 +78,29 @@ public class Return_Full_Nodes_Row {
             this.systemClass.setValue(Configs.SystemClass_SubStringForNotDefined);
         }
         else{
-            if(labels.contains(Configs.Labels.Token.name())){
-                level = Configs.Labels.Token.name();
+            if(labels.contains(Labels.Token.name())){
+                level = Labels.Token.name();
             }
-            else if(labels.contains(Configs.Labels.S_Class.name())){
-                level = Configs.Labels.S_Class.name();
+            else if(labels.contains(Labels.S_Class.name())){
+                level = Labels.S_Class.name();
             }            
-            else if(labels.contains(Configs.Labels.M1_Class.name())){
-                level = Configs.Labels.M1_Class.name();
+            else if(labels.contains(Labels.M1_Class.name())){
+                level = Labels.M1_Class.name();
             }
-            else if(labels.contains(Configs.Labels.M2_Class.name())){
-                level = Configs.Labels.M2_Class.name();
+            else if(labels.contains(Labels.M2_Class.name())){
+                level = Labels.M2_Class.name();
             }
-            else if(labels.contains(Configs.Labels.M3_Class.name())){
-                level = Configs.Labels.M3_Class.name();
+            else if(labels.contains(Labels.M3_Class.name())){
+                level = Labels.M3_Class.name();
             }
-            else if(labels.contains(Configs.Labels.M4_Class.name())){
-                level = Configs.Labels.M4_Class.name();
+            else if(labels.contains(Labels.M4_Class.name())){
+                level = Labels.M4_Class.name();
             }
             
-            if(labels.contains(Configs.Neo4j_Key_For_Type_AttributeStr)){
+            if(labels.contains(Labels.Type_Attribute.name())){
                 type = Configs.SystemClass_SubStringForAttribute;
             }
-            else if(labels.contains(Configs.Neo4j_Key_For_Type_IndividualStr)){
+            else if(labels.contains(Labels.Type_Individual.name())){
                 type = Configs.SystemClass_SubStringForIndividual;
             }
             

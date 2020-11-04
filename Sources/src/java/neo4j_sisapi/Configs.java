@@ -58,6 +58,8 @@ public class Configs {
     public enum Attributes{Neo4j_Id, MaxNeo4j_Id, ThesaurusReferenceId, MaxThesaurusReferenceId,Logicalname, Transliteration, Type, Value} 
     
     
+    static List<String> systemLabels = new ArrayList(Arrays.stream(Labels.values()).map( x -> x.name()).collect(Collectors.toList()));
+    
     static final String regExForUnNamed="^Label[0-9abcdef]+$";
     //Neo4j_Id = 4 for Telos_Object
     static final String getNextSystemNumberQuery = "MATCH(n:"+Labels.Common.name()+"{"+Attributes.Logicalname.name()+":\"Telos_Object\"}) "
@@ -91,26 +93,6 @@ public class Configs {
     //static final int MAX_NEO4j_ID_FOR_PRIMITIVE = 2;
     static final int MAX_IDS_PER_QUERY = 500;
     
-    //public static final String GenericLabelName = Labels.Generic.name();
-    //public static final String UniqueInDBLabelName = Labels.UniqueInDB.name();
-    public static final String CommonLabelName = Labels.Common.name();
-    
-    //static final String Neo4j_Level_Token = Labels.Token.name();
-    //static final String Neo4j_Level_S_Class = Labels.S_Class.name();
-    //static final String Neo4j_Level_M1_Class = Labels.M1_Class.name();
-    //static final String Neo4j_Level_M2_Class = Labels.M2_Class.name();
-    //static final String Neo4j_Level_M3_Class = Labels.M3_Class.name();
-    //static final String Neo4j_Level_M4_Class = Labels.M4_Class.name();
-    
-    static final String Neo4j_Key_For_Type_IndividualStr = Labels.Type_Individual.name();
-    static final String Neo4j_Key_For_Type_AttributeStr = Labels.Type_Attribute.name();
-    static final String Neo4j_Key_For_PrimitiveClass_Str = Labels.PrimitiveClass.name();
-    
-    static List<String> systemLabels = new ArrayList(Arrays.asList(Arrays.stream(Labels.values()).map( x -> x.name()).collect(Collectors.toList())));
-    
-    
-    public static final String Key_Primitive_Value_Type = Attributes.Type.name();
-    public static final String Key_Primitive_Value = Attributes.Value.name();
     
     //MATCH (n:Type_Attribute) WHERE has(n.Type) RETURN DISTINCT  n.Type
     static final String Primitive_Value_Type_INT = "INT";
@@ -119,29 +101,50 @@ public class Configs {
     //static final boolean Neo4j_Id_used_as_node_label = true;
     //static final boolean CastNeo4jIdAsInt = true;
     static final boolean CastSysIdAsInt = true;
-        
-    static final String SystemClass_SubStringForAttribute = "Attribute";
-    static final String SystemClass_SubStringForIndividual = "Individual";
-    static final String SystemClass_SubStringForNotDefined = "Telos_Object";
     
     static final String TelosObjectAttributeFromClsname =  "Telos_Object";
     static final String TelosObjectAttributeFromLinkname =  "attribute";
+        
+    static final String SystemClass_SubStringForAttribute = "Attribute";
+    static final String SystemClass_SubStringForIndividual = "Individual";
+    
+    static final String SystemClass_SubStringForNotDefined = TelosObjectAttributeFromClsname;
     
     
-    static final String Neo4j_Node_LogicalName_For_MaxNeo4jId = "Telos_Object";
-    public static final String Neo4j_Key_For_MaxNeo4jId = Attributes.MaxNeo4j_Id.name();
+    
+    static final String Neo4j_Node_LogicalName_For_MaxNeo4jId = TelosObjectAttributeFromClsname;
+    //public static final String Neo4j_Key_For_MaxNeo4jId = Attributes.MaxNeo4j_Id.name();
     
     static final String Neo4j_Node_LogicalName_For_MaxThesaurusReferenceId = "Thesaurus`%THES%";
     public static final String Neo4j_Key_For_MaxThesaurusReferenceId = Attributes.MaxThesaurusReferenceId.name();
+    
+   
+    
+    public static final String csvExportFromNodeLabel = "fromNode";
+    public static final String csvExportToNodeLabel = "toNode";
+    
+    //static final String Neo4j_Key_For_Type_IndividualStr = Labels.Type_Individual.name();
+    //static final String Neo4j_Key_For_Type_AttributeStr = Labels.Type_Attribute.name();
+    //static final String Neo4j_Key_For_PrimitiveClass_Str = Labels.PrimitiveClass.name();
+    //public static final String Key_Primitive_Value_Type = Attributes.Type.name();
+    //public static final String Key_Primitive_Value = Attributes.Value.name();
+    /*
+    //redundant properties replaced by relevant enum usage
+    
+    public static final String GenericLabelName = Labels.Generic.name();
+    public static final String UniqueInDBLabelName = Labels.UniqueInDB.name();
+    public static final String CommonLabelName = Labels.Common.name();    
+    static final String Neo4j_Level_Token = Labels.Token.name();
+    static final String Neo4j_Level_S_Class = Labels.S_Class.name();
+    static final String Neo4j_Level_M1_Class = Labels.M1_Class.name();
+    static final String Neo4j_Level_M2_Class = Labels.M2_Class.name();
+    static final String Neo4j_Level_M3_Class = Labels.M3_Class.name();
+    static final String Neo4j_Level_M4_Class = Labels.M4_Class.name();
     
     public static final String Neo4j_Key_For_Neo4j_Id = Attributes.Neo4j_Id.name();
     public static final String Neo4j_Key_For_Logicalname = Attributes.Logicalname.name();
     public static final String Neo4j_Key_For_Transliteration = Attributes.Transliteration.name();
     public static final String Neo4j_Key_For_ThesaurusReferenceId = Attributes.ThesaurusReferenceId.name();
-    
-    public static final String csvExportFromNodeLabel = "fromNode";
-    public static final String csvExportToNodeLabel = "toNode";
-    
-    
+    */
 }
 

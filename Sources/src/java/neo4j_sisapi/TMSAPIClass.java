@@ -38,6 +38,7 @@ package neo4j_sisapi;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import neo4j_sisapi.Configs.Attributes;
 import static neo4j_sisapi.QClass.APIFail;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
@@ -11247,12 +11248,12 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
         //creating thesaurus specific database indexes and constraints
         try(Transaction tx =  graphDb.beginTx()){
             //String query3 = "CREATE INDEX ON :"+Configs.Neo4j_Key_For_Type_IndividualStr+"("+Configs.Neo4j_Key_For_ThesaurusReferenceId+") ";
-            String query3 = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_ThesaurusReferenceId+") ";
+            String query3 = "CREATE INDEX ON :"+Configs.Labels.Common.name()+"("+Attributes.ThesaurusReferenceId.name()+") ";
 
             Result res3 = graphDb.execute(query3);
 
             if (res3 == null) {
-                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Index on: "+ Configs.Neo4j_Key_For_ThesaurusReferenceId +" Failed.");
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Index on: "+ Attributes.ThesaurusReferenceId.name() +" Failed.");
                 return false;
             }
             res3.close();
@@ -11260,12 +11261,12 @@ int tms_api::GetThesaurus(char *thesaurus, char *message)
 
 
             //String query4 = "CREATE INDEX ON :"+Configs.Neo4j_Key_For_Type_IndividualStr+"("+Configs.Neo4j_Key_For_Transliteration+") ";
-            String query4 = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_Transliteration+") ";
+            String query4 = "CREATE INDEX ON :"+Configs.Labels.Common.name()+"("+Attributes.Transliteration.name()+") ";
 
             Result res4 = graphDb.execute(query4);
 
             if (res4 == null) {
-                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Index on: "+ Configs.Neo4j_Key_For_Transliteration +" Failed.");
+                Logger.getLogger(DBaccess.class.getName()).log(Level.SEVERE, "Creation of Index on: "+ Attributes.Transliteration.name() +" Failed.");
                 return false;
             }
             res4.close();

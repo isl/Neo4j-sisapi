@@ -39,6 +39,8 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import neo4j_sisapi.Configs.Attributes;
+import neo4j_sisapi.Configs.Labels;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
@@ -405,7 +407,7 @@ public class QClass {
             return APIFail;
         }
         
-        return db.getStringPropertyOfNode(sysid.getValue(), Configs.Neo4j_Key_For_Logicalname, lname);
+        return db.getStringPropertyOfNode(sysid.getValue(), Attributes.Logicalname.name(), lname);
     }
     
     /**
@@ -765,7 +767,7 @@ public class QClass {
         Node n = db.getNeo4jNodeByNeo4jId(idObj.getValue());
         if(n!=null){
             sysid.setValue(idObj.value);
-            node.setValue((String) n.getProperty(Configs.Neo4j_Key_For_Logicalname));
+            node.setValue((String) n.getProperty(Attributes.Logicalname.name()));
             Sclass.setValue(db.getNeo4jNodeSystemClass(n));
         }
         
@@ -1297,7 +1299,7 @@ public class QClass {
         }
         */
         // </editor-fold> 
-        if(db.getStringPropertyOfNode(objectSysId,Configs.Neo4j_Key_For_Logicalname, name)!=APIFail){
+        if(db.getStringPropertyOfNode(objectSysId,Attributes.Logicalname.name(), name)!=APIFail){
             return APISucc;
         }
         return APIFail;
@@ -3386,7 +3388,7 @@ public class QClass {
     private int simple_query_on_specific_id(Simple_Query_Identifiers q_id, long objSysid, PQI_Set writeset){
         switch (q_id) {
             case _GET_INSTANCES: {
-                return db.NOT_USED_getInstances(objSysid, writeset);
+                return db.getInstances(objSysid, writeset);
             }
             case _GET_ALL_INSTANCES: {
                 return db.getAllInstances(objSysid, writeset);
@@ -4059,8 +4061,8 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
         
         if(levelLabel!=null){
             labelArray = new Label[3];
-            labelArray[0] = Configs.Labels.Common;
-            labelArray[1] = Configs.Labels.Type_Individual;
+            labelArray[0] = Labels.Common;
+            labelArray[1] = Labels.Type_Individual;
             labelArray[2] = levelLabel;
         }
         else{
@@ -4094,16 +4096,16 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
               //  newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, Integer.parseInt(""+newNeo4jId));
             //}
             //else{
-                newNode.setProperty(Configs.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
+                newNode.setProperty(Attributes.Neo4j_Id.name(), newNeo4jId);
             //}
             
-            newNode.setProperty(Configs.Neo4j_Key_For_Logicalname, node_name.getLogicalName());
+            newNode.setProperty(Attributes.Logicalname.name(), node_name.getLogicalName());
             if(transliteration!=null && transliteration.length()>0){                
-                newNode.setProperty(Configs.Neo4j_Key_For_Transliteration, transliteration);
+                newNode.setProperty(Attributes.Transliteration.name(), transliteration);
             }
             
             if(newReferenceId>0){
-                newNode.setProperty(Configs.Neo4j_Key_For_ThesaurusReferenceId, newReferenceId);
+                newNode.setProperty(Attributes.ThesaurusReferenceId.name(), newReferenceId);
             }
         
         }
@@ -4121,87 +4123,87 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
     private boolean nodeLevelGreaterOrEqual(Node targetNode, int targetLevel){
         
         if(targetLevel==QClass.SIS_API_TOKEN_CLASS){
-            if(targetNode.hasLabel(Configs.Labels.Token)){
+            if(targetNode.hasLabel(Labels.Token)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.S_Class)){
+            if(targetNode.hasLabel(Labels.S_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M1_Class)){
+            if(targetNode.hasLabel(Labels.M1_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M2_Class)){
+            if(targetNode.hasLabel(Labels.M2_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M3_Class)){
+            if(targetNode.hasLabel(Labels.M3_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M4_Class)){
+            if(targetNode.hasLabel(Labels.M4_Class)){
                 return true;
             }
             return false;
         }
         
         if(targetLevel==QClass.SIS_API_S_CLASS){
-            if(targetNode.hasLabel(Configs.Labels.S_Class)){
+            if(targetNode.hasLabel(Labels.S_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M1_Class)){
+            if(targetNode.hasLabel(Labels.M1_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M2_Class)){
+            if(targetNode.hasLabel(Labels.M2_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M3_Class)){
+            if(targetNode.hasLabel(Labels.M3_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M4_Class)){
+            if(targetNode.hasLabel(Labels.M4_Class)){
                 return true;
             }
             return false;
         }
         
         if(targetLevel==QClass.SIS_API_M1_CLASS){
-            if(targetNode.hasLabel(Configs.Labels.M1_Class)){
+            if(targetNode.hasLabel(Labels.M1_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M2_Class)){
+            if(targetNode.hasLabel(Labels.M2_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M3_Class)){
+            if(targetNode.hasLabel(Labels.M3_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M4_Class)){
+            if(targetNode.hasLabel(Labels.M4_Class)){
                 return true;
             }
             return false;
         }
         
         if(targetLevel==QClass.SIS_API_M2_CLASS){
-            if(targetNode.hasLabel(Configs.Labels.M2_Class)){
+            if(targetNode.hasLabel(Labels.M2_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M3_Class)){
+            if(targetNode.hasLabel(Labels.M3_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M4_Class)){
+            if(targetNode.hasLabel(Labels.M4_Class)){
                 return true;
             }
             return false;
         }
         
         if(targetLevel==QClass.SIS_API_M3_CLASS){
-            if(targetNode.hasLabel(Configs.Labels.M3_Class)){
+            if(targetNode.hasLabel(Labels.M3_Class)){
                 return true;
             }
-            if(targetNode.hasLabel(Configs.Labels.M4_Class)){
+            if(targetNode.hasLabel(Labels.M4_Class)){
                 return true;
             }
             return false;
         }
         
         if(targetLevel==QClass.SIS_API_M4_CLASS){
-            if(targetNode.hasLabel(Configs.Labels.M4_Class)){
+            if(targetNode.hasLabel(Labels.M4_Class)){
                 return true;
             }
             return false;
@@ -4212,23 +4214,23 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
     
     private Label getNextLevelLabelFromInt(int targetLevel){
         if(targetLevel==QClass.SIS_API_TOKEN_CLASS){
-            return Configs.Labels.S_Class; 
+            return Labels.S_Class; 
         }
         
         if(targetLevel==QClass.SIS_API_S_CLASS){
-            return Configs.Labels.M1_Class; 
+            return Labels.M1_Class; 
         }
         
         if(targetLevel==QClass.SIS_API_M1_CLASS){
-            return Configs.Labels.M2_Class; 
+            return Labels.M2_Class; 
         }
         
         if(targetLevel==QClass.SIS_API_M2_CLASS){
-            return Configs.Labels.M3_Class; 
+            return Labels.M3_Class; 
         }
         
         if(targetLevel==QClass.SIS_API_M3_CLASS){
-            return Configs.Labels.M4_Class; 
+            return Labels.M4_Class; 
         }
         
         
@@ -4237,27 +4239,27 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn, int sysClass)
     
     private Label getCurrentLevelLabelFromInt(int targetLevel){
         if(targetLevel==QClass.SIS_API_TOKEN_CLASS){
-            return Configs.Labels.Token; 
+            return Labels.Token; 
         }
         
         if(targetLevel==QClass.SIS_API_S_CLASS){
-            return Configs.Labels.S_Class; 
+            return Labels.S_Class; 
         }
         
         if(targetLevel==QClass.SIS_API_M1_CLASS){
-            return Configs.Labels.M1_Class; 
+            return Labels.M1_Class; 
         }
         
         if(targetLevel==QClass.SIS_API_M2_CLASS){
-            return Configs.Labels.M2_Class; 
+            return Labels.M2_Class; 
         }
         
         if(targetLevel==QClass.SIS_API_M3_CLASS){
-            return Configs.Labels.M3_Class; 
+            return Labels.M3_Class; 
         }
         
         if(targetLevel==QClass.SIS_API_M4_CLASS){
-            return Configs.Labels.M4_Class; 
+            return Labels.M4_Class; 
         }
         return null;
     }
@@ -4510,22 +4512,22 @@ Add_Named_Attribute_Exit_Point:
         int iLevel = initialLevel;
         if(initialLevel==-1){
             //apply the label of its from value
-            if(fromNode.hasLabel(Configs.Labels.Token)){
+            if(fromNode.hasLabel(Labels.Token)){
                 iLevel = QClass.SIS_API_TOKEN_CLASS;
             }
-            else if(fromNode.hasLabel(Configs.Labels.S_Class)){
+            else if(fromNode.hasLabel(Labels.S_Class)){
                 iLevel = QClass.SIS_API_S_CLASS;
             }
-            else if(fromNode.hasLabel(Configs.Labels.M1_Class)){
+            else if(fromNode.hasLabel(Labels.M1_Class)){
                 iLevel = QClass.SIS_API_M1_CLASS;
             }
-            else if(fromNode.hasLabel(Configs.Labels.M2_Class)){
+            else if(fromNode.hasLabel(Labels.M2_Class)){
                 iLevel = QClass.SIS_API_M2_CLASS;
             }
-            else if(fromNode.hasLabel(Configs.Labels.M3_Class)){
+            else if(fromNode.hasLabel(Labels.M3_Class)){
                 iLevel = QClass.SIS_API_M3_CLASS;
             }
-            else if(fromNode.hasLabel(Configs.Labels.M4_Class)){
+            else if(fromNode.hasLabel(Labels.M4_Class)){
                 iLevel = QClass.SIS_API_M4_CLASS;
             }
             
@@ -4560,7 +4562,7 @@ Add_Named_Attribute_Exit_Point:
             categoryNodes = db.getNeo4jNodesByNeo4jIds(categories);
            
             for(Node categNode : categoryNodes){
-                if(categNode.hasLabel(categLevel)==false || categNode.hasLabel(Configs.Labels.Type_Attribute)==false){
+                if(categNode.hasLabel(categLevel)==false || categNode.hasLabel(Labels.Type_Attribute)==false){
                     return APIFail;
                 }
             }
@@ -4576,21 +4578,21 @@ Add_Named_Attribute_Exit_Point:
         
         if(levelLabel!=null){
             labelArray = new Label[3];
-            labelArray[0] = Configs.Labels.Common;
-            labelArray[1] = Configs.Labels.Type_Attribute;
+            labelArray[0] = Labels.Common;
+            labelArray[1] = Labels.Type_Attribute;
             labelArray[2] = levelLabel;
         }
         else{
             labelArray = new Label[2];
-            labelArray[0] = Configs.Labels.Common;
-            labelArray[1] = Configs.Labels.Type_Attribute;
+            labelArray[0] = Labels.Common;
+            labelArray[1] = Labels.Type_Attribute;
             //return APIFail;                            
         }
         
         //check if from -> attribute combination exists   
         Iterator<Relationship> fromNodeRelIter = fromNode.getRelationships(Configs.Rels.RELATION, Direction.OUTGOING).iterator();
         while(fromNodeRelIter.hasNext()){
-            String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(Configs.Neo4j_Key_For_Logicalname);
+            String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(Attributes.Logicalname.name());
             if(attrLoginam.equals(attribute.getLogicalName())){
                 return APIFail;
             }
@@ -4606,9 +4608,9 @@ Add_Named_Attribute_Exit_Point:
               //  newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, Integer.parseInt(""+newNeo4jId));
             //}
             //else{
-                newNode.setProperty(Configs.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
+                newNode.setProperty(Attributes.Neo4j_Id.name(), newNeo4jId);
             //}
-            newNode.setProperty(Configs.Neo4j_Key_For_Logicalname, attribute.getLogicalName());
+            newNode.setProperty(Attributes.Logicalname.name(), attribute.getLogicalName());
 
 
             fromNode.createRelationshipTo(newNode, Configs.Rels.RELATION);
@@ -4617,12 +4619,12 @@ Add_Named_Attribute_Exit_Point:
             }
             else{
                 if(to.type == CMValue.TYPE_INT){
-                    newNode.setProperty(Configs.Key_Primitive_Value_Type, Configs.Primitive_Value_Type_INT);
-                    newNode.setProperty(Configs.Key_Primitive_Value, to.getInt());
+                    newNode.setProperty(Attributes.Type.name(), Configs.Primitive_Value_Type_INT);
+                    newNode.setProperty(Attributes.Value.name(), to.getInt());
                 }
                 else if(to.type == CMValue.TYPE_STRING){
-                    newNode.setProperty(Configs.Key_Primitive_Value_Type, Configs.Primitive_Value_Type_STR);
-                    newNode.setProperty(Configs.Key_Primitive_Value, to.getString());
+                    newNode.setProperty(Attributes.Type.name(), Configs.Primitive_Value_Type_STR);
+                    newNode.setProperty(Attributes.Value.name(), to.getString());
                 }
             }
 
@@ -4895,7 +4897,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         }
         
         //Check if from value is an attribute of token level
-        if(fromNode.hasLabel(Configs.Labels.Type_Attribute) && fromNode.hasLabel(Configs.Labels.Token)){
+        if(fromNode.hasLabel(Labels.Type_Attribute) && fromNode.hasLabel(Labels.Token)){
             return APIFail;
         }
         
@@ -4942,7 +4944,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         // </editor-fold>
         
         //unnamed atteibutes only in token level
-        Label levelLabel = Configs.Labels.Token;
+        Label levelLabel = Labels.Token;
         ArrayList<Node> categoryNodes = null;
         ArrayList<Long> categories = new ArrayList<Long>();
         if(catSet>0){
@@ -4952,7 +4954,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
                 return APIFail;                
             }
             // unnameed attribute should all be instaces of s_class
-            Label categLevel = Configs.Labels.S_Class;
+            Label categLevel = Labels.S_Class;
             if(categLevel==null){
                 return APIFail;
             }
@@ -4960,7 +4962,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
             categoryNodes = db.getNeo4jNodesByNeo4jIds(categories);
            
             for(Node categNode : categoryNodes){
-                if(categNode.hasLabel(categLevel)==false || categNode.hasLabel(Configs.Labels.Type_Attribute)==false){
+                if(categNode.hasLabel(categLevel)==false || categNode.hasLabel(Labels.Type_Attribute)==false){
                     return APIFail;
                 }
             }
@@ -5019,8 +5021,8 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         
         if(levelLabel!=null){
             labelArray = new Label[3];
-            labelArray[0] = Configs.Labels.Common;
-            labelArray[1] = Configs.Labels.Type_Attribute;
+            labelArray[0] = Labels.Common;
+            labelArray[1] = Labels.Type_Attribute;
             labelArray[2] = levelLabel;
         }
         else{
@@ -5033,7 +5035,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         Iterator<Relationship> fromNodeRelIter = fromNode.getRelationships(Configs.Rels.RELATION, Direction.OUTGOING).iterator();
         while(fromNodeRelIter.hasNext()){
             Node attrNode = fromNodeRelIter.next().getEndNode();
-            String attrLoginam = (String)attrNode.getProperty(Configs.Neo4j_Key_For_Logicalname);
+            String attrLoginam = (String)attrNode.getProperty(Attributes.Logicalname.name());
             //only search unnammed attrbitues
             if(attrLoginam.matches(Configs.regExForUnNamed)==false){
                 continue;
@@ -5046,12 +5048,12 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
             
             //now check if they are pointing to the same to value (node or primitive
             if(to.type==CMValue.TYPE_INT){
-                if(attrNode.hasProperty(Configs.Key_Primitive_Value_Type) && attrNode.hasProperty(Configs.Key_Primitive_Value)){
-                    String type = (String) attrNode.getProperty(Configs.Key_Primitive_Value_Type);
+                if(attrNode.hasProperty(Attributes.Type.name()) && attrNode.hasProperty(Attributes.Value.name())){
+                    String type = (String) attrNode.getProperty(Attributes.Type.name());
                     if(type.equals(Configs.Primitive_Value_Type_INT) ==false){
                         continue;
                     }
-                    int   value = (int) attrNode.getProperty(Configs.Key_Primitive_Value);
+                    int   value = (int) attrNode.getProperty(Attributes.Value.name());
                     if(to.getInt()==value){
                         //Node with the same characteristics exists
                         //return APIFail;
@@ -5062,12 +5064,12 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
                 }
             }
             else if (to.type == CMValue.TYPE_STRING){
-                if(attrNode.hasProperty(Configs.Key_Primitive_Value_Type) && attrNode.hasProperty(Configs.Key_Primitive_Value)){
-                    String type = (String) attrNode.getProperty(Configs.Key_Primitive_Value_Type);
+                if(attrNode.hasProperty(Attributes.Type.name()) && attrNode.hasProperty(Attributes.Value.name())){
+                    String type = (String) attrNode.getProperty(Attributes.Type.name());
                     if(type.equals(Configs.Primitive_Value_Type_STR)==false){
                         continue;
                     }
-                    String value = (String) attrNode.getProperty(Configs.Key_Primitive_Value);
+                    String value = (String) attrNode.getProperty(Attributes.Value.name());
                     if(to.getString().equals(value)){
                         //Node with the same characteristics exists
                         //return APIFail;
@@ -5105,7 +5107,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
             for(Label lbl : labelArray){
                 newNode.addLabel(lbl);
             }
-            newNode.setProperty(Configs.Neo4j_Key_For_Logicalname, newLogicalName);
+            newNode.setProperty(Attributes.Logicalname.name(), newLogicalName);
             //newNode..createNode(labelArray);
             fromNode.createRelationshipTo(newNode, Configs.Rels.RELATION);
             if(toNode!=null){
@@ -5113,12 +5115,12 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
             }
             else{
                 if(to.type == CMValue.TYPE_INT){
-                    newNode.setProperty(Configs.Key_Primitive_Value_Type, Configs.Primitive_Value_Type_INT);
-                    newNode.setProperty(Configs.Key_Primitive_Value, to.getInt());
+                    newNode.setProperty(Attributes.Type.name(), Configs.Primitive_Value_Type_INT);
+                    newNode.setProperty(Attributes.Value.name(), to.getInt());
                 }
                 else if(to.type == CMValue.TYPE_STRING){
-                    newNode.setProperty(Configs.Key_Primitive_Value_Type, Configs.Primitive_Value_Type_STR);
-                    newNode.setProperty(Configs.Key_Primitive_Value, to.getString());
+                    newNode.setProperty(Attributes.Type.name(), Configs.Primitive_Value_Type_STR);
+                    newNode.setProperty(Attributes.Value.name(), to.getString());
                 }
             }
 
@@ -5135,7 +5137,7 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
                 //newNode.setProperty(db.Neo4j_Key_For_Neo4j_Id, Integer.parseInt(""+newNeo4jId));
             //}
             //else{
-                newNode.setProperty(Configs.Neo4j_Key_For_Neo4j_Id, newNeo4jId);
+                newNode.setProperty(Attributes.Neo4j_Id.name(), newNeo4jId);
             //}
             
         }
@@ -5233,38 +5235,38 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         if(firstNode==null || secondNode==null){
             return false;
         }
-        if(firstNode.hasLabel(Configs.Labels.Token)){
-            if(secondNode.hasLabel(Configs.Labels.Token)){
+        if(firstNode.hasLabel(Labels.Token)){
+            if(secondNode.hasLabel(Labels.Token)){
                 return true;
             }
             return false;
         }
-        if(firstNode.hasLabel(Configs.Labels.S_Class)){
-            if(secondNode.hasLabel(Configs.Labels.S_Class)){
+        if(firstNode.hasLabel(Labels.S_Class)){
+            if(secondNode.hasLabel(Labels.S_Class)){
                 return true;
             }
             return false;
         }
-        if(firstNode.hasLabel(Configs.Labels.M1_Class)){
-            if(secondNode.hasLabel(Configs.Labels.M1_Class)){
+        if(firstNode.hasLabel(Labels.M1_Class)){
+            if(secondNode.hasLabel(Labels.M1_Class)){
                 return true;
             }
             return false;
         }
-        if(firstNode.hasLabel(Configs.Labels.M2_Class)){
-            if(secondNode.hasLabel(Configs.Labels.M2_Class)){
+        if(firstNode.hasLabel(Labels.M2_Class)){
+            if(secondNode.hasLabel(Labels.M2_Class)){
                 return true;
             }
             return false;
         }
-        if(firstNode.hasLabel(Configs.Labels.M3_Class)){
-            if(secondNode.hasLabel(Configs.Labels.M3_Class)){
+        if(firstNode.hasLabel(Labels.M3_Class)){
+            if(secondNode.hasLabel(Labels.M3_Class)){
                 return true;
             }
             return false;
         }
-        if(firstNode.hasLabel(Configs.Labels.M4_Class)){
-            if(secondNode.hasLabel(Configs.Labels.M4_Class)){
+        if(firstNode.hasLabel(Labels.M4_Class)){
+            if(secondNode.hasLabel(Labels.M4_Class)){
                 return true;
             }
             return false;
@@ -5278,32 +5280,32 @@ int	semanticChecker::checkCurrentObject( LOGINAM *currObjLn)
         if(firstNode==null || secondNode==null){
             return false;
         }
-        if(firstNode.hasLabel(Configs.Labels.Token)){
-            if(secondNode.hasLabel(Configs.Labels.S_Class)){
+        if(firstNode.hasLabel(Labels.Token)){
+            if(secondNode.hasLabel(Labels.S_Class)){
                 return true;
             }
             return false;
         }
-        if(firstNode.hasLabel(Configs.Labels.S_Class)){
-            if(secondNode.hasLabel(Configs.Labels.M1_Class)){
+        if(firstNode.hasLabel(Labels.S_Class)){
+            if(secondNode.hasLabel(Labels.M1_Class)){
                 return true;
             }
             return false;
         }
-        if(firstNode.hasLabel(Configs.Labels.M1_Class)){
-            if(secondNode.hasLabel(Configs.Labels.M2_Class)){
+        if(firstNode.hasLabel(Labels.M1_Class)){
+            if(secondNode.hasLabel(Labels.M2_Class)){
                 return true;
             }
             return false;
         }
-        if(firstNode.hasLabel(Configs.Labels.M2_Class)){
-            if(secondNode.hasLabel(Configs.Labels.M3_Class)){
+        if(firstNode.hasLabel(Labels.M2_Class)){
+            if(secondNode.hasLabel(Labels.M3_Class)){
                 return true;
             }
             return false;
         }
-        if(firstNode.hasLabel(Configs.Labels.M3_Class)){
-            if(secondNode.hasLabel(Configs.Labels.M4_Class)){
+        if(firstNode.hasLabel(Labels.M3_Class)){
+            if(secondNode.hasLabel(Labels.M4_Class)){
                 return true;
             }
             return false;
@@ -6341,8 +6343,8 @@ int    semanticChecker::checkDeletion( SYSID delSid)
         while(lblIter.hasNext()){
             labelsToRemove.add(lblIter.next());
         }
-        if(n.hasProperty(Configs.Neo4j_Key_For_Neo4j_Id)){
-            propsToDelete.add(Configs.Neo4j_Key_For_Neo4j_Id);
+        if(n.hasProperty(Attributes.Neo4j_Id.name())){
+            propsToDelete.add(Attributes.Neo4j_Id.name());
         }
         Iterator<String> propIter = n.getPropertyKeys().iterator();
         while(propIter.hasNext()){
@@ -6359,18 +6361,18 @@ int    semanticChecker::checkDeletion( SYSID delSid)
         }
         //db.graphDb.index().getNodeAutoIndexer().getAutoIndex()..index().forNodes(db.Neo4j_Key_For_Neo4j_Id).remove(n,db.Neo4j_Key_For_Neo4j_Id);
         //Schema sc = db.graphDb.schema();
-        //for(IndexDefinition def : sc.getIndexes(Configs.Labels.Common)){
+        //for(IndexDefinition def : sc.getIndexes(Labels.Common)){
 //            def.
   ///      }
         
         n.delete();        
         n = null;
-        //for(ConstraintDefinition def : sc.getConstraints(Configs.Labels.Common)){
+        //for(ConstraintDefinition def : sc.getConstraints(Labels.Common)){
           //  def.;
             //break;
         //}
         
-        //db.graphDb.schema().constraintFor(Configs.Labels.Common).assertPropertyIsUnique(db.Neo4j_Key_For_Neo4j_Id).create();
+        //db.graphDb.schema().constraintFor(Labels.Common).assertPropertyIsUnique(db.Neo4j_Key_For_Neo4j_Id).create();
     }
     
     /**
@@ -6695,7 +6697,7 @@ int    semanticChecker::deleteObjectWithoutChecking( SYSID delSid)
         Iterator<Relationship> outgoingRels = linkNode.getRelationships(Configs.Rels.RELATION, Direction.OUTGOING).iterator();
         while(incomingRels.hasNext()){
             Relationship rel = outgoingRels.next();
-            if(rel.getEndNode().hasLabel(Configs.Labels.Type_Individual) ==false){
+            if(rel.getEndNode().hasLabel(Labels.Type_Individual) ==false){
                 return APIFail;
             }        
             outgoingCounter ++;
@@ -6834,7 +6836,7 @@ int sis_api::Delete_Unnamed_Attribute(IDENTIFIER * attribute)
         Iterator<Relationship> outgoingRels = linkNode.getRelationships(Configs.Rels.RELATION, Direction.OUTGOING).iterator();
         while(incomingRels.hasNext()){
             Relationship rel = outgoingRels.next();
-            if(rel.getEndNode().hasLabel(Configs.Labels.Type_Individual) ==false){
+            if(rel.getEndNode().hasLabel(Labels.Type_Individual) ==false){
                 return APIFail;
             }        
             outgoingCounter ++;
@@ -7156,9 +7158,9 @@ int sis_api::Rename_Node(IDENTIFIER * node, IDENTIFIER * NewNodeName)
             if(n==null){
                 return APIFail;
             }
-            n.setProperty(Configs.Neo4j_Key_For_Logicalname, NewNodeName.getString());
+            n.setProperty(Attributes.Logicalname.name(), NewNodeName.getString());
             if(NewNodeName.getTransliterationString()!=null && NewNodeName.getTransliterationString().length()>0){
-                n.setProperty(Configs.Neo4j_Key_For_Transliteration, NewNodeName.getTransliterationString());
+                n.setProperty(Attributes.Transliteration.name(), NewNodeName.getTransliterationString());
             }
             
         }
@@ -7325,14 +7327,14 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
             //check if from -> attribute combination exists
             Iterator<Relationship> fromNodeRelIter = fromNode.getRelationships(Configs.Rels.RELATION, Direction.OUTGOING).iterator();
             while(fromNodeRelIter.hasNext()){
-                String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(Configs.Neo4j_Key_For_Logicalname);
+                String attrLoginam = (String)fromNodeRelIter.next().getEndNode().getProperty(Attributes.Logicalname.name());
                 if(attrLoginam.equals(NewName.getLogicalName())){
                     return APIFail;
                 }
             }
 
         
-            targetLinkNode.setProperty(Configs.Neo4j_Key_For_Logicalname, NewName.getLogicalName());
+            targetLinkNode.setProperty(Attributes.Logicalname.name(), NewName.getLogicalName());
         }
         catch(Exception ex){
             utils.handleException(ex);
@@ -8711,11 +8713,11 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
         
         Node n = db.getNeo4jNodeByNeo4jId(linkSystemId);
         
-        if(n!=null && n.hasLabel(Configs.Labels.Type_Attribute) && n.hasLabel(Configs.Labels.Token)){
+        if(n!=null && n.hasLabel(Labels.Type_Attribute) && n.hasLabel(Labels.Token)){
             return true;
         }
         
-        String lname = (String) n.getProperty(Configs.Neo4j_Key_For_Logicalname);
+        String lname = (String) n.getProperty(Attributes.Logicalname.name());
         if(lname.matches(Configs.regExForUnNamed)){
             return true;
         }
@@ -8737,7 +8739,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
     boolean createDatabaseIndexesAndConstraints(GraphDatabaseService graphDb){
         
         try(Transaction tx =  graphDb.beginTx()){
-            String query = "CREATE INDEX ON :"+Configs.CommonLabelName+"("+Configs.Neo4j_Key_For_Logicalname+") ";
+            String query = "CREATE INDEX ON :"+Labels.Common.name()+"("+Attributes.Logicalname.name()+") ";
         
             Result res = graphDb.execute(query);
 
@@ -8750,7 +8752,7 @@ int sis_api::Rename_Named_Attribute(IDENTIFIER *attribute, IDENTIFIER * from, ID
 
 
 
-            String query2 = "CREATE CONSTRAINT ON (n:"+Configs.CommonLabelName+") ASSERT n."+Configs.Neo4j_Key_For_Neo4j_Id+" IS UNIQUE ";
+            String query2 = "CREATE CONSTRAINT ON (n:"+Labels.Common.name()+") ASSERT n."+Attributes.Neo4j_Id.name()+" IS UNIQUE ";
 
             Result res2 = graphDb.execute(query2);
 
